@@ -1,0 +1,3 @@
+sw_package.set_src("src/soft_spi.c")
+sw_package.set_dep("spi_common")
+sw_package.set_inc("inc")

@@ -1,0 +1,4 @@
+sw_package.set_src("src/uart_avr.c")
+sw_package.set_inc("inc")
+sw_package.set_arch("avr")
+sw_package.set_mach("atmega168")

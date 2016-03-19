@@ -1,0 +1,9 @@
+sw_package.set_uri("https://github.com/franzflasch/msg_lib.git")
+sw_package.set_src("msglib_test/msglib_test.c")
+sw_package.set_dep("openmicromake msglib micro_unit")
+sw_package.set_def("RUN_TESTS=1")
+
+if global_config.get_mach() == "atmega168"
+	sw_package.set_dep("ATMEGA168_test OMM_mach_avr8_common")
+	sw_package.set_global_define("F_CPU=8000000")
+end

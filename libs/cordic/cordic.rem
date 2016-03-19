@@ -1,0 +1,5 @@
+sw_package.set_src("MSP430-CORDIC-sine-cosine-master/cordic.c")
+sw_package.set_inc("MSP430-CORDIC-sine-cosine-master/")
+
+sw_package.set_uri("https://github.com/the0b/MSP430-CORDIC-sine-cosine/archive/master.zip")
+#sw_package.uri = "https://github.com/the0b/MSP430-CORDIC-sine-cosine.git"

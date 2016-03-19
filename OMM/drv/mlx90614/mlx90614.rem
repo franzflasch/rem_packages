@@ -1,0 +1,2 @@
+sw_package.set_src("src/mlx90614.c")
+sw_package.set_inc("inc")

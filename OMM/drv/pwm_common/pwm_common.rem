@@ -1,0 +1,2 @@
+sw_package.set_src("src/pwm_common.c")
+sw_package.set_inc("inc")

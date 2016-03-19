@@ -1,0 +1,6 @@
+sw_package.set_src("src/i2c_common.c")
+sw_package.set_inc("inc")
+sw_package.set_patch("patches/test.patch")
+
+#sw_package.set_dep("crc")
+

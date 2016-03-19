@@ -1,0 +1,13 @@
+sw_package.set_src("src/gpio_common.c")
+sw_package.set_inc("inc")
+sw_package.set_patch("test.patch")
+
+#m = Module.new do
+#	def do_compile
+#	# zip:
+#    # execute "PREFIX=#{global_config.get_compiler_prefix} make -C #{sw_package.pkg_build_dir}/libopencm3-master"
+#    # git:
+#    print_any_red("Hallay")
+#    end
+#end
+#sw_package.set_custom_tasks(m)

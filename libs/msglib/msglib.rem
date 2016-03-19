@@ -1,0 +1,4 @@
+sw_package.set_uri("https://github.com/franzflasch/msg_lib.git")
+sw_package.set_src("src/msglib.c")
+sw_package.set_inc("inc")
+sw_package.set_dep("crc")

@@ -1,0 +1,12 @@
+Index: gpio_common/inc/gpio_common.h
+===================================================================
+--- gpio_common.orig/inc/gpio_common.h
++++ gpio_common/inc/gpio_common.h
+@@ -30,6 +30,7 @@ typedef enum gpio_mode
+ 
+ }gpio_mode_e;
+ 
++/* Hallo hallo */
+ struct gpio_controller_s
+ {
+ 	uint8_t mode;

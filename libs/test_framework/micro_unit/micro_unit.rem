@@ -1,0 +1,2 @@
+sw_package.set_uri("https://github.com/franzflasch/micro_unit.git")
+sw_package.set_inc("inc")

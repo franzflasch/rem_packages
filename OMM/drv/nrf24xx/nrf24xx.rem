@@ -1,0 +1,2 @@
+sw_package.set_src("src/nrf24xx.c")
+sw_package.set_inc("inc")

@@ -1,0 +1,14 @@
+Index: omm_common/inc/OMM_machine_common.h
+===================================================================
+--- omm_common.orig/inc/OMM_machine_common.h	2016-03-02 09:59:23.735285544 +0100
++++ omm_common/inc/OMM_machine_common.h	2016-03-02 10:01:17.701139711 +0100
+@@ -12,6 +12,9 @@
+ 
+ #include <stdint.h>
+ 
++/* These lines are just added for testing
++the patch function of the REM framework */
++
+ typedef struct OMM_platform_devices_s
+ {
+ 	char *name;
