@@ -8,6 +8,9 @@ sw_package.set_inc("include/")
 sw_package.set_uri("https://github.com/libopencm3/libopencm3.git")
 sw_package.set_global_linker_flags("-L #{sw_package.pkg_build_dir}/lib/")
 
+# this patch is from pull request (https://github.com/libopencm3/libopencm3/pull/629) which fixes ADC bugs for F3
+sw_package.set_patch("hf_patches/karlp_adc.patch")
+
 sw_package.set_arch("arm")
 
 if global_config.get_mach() == "stm32f1"

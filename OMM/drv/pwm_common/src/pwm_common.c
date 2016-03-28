@@ -28,6 +28,11 @@ void PWM_init_controller(pwm_controller_t *controller,
 
 void PWM_set(pwm_controller_t *pwm, uint8_t channel, uint32_t val)
 {
-	return pwm->PWM_set(pwm, channel, val);
+	pwm->PWM_set(pwm, channel, val);
+}
+
+uint32_t PWM_get_period_max(pwm_controller_t *pwm)
+{
+	return pwm->pwm_period_max;
 }
 

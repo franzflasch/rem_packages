@@ -1,0 +1,4807 @@
+From f439848ba49981c5ffa28cac82b925e23198bf74 Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Fri, 16 Oct 2015 21:59:40 +0000
+Subject: [PATCH 01/22] stm32: adc: standardize adc_power_off naming.
+ [BREAKING]
+
+Instead of a mismatch of adc_power_on/adc_off, we now have a matched pair of
+adc_power_{on,off}
+
+For some people, this is a breaking change in the API!
+---
+ include/libopencm3/stm32/common/adc_common_v1.h | 2 +-
+ include/libopencm3/stm32/f3/adc.h               | 2 +-
+ lib/stm32/common/adc_common_v1.c                | 4 ++--
+ lib/stm32/f1/adc.c                              | 2 +-
+ lib/stm32/f3/adc.c                              | 2 +-
+ 5 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/include/libopencm3/stm32/common/adc_common_v1.h b/include/libopencm3/stm32/common/adc_common_v1.h
+index c8773fe..f36631f 100644
+--- a/include/libopencm3/stm32/common/adc_common_v1.h
++++ b/include/libopencm3/stm32/common/adc_common_v1.h
+@@ -357,7 +357,7 @@ specific memorymap.h header before including this header file.*/
+ BEGIN_DECLS
+ 
+ void adc_power_on(uint32_t adc);
+-void adc_off(uint32_t adc);
++void adc_power_off(uint32_t adc);
+ void adc_enable_analog_watchdog_regular(uint32_t adc);
+ void adc_disable_analog_watchdog_regular(uint32_t adc);
+ void adc_enable_analog_watchdog_injected(uint32_t adc);
+diff --git a/include/libopencm3/stm32/f3/adc.h b/include/libopencm3/stm32/f3/adc.h
+index beb4bc4..8d400dd 100644
+--- a/include/libopencm3/stm32/f3/adc.h
++++ b/include/libopencm3/stm32/f3/adc.h
+@@ -870,7 +870,7 @@
+ BEGIN_DECLS
+ 
+ void adc_power_on(uint32_t adc);
+-void adc_off(uint32_t adc);
++void adc_power_off(uint32_t adc);
+ void adc_enable_analog_watchdog_regular(uint32_t adc);
+ void adc_disable_analog_watchdog_regular(uint32_t adc);
+ void adc_enable_analog_watchdog_injected(uint32_t adc);
+diff --git a/lib/stm32/common/adc_common_v1.c b/lib/stm32/common/adc_common_v1.c
+index 24b0bf2..be5e1af 100644
+--- a/lib/stm32/common/adc_common_v1.c
++++ b/lib/stm32/common/adc_common_v1.c
+@@ -53,7 +53,7 @@ and ADC, reset ADC and set the prescaler divider. Set dual mode to independent
+ 
+ @code
+     rcc_periph_clock_enable(RCC_ADC1);
+-    adc_off(ADC1);
++    adc_power_off(ADC1);
+     rcc_periph_reset_pulse(RST_ADC1);
+     rcc_set_adcpre(RCC_CFGR_ADCPRE_PCLK2_DIV2);
+     adc_set_dual_mode(ADC_CR1_DUALMOD_IND);
+@@ -104,7 +104,7 @@ Turn off the ADC to reduce power consumption to a few microamps.
+ adc_reg_base.
+ */
+ 
+-void adc_off(uint32_t adc)
++void adc_power_off(uint32_t adc)
+ {
+ 	ADC_CR2(adc) &= ~ADC_CR2_ADON;
+ }
+diff --git a/lib/stm32/f1/adc.c b/lib/stm32/f1/adc.c
+index 860c473..3830ce1 100644
+--- a/lib/stm32/f1/adc.c
++++ b/lib/stm32/f1/adc.c
+@@ -55,7 +55,7 @@ and ADC, reset ADC and set the prescaler divider. Set dual mode to independent
+ 
+ @code
+ 	rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_ADC1EN);
+-	adc_off(ADC1);
++	adc_power_off(ADC1);
+ 	rcc_peripheral_reset(&RCC_APB2RSTR, RCC_APB2RSTR_ADC1RST);
+ 	rcc_peripheral_clear_reset(&RCC_APB2RSTR, RCC_APB2RSTR_ADC1RST);
+ 	rcc_set_adcpre(RCC_CFGR_ADCPRE_PCLK2_DIV2);
+diff --git a/lib/stm32/f3/adc.c b/lib/stm32/f3/adc.c
+index 8bb206e..f857f7e 100644
+--- a/lib/stm32/f3/adc.c
++++ b/lib/stm32/f3/adc.c
+@@ -97,7 +97,7 @@
+  * adc_reg_base
+ */
+ 
+-void adc_off(uint32_t adc)
++void adc_power_off(uint32_t adc)
+ {
+ 	ADC_CR(adc) &= ~ADC_CR_ADEN;
+ }
+
+From c72cb848f24a3d85a69cdb92574b578606453235 Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Thu, 5 Nov 2015 22:55:56 +0000
+Subject: [PATCH 02/22] stm32: adc: standardize special channel names
+
+At least temp sensor, vrefint and vbat/vlcd should have consistent names and
+consistent doxygen.
+Dropped channel definitions that are the same as the raw number.
+---
+ include/libopencm3/stm32/f0/adc.h | 22 +++-------------------
+ include/libopencm3/stm32/f1/adc.h | 12 ++++++++----
+ include/libopencm3/stm32/f3/adc.h |  8 ++++++++
+ include/libopencm3/stm32/f4/adc.h | 14 +++++++++-----
+ include/libopencm3/stm32/l1/adc.h | 13 ++++++++-----
+ 5 files changed, 36 insertions(+), 33 deletions(-)
+
+diff --git a/include/libopencm3/stm32/f0/adc.h b/include/libopencm3/stm32/f0/adc.h
+index 169f817..c6bd43a 100644
+--- a/include/libopencm3/stm32/f0/adc.h
++++ b/include/libopencm3/stm32/f0/adc.h
+@@ -249,25 +249,9 @@
+  * @ingroup adc_defines
+  *
+  *@{*/
+-#define ADC_CHANNEL0		0x00
+-#define ADC_CHANNEL1		0x01
+-#define ADC_CHANNEL2		0x02
+-#define ADC_CHANNEL3		0x03
+-#define ADC_CHANNEL4		0x04
+-#define ADC_CHANNEL5		0x05
+-#define ADC_CHANNEL6		0x06
+-#define ADC_CHANNEL7		0x07
+-#define ADC_CHANNEL8		0x08
+-#define ADC_CHANNEL9		0x09
+-#define ADC_CHANNEL10		0x0A
+-#define ADC_CHANNEL11		0x0B
+-#define ADC_CHANNEL12		0x0C
+-#define ADC_CHANNEL13		0x0D
+-#define ADC_CHANNEL14		0x0E
+-#define ADC_CHANNEL15		0x0F
+-#define ADC_CHANNEL_TEMP	0x10
+-#define ADC_CHANNEL_VREF	0x11
+-#define ADC_CHANNEL_VBAT	0x12
++#define ADC_CHANNEL_TEMP	16
++#define ADC_CHANNEL_VREF	17
++#define ADC_CHANNEL_VBAT	18
+ /**@}*/
+ 
+ /** @defgroup adc_api_opmode ADC Operation Modes
+diff --git a/include/libopencm3/stm32/f1/adc.h b/include/libopencm3/stm32/f1/adc.h
+index d39cedc..3528d6e 100644
+--- a/include/libopencm3/stm32/f1/adc.h
++++ b/include/libopencm3/stm32/f1/adc.h
+@@ -75,10 +75,6 @@ LGPL License Terms @ref lgpl_license
+ /* ADC regular data register (ADC_DR) */
+ #define ADC_DR(block)			MMIO32((block) + 0x4c)
+ 
+-/* --- ADC Channels ------------------------------------------------------- */
+-#define ADC_CHANNEL_TEMP        ADC_CHANNEL16
+-#define ADC_CHANNEL_VREFINT     ADC_CHANNEL17
+-
+ 
+ /* --- ADC_CR1 values ------------------------------------------------------ */
+ 
+@@ -397,6 +393,14 @@ and ADC2
+ #define ADC_ADC2DATA_MSK		(0xffff << ADC_ADC2DATA_LSB)
+ 					/* ADC1 only (dual mode) */
+ 
++/** @defgroup adc_channel ADC Channel Numbers
++ * @ingroup adc_defines
++ *
++ *@{*/
++#define ADC_CHANNEL_TEMP	16
++#define ADC_CHANNEL_VREF	17
++/**@}*/
++
+ /* --- Function prototypes ------------------------------------------------- */
+ 
+ BEGIN_DECLS
+diff --git a/include/libopencm3/stm32/f3/adc.h b/include/libopencm3/stm32/f3/adc.h
+index 8d400dd..ac1e6c9 100644
+--- a/include/libopencm3/stm32/f3/adc.h
++++ b/include/libopencm3/stm32/f3/adc.h
+@@ -865,6 +865,14 @@
+ 
+ /* Bits 15:0 RDATA_MST[15:0]: Regular data of the master ADC. */
+ 
++/** @defgroup adc_channel ADC Channel Numbers
++ * @ingroup adc_defines
++ *
++ *@{*/
++#define ADC_CHANNEL_TEMP	16
++#define ADC_CHANNEL_VBAT	17
++#define ADC_CHANNEL_VREF	18
++/**@}*/
+ 
+ 
+ BEGIN_DECLS
+diff --git a/include/libopencm3/stm32/f4/adc.h b/include/libopencm3/stm32/f4/adc.h
+index 07addb5..9df16b4 100644
+--- a/include/libopencm3/stm32/f4/adc.h
++++ b/include/libopencm3/stm32/f4/adc.h
+@@ -84,11 +84,15 @@ LGPL License Terms @ref lgpl_license
+ 
+ /* --- ADC Channels ------------------------------------------------------- */
+ 
+-/* Thanks ST! F40x and F41x are on 16, F42x and F43x are on 18! */
+-#define ADC_CHANNEL_TEMP_F40	ADC_CHANNEL16
+-#define ADC_CHANNEL_TEMP_F42	ADC_CHANNEL18
+-#define ADC_CHANNEL_VREFINT	ADC_CHANNEL17
+-#define ADC_CHANNEL_VBAT	ADC_CHANNEL18
++/** @defgroup adc_channel ADC Channel Numbers
++ * @ingroup adc_defines
++ * Thanks ST! F40x and F41x are on 16, F42x and F43x are on 18!
++ *@{*/
++#define ADC_CHANNEL_TEMP_F40	16
++#define ADC_CHANNEL_TEMP_F42	18
++#define ADC_CHANNEL_VREF	17
++#define ADC_CHANNEL_VBAT	18
++/**@}*/
+ 
+ /* --- ADC_SR values ------------------------------------------------------- */
+ 
+diff --git a/include/libopencm3/stm32/l1/adc.h b/include/libopencm3/stm32/l1/adc.h
+index a5f4909..5c2bf31 100644
+--- a/include/libopencm3/stm32/l1/adc.h
++++ b/include/libopencm3/stm32/l1/adc.h
+@@ -91,11 +91,14 @@ LGPL License Terms @ref lgpl_license
+ #define ADC_CSR				MMIO32(ADC1 + 0x300)
+ #define ADC_CCR				MMIO32(ADC1 + 0x304)
+ 
+-
+-/* These are _not_ consistent unfortunately! */
+-#define ADC_CHANNEL_TEMP        ADC_CHANNEL16
+-#define ADC_CHANNEL_VREFINT     ADC_CHANNEL17
+-#define ADC_CHANNEL_VBAT        ADC_CHANNEL18
++/** @defgroup adc_channel ADC Channel Numbers
++ * @ingroup adc_defines
++ *
++ *@{*/
++#define ADC_CHANNEL_TEMP	ADC_CHANNEL16
++#define ADC_CHANNEL_VREF	ADC_CHANNEL17
++#define ADC_CHANNEL_VBAT	ADC_CHANNEL18
++/**@}*/
+ 
+ /* --- ADC_SR values ------------------------------------------------------- */
+ #define ADC_SR_JCNR			(1 << 9)
+
+From b216d296d662abb8fe645d0da7c613238e6ac6b0 Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Sun, 1 Nov 2015 14:10:17 +0000
+Subject: [PATCH 03/22] stm32: standardize names for temp sensor calibrations
+
+Instead of some parts using _30C and _110C and others using _30C and _110, use
+the C suffix in all places to be consistent.
+---
+ include/libopencm3/stm32/f0/memorymap.h | 2 +-
+ include/libopencm3/stm32/f3/memorymap.h | 2 +-
+ include/libopencm3/stm32/f4/memorymap.h | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/include/libopencm3/stm32/f0/memorymap.h b/include/libopencm3/stm32/f0/memorymap.h
+index fe71d6a..ccb26ae 100644
+--- a/include/libopencm3/stm32/f0/memorymap.h
++++ b/include/libopencm3/stm32/f0/memorymap.h
+@@ -111,6 +111,6 @@
+ /* ST provided factory calibration values @ 3.3V */
+ #define ST_VREFINT_CAL		MMIO16(0x1FFFF7BA)
+ #define ST_TSENSE_CAL1_30C	MMIO16(0x1FFFF7B8)
+-#define ST_TSENSE_CAL2_110	MMIO16(0x1FFFF7C2)
++#define ST_TSENSE_CAL2_110C	MMIO16(0x1FFFF7C2)
+ 
+ #endif
+diff --git a/include/libopencm3/stm32/f3/memorymap.h b/include/libopencm3/stm32/f3/memorymap.h
+index 4d389af..bace606 100644
+--- a/include/libopencm3/stm32/f3/memorymap.h
++++ b/include/libopencm3/stm32/f3/memorymap.h
+@@ -124,6 +124,6 @@
+ /* ST provided factory calibration values @ 3.3V */
+ #define ST_VREFINT_CAL		MMIO16(0x1FFFF7BA)
+ #define ST_TSENSE_CAL1_30C	MMIO16(0x1FFFF7B8)
+-#define ST_TSENSE_CAL2_110	MMIO16(0x1FFFF7C2)
++#define ST_TSENSE_CAL2_110C	MMIO16(0x1FFFF7C2)
+ 
+ #endif
+diff --git a/include/libopencm3/stm32/f4/memorymap.h b/include/libopencm3/stm32/f4/memorymap.h
+index cc9e1c9..ba6f366 100644
+--- a/include/libopencm3/stm32/f4/memorymap.h
++++ b/include/libopencm3/stm32/f4/memorymap.h
+@@ -152,6 +152,6 @@
+ /* ST provided factory calibration values @ 3.3V */
+ #define ST_VREFINT_CAL		MMIO16(0x1FFF7A2A)
+ #define ST_TSENSE_CAL1_30C	MMIO16(0x1FFF7A2C)
+-#define ST_TSENSE_CAL2_110	MMIO16(0x1FFF7A2E)
++#define ST_TSENSE_CAL2_110C	MMIO16(0x1FFF7A2E)
+ 
+ #endif
+
+From 5f162b59fa0ccdb7d99cb34e11c6429da0320318 Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Tue, 3 Nov 2015 23:43:06 +0000
+Subject: [PATCH 04/22] stm32f3: adc: rationalize Sampling Time definitions.
+
+There are as many SMPRx registers are needed for channels supported, and on all
+other families, the field definitions are just ADC_SMPR_SMP_XXX.  For
+consistency, and to avoid any confusion or duplication, use the same style here
+too.  Drop silly unused per channel definitions that have no purpose.
+---
+ include/libopencm3/stm32/f3/adc.h | 44 +++++++++------------------------------
+ 1 file changed, 10 insertions(+), 34 deletions(-)
+
+diff --git a/include/libopencm3/stm32/f3/adc.h b/include/libopencm3/stm32/f3/adc.h
+index ac1e6c9..f54b8d1 100644
+--- a/include/libopencm3/stm32/f3/adc.h
++++ b/include/libopencm3/stm32/f3/adc.h
+@@ -475,48 +475,24 @@
+ #define ADC_CFGR_DMAEN		(1 << 0)
+ 
+ 
+-/*------- ADC_SMPR1 values ---------*/
+-#define ADC_SMPR1_SMP8_LSB		24
+-#define ADC_SMPR1_SMP7_LSB		21
+-#define ADC_SMPR1_SMP6_LSB		18
+-#define ADC_SMPR1_SMP5_LSB		15
+-#define ADC_SMPR1_SMP4_LSB		12
+-#define ADC_SMPR1_SMP3_LSB		9
+-#define ADC_SMPR1_SMP2_LSB		6
+-#define ADC_SMPR1_SMP1_LSB		3
+-#define ADC_SMPR1_SMP8_MSK		(0x7 << ADC_SMP8_LSB)
+-#define ADC_SMPR1_SMP7_MSK		(0x7 << ADC_SMP7_LSB)
+-#define ADC_SMPR1_SMP6_MSK		(0x7 << ADC_SMP6_LSB)
+-#define ADC_SMPR1_SMP5_MSK		(0x7 << ADC_SMP5_LSB)
+-#define ADC_SMPR1_SMP4_MSK		(0x7 << ADC_SMP4_LSB)
+-#define ADC_SMPR1_SMP3_MSK		(0x7 << ADC_SMP3_LSB)
+-#define ADC_SMPR1_SMP2_MSK		(0x7 << ADC_SMP2_LSB)
+-#define ADC_SMPR1_SMP1_MSK		(0x7 << ADC_SMP1_LSB)
+ /****************************************************************************/
+-/* ADC_SMPR1 ADC Sample Time Selection for Channels */
+-/** @defgroup adc_sample_r1 ADC Sample Time Selection for ADC1
++/* ADC_SMPRx ADC Sample Time Selection for Channels */
++/** @defgroup adc_sample ADC Sample Time Selection values
+ @ingroup adc_defines
+ 
+ @{*/
+-#define ADC_SMPR1_SMP_1DOT5CYC		0x0
+-#define ADC_SMPR1_SMP_2DOT5CYC		0x1
+-#define ADC_SMPR1_SMP_4DOT5CYC		0x2
+-#define ADC_SMPR1_SMP_7DOT5CYC		0x3
+-#define ADC_SMPR1_SMP_19DOT5CYC		0x4
+-#define ADC_SMPR1_SMP_61DOT5CYC		0x5
+-#define ADC_SMPR1_SMP_181DOT5CYC	0x6
+-#define ADC_SMPR1_SMP_601DOT5CYC	0x7
++#define ADC_SMPR_SMP_1DOT5CYC		0x0
++#define ADC_SMPR_SMP_2DOT5CYC		0x1
++#define ADC_SMPR_SMP_4DOT5CYC		0x2
++#define ADC_SMPR_SMP_7DOT5CYC		0x3
++#define ADC_SMPR_SMP_19DOT5CYC		0x4
++#define ADC_SMPR_SMP_61DOT5CYC		0x5
++#define ADC_SMPR_SMP_181DOT5CYC		0x6
++#define ADC_SMPR_SMP_601DOT5CYC		0x7
+ /**@}*/
+ 
+ /* SMPx[2:0]: Channel x sampling time selection */
+ 
+-
+-/*------- ADC_SMPR2 values ---------*/
+-
+-/* SMPx[2:0]: Channel x sampling time selection */
+-
+-
+-
+ /*------- ADC_TR1 values ---------*/
+ 
+ /* Bits 27:16 HT1[11:0]: Analog watchdog 1 higher threshold */
+
+From c87a63f2375dc8676f26325a4e60abf6a6fdfe25 Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Mon, 19 Oct 2015 00:43:00 +0000
+Subject: [PATCH 05/22] stm32f3: adc: support voltage regulator on/off
+
+The "Intermediate" value isn't a value you can do anything with, you need to
+clear those bits when making changes.
+---
+ include/libopencm3/stm32/f3/adc.h |  7 ++++---
+ lib/stm32/f3/adc.c                | 25 +++++++++++++++++++++++++
+ 2 files changed, 29 insertions(+), 3 deletions(-)
+
+diff --git a/include/libopencm3/stm32/f3/adc.h b/include/libopencm3/stm32/f3/adc.h
+index f54b8d1..6a0bfe5 100644
+--- a/include/libopencm3/stm32/f3/adc.h
++++ b/include/libopencm3/stm32/f3/adc.h
+@@ -334,11 +334,10 @@
+ /* ADCALDIF: Differential mode for calibration */
+ #define ADC_CR_ADCALDIF		(1 << 30)
+ 
+-/* ADVREGEN: ADC voltage regulador enable */
+-#define ADC_CR_ADVREGEN_INTERMEDIATE	(0x0 << 28)
++/** ADVREGEN: ADC voltage regulator enable */
+ #define ADC_CR_ADVREGEN_ENABLE		(0x1 << 28)
+ #define ADC_CR_ADVREGEN_DISABLE		(0x2 << 28)
+-/* --- Bit 0x3 reserved --- */
++#define ADC_CR_ADVREGEN_MASK		(0x3 << 28)
+ 
+ /* JADSTP: ADC stop of injected conversion command */
+ #define ADC_CR_JADSTP		(1 << 5)
+@@ -920,6 +919,8 @@ bool adc_awd(uint32_t adc);
+ /*void adc_set_dma_terminate(uint32_t adc);*/
+ void adc_enable_temperature_sensor(void);
+ void adc_disable_temperature_sensor(void);
++void adc_enable_regulator(uint32_t adc);
++void adc_disable_regulator(uint32_t adc);
+ 
+ END_DECLS
+ 
+diff --git a/lib/stm32/f3/adc.c b/lib/stm32/f3/adc.c
+index f857f7e..2b3a4c9 100644
+--- a/lib/stm32/f3/adc.c
++++ b/lib/stm32/f3/adc.c
+@@ -1197,5 +1197,30 @@ void adc_disable_temperature_sensor()
+ 
+ /*---------------------------------------------------------------------------*/
+ 
++/**
++ * Enable the ADC Voltage regulator
++ * Before any use of the ADC, the ADC Voltage regulator must be enabled.
++ * You must wait up to 10uSecs afterwards before trying anything else.
++ * @param[in] adc ADC block register address base
++ * @sa adc_disable_regulator
++ */
++void adc_enable_regulator(uint32_t adc)
++{
++	ADC_CR(adc) &= ~ADC_CR_ADVREGEN_MASK;
++	ADC_CR(adc) |= ADC_CR_ADVREGEN_ENABLE;
++}
++
++/**
++ * Disable the ADC Voltage regulator
++ * You can disable the adc vreg when not in use to save power
++ * @param[in] adc ADC block register address base
++ * @sa adc_enable_regulator
++ */
++void adc_disable_regulator(uint32_t adc)
++{
++	ADC_CR(adc) &= ~ADC_CR_ADVREGEN_MASK;
++	ADC_CR(adc) |= ADC_CR_ADVREGEN_DISABLE;
++}
++
+ /**@}*/
+ 
+
+From 1136dfa11a8ab18a52fef66401f8c66a2ae5132f Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Thu, 22 Oct 2015 22:54:04 +0000
+Subject: [PATCH 06/22] stm32f3: adc: common registers are per master/slave
+
+They're not a single set just based on ADC1.
+---
+ include/libopencm3/stm32/f3/adc.h | 19 ++++++++++++-------
+ lib/stm32/f3/adc.c                | 14 +++++++-------
+ 2 files changed, 19 insertions(+), 14 deletions(-)
+
+diff --git a/include/libopencm3/stm32/f3/adc.h b/include/libopencm3/stm32/f3/adc.h
+index 6a0bfe5..6fbca49 100644
+--- a/include/libopencm3/stm32/f3/adc.h
++++ b/include/libopencm3/stm32/f3/adc.h
+@@ -247,11 +247,16 @@
+ #define ADC3_CALFACT		ADC_CALFACT(ADC3_BASE)
+ #define ADC4_CALFACT		ADC_CALFACT(ADC4_BASE)
+ 
+-/* ADC common (shared) registers */
+-#define	ADC_COMMON_REGISTERS_BASE	(ADC1_BASE+0x300)
+-#define ADC_CSR				MMIO32(ADC_COMMON_REGISTERS_BASE + 0x0)
+-#define ADC_CCR				MMIO32(ADC_COMMON_REGISTERS_BASE + 0x8)
+-#define ADC_CDR				MMIO32(ADC_COMMON_REGISTERS_BASE + 0xA)
++/* ADC common (shared) registers, adc_pair is ADC12 or ADC34 */
++#define ADC_CSR(adc_pair)		MMIO32((adc_pair) + 0x300 + 0x0)
++#define ADC_CCR(adc_pair)		MMIO32((adc_pair) + 0x300 + 0x8)
++#define ADC_CDR(adc_pair)		MMIO32((adc_pair) + 0x300 + 0xa)
++#define ADC12_CSR			ADC_CSR(ADC1)
++#define ADC12_CCR			ADC_CCR(ADC1)
++#define ADC12_CDR			ADC_CDR(ADC1)
++#define ADC34_CSR			ADC_CSR(ADC3)
++#define ADC34_CCR			ADC_CCR(ADC3)
++#define ADC34_CDR			ADC_CDR(ADC3)
+ 
+ 
+ /*------- ADC_ISR values ---------*/
+@@ -903,8 +908,8 @@ uint32_t adc_read_regular(uint32_t adc);
+ uint32_t adc_read_injected(uint32_t adc, uint8_t reg);
+ void adc_set_injected_offset(uint32_t adc, uint8_t reg, uint32_t offset);
+ 
+-void adc_set_clk_prescale(uint32_t prescaler);
+-void adc_set_multi_mode(uint32_t mode);
++void adc_set_clk_prescale(uint32_t adc, uint32_t prescaler);
++void adc_set_multi_mode(uint32_t adc, uint32_t mode);
+ void adc_enable_external_trigger_regular(uint32_t adc, uint32_t trigger,
+ 					 uint32_t polarity);
+ void adc_enable_external_trigger_injected(uint32_t adc, uint32_t trigger,
+diff --git a/lib/stm32/f3/adc.c b/lib/stm32/f3/adc.c
+index 2b3a4c9..7190495 100644
+--- a/lib/stm32/f3/adc.c
++++ b/lib/stm32/f3/adc.c
+@@ -931,10 +931,10 @@ void adc_power_on(uint32_t adc)
+  * adc_ccr_adcpre
+ */
+ 
+-void adc_set_clk_prescale(uint32_t prescale)
++void adc_set_clk_prescale(uint32_t adc, uint32_t prescale)
+ {
+-	uint32_t reg32 = ((ADC_CCR & ~ADC_CCR_CKMODE_MASK) | prescale);
+-	ADC_CCR = reg32;
++	uint32_t reg32 = ((ADC_CCR(adc) & ~ADC_CCR_CKMODE_MASK) | prescale);
++	ADC_CCR(adc) = reg32;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -949,9 +949,9 @@ void adc_set_clk_prescale(uint32_t prescale)
+  * adc_multi_mode
+ */
+ 
+-void adc_set_multi_mode(uint32_t mode)
++void adc_set_multi_mode(uint32_t adc, uint32_t mode)
+ {
+-	ADC_CCR |= mode;
++	ADC_CCR(adc) |= mode;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -1177,7 +1177,7 @@ bool adc_awd(uint32_t adc)
+ 
+ void adc_enable_temperature_sensor()
+ {
+-	ADC_CCR |= ADC_CCR_TSEN;
++	ADC12_CCR |= ADC_CCR_TSEN;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -1192,7 +1192,7 @@ void adc_enable_temperature_sensor()
+ 
+ void adc_disable_temperature_sensor()
+ {
+-	ADC_CCR &= ~ADC_CCR_TSEN;
++	ADC12_CCR &= ~ADC_CCR_TSEN;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+
+From 2ea0d7024c82d5396712e495f2225f9530f5eeaa Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Sat, 17 Oct 2015 18:40:11 +0000
+Subject: [PATCH 07/22] stm32f3: adc: migrate CFGR -> CFGR1
+
+The adc peripheral on F30x is the same as F0, L0 and L4.  In the reference
+manuals, the following names are used.
+
+F3:	 	CFGR  (no CFGR2)
+F0 and L0:	CFGR1 and CFGR2
+L4:		CFGR and CFGR2
+
+Moving to a single consistent name, that's more likely to be inline with future
+part numbers makes it much easier to extract common driver code for the
+peripheral.
+
+While all bit defines are moved to the CFGR1 style, core register definitions:
+ADC_CFGR(adc) and ADCx_CFGR are kept to match the original register name in the
+reference manual.
+
+Fixes Github issue #548
+---
+ include/libopencm3/stm32/f3/adc.h | 158 ++++++++++++++++++++------------------
+ lib/stm32/f3/adc.c                |  52 ++++++-------
+ 2 files changed, 108 insertions(+), 102 deletions(-)
+
+diff --git a/include/libopencm3/stm32/f3/adc.h b/include/libopencm3/stm32/f3/adc.h
+index 6fbca49..2524e6a 100644
+--- a/include/libopencm3/stm32/f3/adc.h
++++ b/include/libopencm3/stm32/f3/adc.h
+@@ -68,12 +68,18 @@
+ #define ADC4_CR			ADC_CR(ADC4_BASE)
+ 
+ 
+-/* Configuration Register (ADCx_CFGR, x=1..4) CFGR */
+-#define ADC_CFGR(adc_base)	MMIO32((adc_base) + 0x0C)
+-#define ADC1_CFGR		ADC_CFGR(ADC1_BASE)
+-#define ADC2_CFGR		ADC_CFGR(ADC2_BASE)
+-#define ADC3_CFGR		ADC_CFGR(ADC3_BASE)
+-#define ADC4_CFGR		ADC_CFGR(ADC4_BASE)
++/* Configuration Register (ADCx_CFGR1, x=1..4) CFGR */
++#define ADC_CFGR1(adc_base)	MMIO32((adc_base) + 0x0C)
++#define ADC1_CFGR1		ADC_CFGR1(ADC1_BASE)
++#define ADC2_CFGR1		ADC_CFGR1(ADC2_BASE)
++#define ADC3_CFGR1		ADC_CFGR1(ADC3_BASE)
++#define ADC4_CFGR1		ADC_CFGR1(ADC4_BASE)
++/* Compatibility with original ref man names */
++#define ADC_CFGR(adc)		ADC_CFGR1(adc)
++#define ADC1_CFGR		ADC_CFGR1(ADC1_BASE)
++#define ADC2_CFGR		ADC_CFGR1(ADC2_BASE)
++#define ADC3_CFGR		ADC_CFGR1(ADC3_BASE)
++#define ADC4_CFGR		ADC_CFGR1(ADC4_BASE)
+ 
+ 
+ /* Sample Time Register 1 (ADCx_SMPR1, x=1..4) SMPR1 */
+@@ -363,120 +369,120 @@
+ #define ADC_CR_ADEN		(1 << 0)
+ 
+ 
+-/*------- ADC_CFGR values ---------*/
++/*------- ADC_CFGR1 values ---------*/
+ 
+ /* AWD1CH[4:0]: Analog watchdog 1 channel selection */
+ /* Bit 0x0 reserved */
+-#define ADC_CFGR_AWD1CH_ADC_IN_CH_1	(0x01 << 26)
+-#define ADC_CFGR_AWD1CH_ADC_IN_CH_2	(0x02 << 26)
+-#define ADC_CFGR_AWD1CH_ADC_IN_CH_3	(0x03 << 26)
+-#define ADC_CFGR_AWD1CH_ADC_IN_CH_4	(0x04 << 26)
+-#define ADC_CFGR_AWD1CH_ADC_IN_CH_5	(0x05 << 26)
+-#define ADC_CFGR_AWD1CH_ADC_IN_CH_6	(0x06 << 26)
+-#define ADC_CFGR_AWD1CH_ADC_IN_CH_7	(0x07 << 26)
+-#define ADC_CFGR_AWD1CH_ADC_IN_CH_8	(0x08 << 26)
+-#define ADC_CFGR_AWD1CH_ADC_IN_CH_9	(0x09 << 26)
+-#define ADC_CFGR_AWD1CH_ADC_IN_CH_10	(0x0A << 26)
+-#define ADC_CFGR_AWD1CH_ADC_IN_CH_11	(0x0B << 26)
+-#define ADC_CFGR_AWD1CH_ADC_IN_CH_12	(0x0C << 26)
+-#define ADC_CFGR_AWD1CH_ADC_IN_CH_13	(0x0D << 26)
+-#define ADC_CFGR_AWD1CH_ADC_IN_CH_14	(0x0E << 26)
+-#define ADC_CFGR_AWD1CH_ADC_IN_CH_15	(0x0F << 26)
+-#define ADC_CFGR_AWD1CH_ADC_IN_CH_16	(0x10 << 26)
+-#define ADC_CFGR_AWD1CH_ADC_IN_CH_17	(0x11 << 26)
+-
+-#define ADC_CFGR_AWD1CH_MASK		(0x1F << 26)
++#define ADC_CFGR1_AWD1CH_ADC_IN_CH_1	(0x01 << 26)
++#define ADC_CFGR1_AWD1CH_ADC_IN_CH_2	(0x02 << 26)
++#define ADC_CFGR1_AWD1CH_ADC_IN_CH_3	(0x03 << 26)
++#define ADC_CFGR1_AWD1CH_ADC_IN_CH_4	(0x04 << 26)
++#define ADC_CFGR1_AWD1CH_ADC_IN_CH_5	(0x05 << 26)
++#define ADC_CFGR1_AWD1CH_ADC_IN_CH_6	(0x06 << 26)
++#define ADC_CFGR1_AWD1CH_ADC_IN_CH_7	(0x07 << 26)
++#define ADC_CFGR1_AWD1CH_ADC_IN_CH_8	(0x08 << 26)
++#define ADC_CFGR1_AWD1CH_ADC_IN_CH_9	(0x09 << 26)
++#define ADC_CFGR1_AWD1CH_ADC_IN_CH_10	(0x0A << 26)
++#define ADC_CFGR1_AWD1CH_ADC_IN_CH_11	(0x0B << 26)
++#define ADC_CFGR1_AWD1CH_ADC_IN_CH_12	(0x0C << 26)
++#define ADC_CFGR1_AWD1CH_ADC_IN_CH_13	(0x0D << 26)
++#define ADC_CFGR1_AWD1CH_ADC_IN_CH_14	(0x0E << 26)
++#define ADC_CFGR1_AWD1CH_ADC_IN_CH_15	(0x0F << 26)
++#define ADC_CFGR1_AWD1CH_ADC_IN_CH_16	(0x10 << 26)
++#define ADC_CFGR1_AWD1CH_ADC_IN_CH_17	(0x11 << 26)
++
++#define ADC_CFGR1_AWD1CH_MASK		(0x1F << 26)
+ 
+ /* Ohters bits reserved, must not be used */
+ 
+ /* JAUTO: Autoamtic injected group conversion */
+-#define ADC_CFGR_JAUTO		(1 << 25)
++#define ADC_CFGR1_JAUTO		(1 << 25)
+ 
+ /* JAWD1EN: Analog watchdog 1 enable on injected channels */
+-#define ADC_CFGR_JAWD1EN	(1 << 24)
++#define ADC_CFGR1_JAWD1EN	(1 << 24)
+ 
+ /* AWD1EN: Analog watchdog 1 enable on regular channels */
+-#define ADC_CFGR_AWD1EN		(1 << 23)
++#define ADC_CFGR1_AWD1EN		(1 << 23)
+ 
+ /* AWD1SGL: Enable the watchdog 1 on a single channel or on all channels */
+-#define ADC_CFGR_AWD1SGL	(1 << 22)
++#define ADC_CFGR1_AWD1SGL	(1 << 22)
+ 
+ /* JQM: JSQR queue mode */
+-#define ADC_CFGR_JQM		(1 << 21)
++#define ADC_CFGR1_JQM		(1 << 21)
+ 
+ /* JDISCEN: Discontinuous mode on injected channels */
+-#define ADC_CFGR_JDISCEN	(1 << 20)
++#define ADC_CFGR1_JDISCEN	(1 << 20)
+ 
+ /* DISCNUM[2:0]: Discontinuous mode channel count */
+-#define ADC_CFGR_DISCNUM_1_CH	(0x0 << 17)
+-#define ADC_CFGR_DISCNUM_2_CH	(0x1 << 17)
+-#define ADC_CFGR_DISCNUM_3_CH	(0x2 << 17)
+-#define ADC_CFGR_DISCNUM_4_CH	(0x3 << 17)
+-#define ADC_CFGR_DISCNUM_5_CH	(0x4 << 17)
+-#define ADC_CFGR_DISCNUM_6_CH	(0x5 << 17)
+-#define ADC_CFGR_DISCNUM_7_CH	(0x6 << 17)
+-#define ADC_CFGR_DISCNUM_8_CH	(0x7 << 17)
+-#define ADC_CFGR_DISCNUM_SHIFT	17
++#define ADC_CFGR1_DISCNUM_1_CH	(0x0 << 17)
++#define ADC_CFGR1_DISCNUM_2_CH	(0x1 << 17)
++#define ADC_CFGR1_DISCNUM_3_CH	(0x2 << 17)
++#define ADC_CFGR1_DISCNUM_4_CH	(0x3 << 17)
++#define ADC_CFGR1_DISCNUM_5_CH	(0x4 << 17)
++#define ADC_CFGR1_DISCNUM_6_CH	(0x5 << 17)
++#define ADC_CFGR1_DISCNUM_7_CH	(0x6 << 17)
++#define ADC_CFGR1_DISCNUM_8_CH	(0x7 << 17)
++#define ADC_CFGR1_DISCNUM_SHIFT	17
+ 
+ /* DISCEN: Discontinuous mode for regular channels */
+-#define ADC_CFGR_DISCEN		(1 << 16)
++#define ADC_CFGR1_DISCEN		(1 << 16)
+ 
+ /* AUTDLY: Delayed conversion mode */
+-#define ADC_CFGR_AUTDLY		(1 << 14)
++#define ADC_CFGR1_AUTDLY		(1 << 14)
+ 
+ /* CONT: Single / continuous conversion mode for regular conversions */
+-#define ADC_CFGR_CONT		(1 << 13)
++#define ADC_CFGR1_CONT		(1 << 13)
+ 
+ /* OVRMOD: Overrun Mode */
+-#define ADC_CFGR_OVRMOD		(1 << 12)
++#define ADC_CFGR1_OVRMOD		(1 << 12)
+ 
+ /*
+  * EXTEN[1:0]: External trigger enable and polarity selection for regular
+  * channels
+  */
+-#define ADC_CFGR_EXTEN_DISABLED		(0x0 << 10)
+-#define ADC_CFGR_EXTEN_RISING_EDGE	(0x1 << 10)
+-#define ADC_CFGR_EXTEN_FALLING_EDGE	(0x2 << 10)
+-#define ADC_CFGR_EXTEN_BOTH_EDGES	(0x3 << 10)
++#define ADC_CFGR1_EXTEN_DISABLED		(0x0 << 10)
++#define ADC_CFGR1_EXTEN_RISING_EDGE	(0x1 << 10)
++#define ADC_CFGR1_EXTEN_FALLING_EDGE	(0x2 << 10)
++#define ADC_CFGR1_EXTEN_BOTH_EDGES	(0x3 << 10)
+ 
+-#define ADC_CFGR_EXTEN_MASK		(0x3 << 10)
++#define ADC_CFGR1_EXTEN_MASK		(0x3 << 10)
+ 
+ /* EXTSEL[3:0]: External trigger selection for regular group */
+-#define ADC_CFGR_EXTSEL_EVENT_0		(0x0 << 6)
+-#define ADC_CFGR_EXTSEL_EVENT_1		(0x1 << 6)
+-#define ADC_CFGR_EXTSEL_EVENT_2		(0x2 << 6)
+-#define ADC_CFGR_EXTSEL_EVENT_3		(0x3 << 6)
+-#define ADC_CFGR_EXTSEL_EVENT_4		(0x4 << 6)
+-#define ADC_CFGR_EXTSEL_EVENT_5		(0x5 << 6)
+-#define ADC_CFGR_EXTSEL_EVENT_6		(0x6 << 6)
+-#define ADC_CFGR_EXTSEL_EVENT_7		(0x7 << 6)
+-#define ADC_CFGR_EXTSEL_EVENT_8		(0x8 << 6)
+-#define ADC_CFGR_EXTSEL_EVENT_9		(0x9 << 6)
+-#define ADC_CFGR_EXTSEL_EVENT_10	(0xA << 6)
+-#define ADC_CFGR_EXTSEL_EVENT_11	(0xB << 6)
+-#define ADC_CFGR_EXTSEL_EVENT_12	(0xC << 6)
+-#define ADC_CFGR_EXTSEL_EVENT_13	(0xD << 6)
+-#define ADC_CFGR_EXTSEL_EVENT_14	(0xE << 6)
+-#define ADC_CFGR_EXTSEL_EVENT_15	(0xF << 6)
+-
+-#define ADC_CFGR_EXTSEL_MASK		(0xF << 6)
++#define ADC_CFGR1_EXTSEL_EVENT_0		(0x0 << 6)
++#define ADC_CFGR1_EXTSEL_EVENT_1		(0x1 << 6)
++#define ADC_CFGR1_EXTSEL_EVENT_2		(0x2 << 6)
++#define ADC_CFGR1_EXTSEL_EVENT_3		(0x3 << 6)
++#define ADC_CFGR1_EXTSEL_EVENT_4		(0x4 << 6)
++#define ADC_CFGR1_EXTSEL_EVENT_5		(0x5 << 6)
++#define ADC_CFGR1_EXTSEL_EVENT_6		(0x6 << 6)
++#define ADC_CFGR1_EXTSEL_EVENT_7		(0x7 << 6)
++#define ADC_CFGR1_EXTSEL_EVENT_8		(0x8 << 6)
++#define ADC_CFGR1_EXTSEL_EVENT_9		(0x9 << 6)
++#define ADC_CFGR1_EXTSEL_EVENT_10	(0xA << 6)
++#define ADC_CFGR1_EXTSEL_EVENT_11	(0xB << 6)
++#define ADC_CFGR1_EXTSEL_EVENT_12	(0xC << 6)
++#define ADC_CFGR1_EXTSEL_EVENT_13	(0xD << 6)
++#define ADC_CFGR1_EXTSEL_EVENT_14	(0xE << 6)
++#define ADC_CFGR1_EXTSEL_EVENT_15	(0xF << 6)
++
++#define ADC_CFGR1_EXTSEL_MASK		(0xF << 6)
+ 
+ /* ALIGN: Data alignment */
+-#define ADC_CFGR_ALIGN		(1 << 5)
++#define ADC_CFGR1_ALIGN		(1 << 5)
+ 
+ /* RES[1:0]: Data resolution */
+-#define ADC_CFGR_RES_12_BIT	(0x0 << 3)
+-#define ADC_CFGR_RES_10_BIT	(0x1 << 3)
+-#define ADC_CFGR_RES_8_BIT	(0x2 << 3)
+-#define ADC_CFGR_RES_6_BIT	(0x3 << 3)
++#define ADC_CFGR1_RES_12_BIT	(0x0 << 3)
++#define ADC_CFGR1_RES_10_BIT	(0x1 << 3)
++#define ADC_CFGR1_RES_8_BIT	(0x2 << 3)
++#define ADC_CFGR1_RES_6_BIT	(0x3 << 3)
+ 
+-#define ADC_CFGR_RES_MASK	(0x3 << 3)
++#define ADC_CFGR1_RES_MASK	(0x3 << 3)
+ 
+ /* DMACFG: Direct memory access configuration */
+-#define ADC_CFGR_DMACFG		(1 << 1)
++#define ADC_CFGR1_DMACFG		(1 << 1)
+ 
+ /* DMAEN: Direct memory access enable */
+-#define ADC_CFGR_DMAEN		(1 << 0)
++#define ADC_CFGR1_DMAEN		(1 << 0)
+ 
+ 
+ /****************************************************************************/
+diff --git a/lib/stm32/f3/adc.c b/lib/stm32/f3/adc.c
+index 7190495..d851bd4 100644
+--- a/lib/stm32/f3/adc.c
++++ b/lib/stm32/f3/adc.c
+@@ -115,7 +115,7 @@ void adc_power_off(uint32_t adc)
+ 
+ void adc_enable_analog_watchdog_regular(uint32_t adc)
+ {
+-	ADC_CFGR(adc) |= ADC_CFGR_AWD1EN;
++	ADC_CFGR1(adc) |= ADC_CFGR1_AWD1EN;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -130,7 +130,7 @@ void adc_enable_analog_watchdog_regular(uint32_t adc)
+  */
+ void adc_disable_analog_watchdog_regular(uint32_t adc)
+ {
+-	ADC_CFGR(adc) &= ~ADC_CFGR_AWD1EN;
++	ADC_CFGR1(adc) &= ~ADC_CFGR1_AWD1EN;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -146,7 +146,7 @@ void adc_disable_analog_watchdog_regular(uint32_t adc)
+ 
+ void adc_enable_analog_watchdog_injected(uint32_t adc)
+ {
+-	ADC_CFGR(adc) |= ADC_CFGR_JAWD1EN;
++	ADC_CFGR1(adc) |= ADC_CFGR1_JAWD1EN;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -158,7 +158,7 @@ void adc_enable_analog_watchdog_injected(uint32_t adc)
+ 
+ void adc_disable_analog_watchdog_injected(uint32_t adc)
+ {
+-	ADC_CFGR(adc) &= ~ADC_CFGR_JAWD1EN;
++	ADC_CFGR1(adc) &= ~ADC_CFGR1_JAWD1EN;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -182,8 +182,8 @@ void adc_enable_discontinuous_mode_regular(uint32_t adc, uint8_t length)
+ 	if ((length-1) > 7) {
+ 		return;
+ 	}
+-	ADC_CFGR(adc) |= ADC_CFGR_DISCEN;
+-	ADC_CFGR(adc) |= ((length-1) << ADC_CFGR_DISCNUM_SHIFT);
++	ADC_CFGR1(adc) |= ADC_CFGR1_DISCEN;
++	ADC_CFGR1(adc) |= ((length-1) << ADC_CFGR1_DISCNUM_SHIFT);
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -195,7 +195,7 @@ void adc_enable_discontinuous_mode_regular(uint32_t adc, uint8_t length)
+ 
+ void adc_disable_discontinuous_mode_regular(uint32_t adc)
+ {
+-	ADC_CFGR(adc) &= ~ADC_CFGR_DISCEN;
++	ADC_CFGR1(adc) &= ~ADC_CFGR1_DISCEN;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -211,7 +211,7 @@ void adc_disable_discontinuous_mode_regular(uint32_t adc)
+ 
+ void adc_enable_discontinuous_mode_injected(uint32_t adc)
+ {
+-	ADC_CFGR(adc) |= ADC_CFGR_JDISCEN;
++	ADC_CFGR1(adc) |= ADC_CFGR1_JDISCEN;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -223,7 +223,7 @@ void adc_enable_discontinuous_mode_injected(uint32_t adc)
+ 
+ void adc_disable_discontinuous_mode_injected(uint32_t adc)
+ {
+-	ADC_CFGR(adc) &= ~ADC_CFGR_JDISCEN;
++	ADC_CFGR1(adc) &= ~ADC_CFGR1_JDISCEN;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -240,7 +240,7 @@ void adc_disable_discontinuous_mode_injected(uint32_t adc)
+ void adc_enable_automatic_injected_group_conversion(uint32_t adc)
+ {
+ 	adc_disable_external_trigger_injected(adc);
+-	ADC_CFGR(adc) |= ADC_CFGR_JAUTO;
++	ADC_CFGR1(adc) |= ADC_CFGR1_JAUTO;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -252,7 +252,7 @@ void adc_enable_automatic_injected_group_conversion(uint32_t adc)
+ 
+ void adc_disable_automatic_injected_group_conversion(uint32_t adc)
+ {
+-	ADC_CFGR(adc) &= ~ADC_CFGR_JAUTO;
++	ADC_CFGR1(adc) &= ~ADC_CFGR1_JAUTO;
+ }
+ /*---------------------------------------------------------------------------*/
+ /** @brief ADC Enable Analog Watchdog for All Regular and/or Injected Channels
+@@ -274,7 +274,7 @@ void adc_disable_automatic_injected_group_conversion(uint32_t adc)
+ 
+ void adc_enable_analog_watchdog_on_all_channels(uint32_t adc)
+ {
+-	ADC_CFGR(adc) &= ~ADC_CFGR_AWD1SGL;
++	ADC_CFGR1(adc) &= ~ADC_CFGR1_AWD1SGL;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -301,12 +301,12 @@ void adc_enable_analog_watchdog_on_selected_channel(uint32_t adc,
+ {
+ 	uint32_t reg32;
+ 
+-	reg32 = (ADC_CFGR(adc) & ~ADC_CFGR_AWD1CH_MASK); /* Clear bit [4:0]. */
++	reg32 = (ADC_CFGR1(adc) & ~ADC_CFGR1_AWD1CH_MASK); /* Clear bit [4:0]. */
+ 	if (channel < 18) {
+ 		reg32 |= channel;
+ 	}
+-	ADC_CFGR(adc) = reg32;
+-	ADC_CFGR(adc) |= ADC_CFGR_AWD1SGL;
++	ADC_CFGR1(adc) = reg32;
++	ADC_CFGR1(adc) |= ADC_CFGR1_AWD1SGL;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -515,7 +515,7 @@ void adc_start_conversion_injected(uint32_t adc)
+ 
+ void adc_set_left_aligned(uint32_t adc)
+ {
+-	ADC_CFGR(adc) |= ADC_CFGR_ALIGN;
++	ADC_CFGR1(adc) |= ADC_CFGR1_ALIGN;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -527,7 +527,7 @@ void adc_set_left_aligned(uint32_t adc)
+ 
+ void adc_set_right_aligned(uint32_t adc)
+ {
+-	ADC_CFGR(adc) &= ~ADC_CFGR_ALIGN;
++	ADC_CFGR1(adc) &= ~ADC_CFGR1_ALIGN;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -539,7 +539,7 @@ void adc_set_right_aligned(uint32_t adc)
+ 
+ void adc_enable_dma(uint32_t adc)
+ {
+-	ADC_CFGR(adc) |= ADC_CFGR_DMAEN;
++	ADC_CFGR1(adc) |= ADC_CFGR1_DMAEN;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -551,7 +551,7 @@ void adc_enable_dma(uint32_t adc)
+ 
+ void adc_disable_dma(uint32_t adc)
+ {
+-	ADC_CFGR(adc) &= ~ADC_CFGR_DMAEN;
++	ADC_CFGR1(adc) &= ~ADC_CFGR1_DMAEN;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -972,11 +972,11 @@ void adc_set_multi_mode(uint32_t adc, uint32_t mode)
+ void adc_enable_external_trigger_regular(uint32_t adc, uint32_t trigger,
+ 					 uint32_t polarity)
+ {
+-	uint32_t reg32 = ADC_CFGR(adc);
++	uint32_t reg32 = ADC_CFGR1(adc);
+ 
+-	reg32 &= ~(ADC_CFGR_EXTSEL_MASK | ADC_CFGR_EXTEN_MASK);
++	reg32 &= ~(ADC_CFGR1_EXTSEL_MASK | ADC_CFGR1_EXTEN_MASK);
+ 	reg32 |= (trigger | polarity);
+-	ADC_CFGR(adc) = reg32;
++	ADC_CFGR1(adc) = reg32;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -988,7 +988,7 @@ void adc_enable_external_trigger_regular(uint32_t adc, uint32_t trigger,
+ 
+ void adc_disable_external_trigger_regular(uint32_t adc)
+ {
+-	ADC_CFGR(adc) &= ~ADC_CFGR_EXTEN_MASK;
++	ADC_CFGR1(adc) &= ~ADC_CFGR1_EXTEN_MASK;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -1040,11 +1040,11 @@ void adc_disable_external_trigger_injected(uint32_t adc)
+ 
+ void adc_set_resolution(uint32_t adc, uint16_t resolution)
+ {
+-	uint32_t reg32 = ADC_CFGR(adc);
++	uint32_t reg32 = ADC_CFGR1(adc);
+ 
+-	reg32 &= ~ADC_CFGR_RES_MASK;
++	reg32 &= ~ADC_CFGR1_RES_MASK;
+ 	reg32 |= resolution;
+-	ADC_CFGR(adc) = reg32;
++	ADC_CFGR1(adc) = reg32;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+
+From 256df80d77be687b16ef2c0cebd0c1fcbeca2fcc Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Fri, 16 Oct 2015 22:37:54 +0000
+Subject: [PATCH 08/22] stm32f0/f3: adc: extract beginnings of common v2 periph
+
+The f0, f30x and l0 have a very similar "v2" adc peripheral.
+Start extracting out some of the common code, and fix the glaring bug in
+adc_power_down that was affecting them both.
+
+This is not intended to be a fully comprehensive extraction, just the first
+easy steps.
+---
+ include/libopencm3/stm32/common/adc_common_v2.h |  54 +++++++++++
+ include/libopencm3/stm32/f0/adc.h               |   4 +-
+ include/libopencm3/stm32/f3/adc.h               |   4 +-
+ lib/stm32/common/adc_common_v2.c                | 115 ++++++++++++++++++++++++
+ lib/stm32/f0/Makefile                           |   1 +
+ lib/stm32/f0/adc.c                              |  28 ------
+ lib/stm32/f3/Makefile                           |   1 +
+ lib/stm32/f3/adc.c                              |  31 -------
+ 8 files changed, 175 insertions(+), 63 deletions(-)
+ create mode 100644 include/libopencm3/stm32/common/adc_common_v2.h
+ create mode 100644 lib/stm32/common/adc_common_v2.c
+
+diff --git a/include/libopencm3/stm32/common/adc_common_v2.h b/include/libopencm3/stm32/common/adc_common_v2.h
+new file mode 100644
+index 0000000..9d6a960
+--- /dev/null
++++ b/include/libopencm3/stm32/common/adc_common_v2.h
+@@ -0,0 +1,54 @@
++/** @addtogroup adc_defines
++
++@author @htmlonly &copy; @endhtmlonly 2015 Karl Palsson <karlp@tweak.net.au>
++
++ */
++
++/*
++ * This file is part of the libopencm3 project.
++ *
++ * Copyright (C) 2015 Karl Palsson <karlp@tweak.net.au>
++ *
++ * This library is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU Lesser General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this library.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++/**@{*/
++
++/* THIS FILE SHOULD NOT BE INCLUDED DIRECTLY, BUT ONLY VIA ADC.H
++The order of header inclusion is important. adc.h includes the device
++specific memorymap.h header before including this header file.*/
++
++/** @cond */
++#ifdef LIBOPENCM3_ADC_H
++/** @endcond */
++#ifndef LIBOPENCM3_ADC_COMMON_V2_H
++#define LIBOPENCM3_ADC_COMMON_V2_H
++
++
++/* --- Function prototypes ------------------------------------------------- */
++
++BEGIN_DECLS
++
++void adc_power_on_async(uint32_t adc);
++void adc_power_on(uint32_t adc);
++bool adc_is_power_on(uint32_t adc);
++void adc_power_off_async(uint32_t adc);
++void adc_power_off(uint32_t adc);
++bool adc_is_power_off(uint32_t adc);
++
++END_DECLS
++
++#endif
++#endif	/* LIBOPENCM3_ADC_H */
++/**@}*/
+diff --git a/include/libopencm3/stm32/f0/adc.h b/include/libopencm3/stm32/f0/adc.h
+index c6bd43a..5e4cc87 100644
+--- a/include/libopencm3/stm32/f0/adc.h
++++ b/include/libopencm3/stm32/f0/adc.h
+@@ -33,6 +33,8 @@
+ #ifndef LIBOPENCM3_ADC_H
+ #define LIBOPENCM3_ADC_H
+ 
++#include <libopencm3/stm32/common/adc_common_v2.h>
++
+ /*****************************************************************************/
+ /* Module definitions                                                        */
+ /*****************************************************************************/
+@@ -305,8 +307,6 @@ void adc_enable_eoc_interrupt(uint32_t adc);
+ void adc_disable_eoc_interrupt(uint32_t adc);
+ 
+ /* Basic configuration */
+-void adc_power_off(uint32_t adc);
+-void adc_power_on(uint32_t adc);
+ void adc_set_clk_source(uint32_t adc, uint32_t source);
+ void adc_set_regular_sequence(uint32_t adc, uint8_t length, uint8_t channel[]);
+ void adc_set_sample_time_on_all_channels(uint32_t adc, uint8_t time);
+diff --git a/include/libopencm3/stm32/f3/adc.h b/include/libopencm3/stm32/f3/adc.h
+index 2524e6a..048275b 100644
+--- a/include/libopencm3/stm32/f3/adc.h
++++ b/include/libopencm3/stm32/f3/adc.h
+@@ -34,6 +34,8 @@
+ #ifndef LIBOPENCM3_ADC_H
+ #define LIBOPENCM3_ADC_H
+ 
++#include <libopencm3/stm32/common/adc_common_v2.h>
++
+ #define ADC1		ADC1_BASE
+ #define ADC2		ADC2_BASE
+ #define ADC3		ADC3_BASE
+@@ -863,8 +865,6 @@
+ 
+ BEGIN_DECLS
+ 
+-void adc_power_on(uint32_t adc);
+-void adc_power_off(uint32_t adc);
+ void adc_enable_analog_watchdog_regular(uint32_t adc);
+ void adc_disable_analog_watchdog_regular(uint32_t adc);
+ void adc_enable_analog_watchdog_injected(uint32_t adc);
+diff --git a/lib/stm32/common/adc_common_v2.c b/lib/stm32/common/adc_common_v2.c
+new file mode 100644
+index 0000000..fc7f8b8
+--- /dev/null
++++ b/lib/stm32/common/adc_common_v2.c
+@@ -0,0 +1,115 @@
++/** @addtogroup adc_file
++
++@author @htmlonly &copy; @endhtmlonly
++2015 Karl Palsson <karlp@tweak.net.au>
++
++This library supports one style of the Analog to Digital Conversion System in
++the STM32 series of ARM Cortex Microcontrollers by ST Microelectronics.
++
++The style of ADC Peripheral supported by this code is found in the F0, L0 and
++F30x series devices (at the time of writing)
++
++LGPL License Terms @ref lgpl_license
++ */
++
++/*
++ * This file is part of the libopencm3 project.
++ *
++ * Copyright (C) 2015 Karl Palsson <karlp@tweak.net.au>
++ *
++ * This library is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU Lesser General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this library.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++/**@{*/
++
++#include <libopencm3/stm32/adc.h>
++
++/**
++ * Turn on the ADC (async)
++ * @sa adc_wait_power_on
++ * @param adc ADC Block register address base @ref adc_reg_base
++ */
++void adc_power_on_async(uint32_t adc)
++{
++	ADC_CR(adc) |= ADC_CR_ADEN;
++}
++
++/**
++ * Is the ADC powered up and ready?
++ * @sa adc_power_on_async
++ * @param adc ADC Block register address base @ref adc_reg_base
++ * @return true if adc is ready for use
++ */
++bool adc_is_power_on(uint32_t adc)
++{
++	return (ADC_ISR(adc) & ADC_ISR_ADRDY);
++}
++
++/**
++ * Turn on the ADC
++ * @sa adc_power_on_async
++ * @param adc ADC Block register address base @ref adc_reg_base
++ */
++void adc_power_on(uint32_t adc)
++{
++	adc_power_on_async(adc);
++	while (!adc_is_power_on(adc));
++}
++
++/**
++ * Turn off the ADC (async)
++ * This will actually block if it needs to turn off a currently running
++ * conversion, as per ref man. (Handles injected on hardware that supports
++ * injected conversions.
++ * @sa adc_wait_power_off
++ * @param adc ADC Block register address base @ref adc_reg_base
++ */
++void adc_power_off_async(uint32_t adc)
++{
++	uint32_t checks = ADC_CR_ADSTART;
++	uint32_t stops = ADC_CR_ADSTP;
++#if defined (ADC_CR_JADSTART)
++	checks |= ADC_CR_JADSTART;
++	stops |= ADC_CR_JADSTP;
++#endif
++	if (ADC_CR(adc) & checks) {
++		ADC_CR(adc) |= stops;
++		while (ADC_CR(adc) & checks);
++	}
++	ADC_CR(adc) |= ADC_CR_ADDIS;
++}
++
++/**
++ * Is the ADC powered down?
++ * @sa adc_power_off_async
++ * @param adc ADC Block register address base @ref adc_reg_base
++ */
++bool adc_is_power_off(uint32_t adc)
++{
++	return (!(ADC_CR(adc) & ADC_CR_ADEN));
++}
++
++/**
++ * Turn off the ADC
++ * This will actually block if it needs to turn off a currently running
++ * conversion, as per ref man.
++ * @sa adc_power_off_async
++ * @param adc ADC Block register address base @ref adc_reg_base
++ */
++void adc_power_off(uint32_t adc)
++{
++	adc_power_off_async(adc);
++	while (!adc_is_power_off(adc));
++}
++
+diff --git a/lib/stm32/f0/Makefile b/lib/stm32/f0/Makefile
+index f584104..843d66e 100644
+--- a/lib/stm32/f0/Makefile
++++ b/lib/stm32/f0/Makefile
+@@ -43,6 +43,7 @@ OBJS            += gpio_common_all.o gpio_common_f0234.o crc_common_all.o \
+                    dma_common_l1f013.o exti_common_all.o spi_common_all.o \
+ 		   spi_common_f03.o flash_common_f01.o dac_common_all.o \
+ 		   timer_common_all.o rcc_common_all.o
++OBJS		+= adc_common_v2.o
+ OBJS		+= crs_common_all.o
+ 
+ OBJS		+= usb.o usb_control.o usb_standard.o
+diff --git a/lib/stm32/f0/adc.c b/lib/stm32/f0/adc.c
+index 7dbf84a..47e13d8 100644
+--- a/lib/stm32/f0/adc.c
++++ b/lib/stm32/f0/adc.c
+@@ -462,34 +462,6 @@ void adc_disable_eoc_interrupt(uint32_t adc)
+  *@{*/
+ 
+ /*---------------------------------------------------------------------------*/
+-/** @brief ADC Power Off
+- *
+- * Turn off the ADC to reduce power consumption to a few microamps.
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- */
+-
+-void adc_power_off(uint32_t adc)
+-{
+-	ADC_CR(adc) &= ~ADC_CR_ADEN;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Power On
+- *
+- * If the ADC is in power-down mode then it is powered up. The application
+- * needs to wait a time of about 3 microseconds for stabilization before using
+- * the ADC. If the ADC is already on this function call will have no effect.
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- */
+-
+-void adc_power_on(uint32_t adc)
+-{
+-	ADC_CR(adc) |= ADC_CR_ADEN;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+ /** @brief ADC Set Clock Prescale
+  *
+  * The ADC clock taken from the many sources.
+diff --git a/lib/stm32/f3/Makefile b/lib/stm32/f3/Makefile
+index b3b134c..4e1f719 100644
+--- a/lib/stm32/f3/Makefile
++++ b/lib/stm32/f3/Makefile
+@@ -43,6 +43,7 @@ OBJS            += gpio_common_all.o gpio_common_f0234.o \
+ 		   iwdg_common_all.o spi_common_all.o dma_common_l1f013.o\
+ 		   timer_common_all.o timer_common_f234.o flash_common_f234.o \
+ 		   flash.o exti_common_all.o rcc_common_all.o spi_common_f03.o
++OBJS		+= adc_common_v2.o
+ 
+ OBJS		+= usb.o usb_control.o usb_standard.o
+ OBJS		+= st_usbfs_core.o st_usbfs_v1.o
+diff --git a/lib/stm32/f3/adc.c b/lib/stm32/f3/adc.c
+index d851bd4..e8d7f82 100644
+--- a/lib/stm32/f3/adc.c
++++ b/lib/stm32/f3/adc.c
+@@ -89,20 +89,6 @@
+ /**@{*/
+ 
+ /*---------------------------------------------------------------------------*/
+-/** @brief ADC Off
+- *
+- * Turn off the ADC to reduce power consumption to a few microamps.
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base @ref
+- * adc_reg_base
+-*/
+-
+-void adc_power_off(uint32_t adc)
+-{
+-	ADC_CR(adc) &= ~ADC_CR_ADEN;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+ /** @brief ADC Enable Analog Watchdog for Regular Conversions
+  *
+  * The analog watchdog allows the monitoring of an analog signal between two
+@@ -906,23 +892,6 @@ void adc_set_injected_offset(uint32_t adc, uint8_t reg, uint32_t offset)
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+-/** @brief ADC Power On
+- *
+- * If the ADC is in power-down mode then it is powered up. The application
+- * needs to wait a time of about 3 microseconds for stabilization before using
+- * the ADC. If the ADC is already on this function call will have no effect.
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base @ref
+- * adc_reg_base
+- */
+-
+-void adc_power_on(uint32_t adc)
+-{
+-	ADC_CR(adc) |= ADC_CR_ADEN;
+-}
+-
+-
+-/*---------------------------------------------------------------------------*/
+ /** @brief ADC Set Clock Prescale
+  *
+  * The ADC clock taken from the APB2 clock can be scaled down by 2, 4, 6 or 8.
+
+From 81000ed4350d34a9161d04b811ce705f45dc326a Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Sat, 17 Oct 2015 01:48:07 +0000
+Subject: [PATCH 09/22] stm32: adc-v2: pull up single/continuous modes
+
+---
+ include/libopencm3/stm32/common/adc_common_v2.h |  2 ++
+ include/libopencm3/stm32/f0/adc.h               |  2 --
+ include/libopencm3/stm32/f3/adc.h               |  2 --
+ lib/stm32/common/adc_common_v2.c                | 24 ++++++++++++++++++++
+ lib/stm32/f0/adc.c                              | 29 ------------------------
+ lib/stm32/f3/adc.c                              | 30 -------------------------
+ 6 files changed, 26 insertions(+), 63 deletions(-)
+
+diff --git a/include/libopencm3/stm32/common/adc_common_v2.h b/include/libopencm3/stm32/common/adc_common_v2.h
+index 9d6a960..e767cea 100644
+--- a/include/libopencm3/stm32/common/adc_common_v2.h
++++ b/include/libopencm3/stm32/common/adc_common_v2.h
+@@ -46,6 +46,8 @@ bool adc_is_power_on(uint32_t adc);
+ void adc_power_off_async(uint32_t adc);
+ void adc_power_off(uint32_t adc);
+ bool adc_is_power_off(uint32_t adc);
++void adc_set_continuous_conversion_mode(uint32_t adc);
++void adc_set_single_conversion_mode(uint32_t adc);
+ 
+ END_DECLS
+ 
+diff --git a/include/libopencm3/stm32/f0/adc.h b/include/libopencm3/stm32/f0/adc.h
+index 5e4cc87..5ef2f1b 100644
+--- a/include/libopencm3/stm32/f0/adc.h
++++ b/include/libopencm3/stm32/f0/adc.h
+@@ -275,8 +275,6 @@ enum adc_opmode {
+ BEGIN_DECLS
+ 
+ /* Operation mode API */
+-void adc_set_continuous_conversion_mode(uint32_t adc);
+-void adc_set_single_conversion_mode(uint32_t adc);
+ void adc_enable_discontinuous_mode(uint32_t adc);
+ void adc_disable_discontinuous_mode(uint32_t adc);
+ void adc_set_operation_mode(uint32_t adc, enum adc_opmode opmode);
+diff --git a/include/libopencm3/stm32/f3/adc.h b/include/libopencm3/stm32/f3/adc.h
+index 048275b..c6802a1 100644
+--- a/include/libopencm3/stm32/f3/adc.h
++++ b/include/libopencm3/stm32/f3/adc.h
+@@ -898,8 +898,6 @@ void adc_set_left_aligned(uint32_t adc);
+ void adc_set_right_aligned(uint32_t adc);
+ void adc_enable_dma(uint32_t adc);
+ void adc_disable_dma(uint32_t adc);
+-void adc_set_continuous_conversion_mode(uint32_t adc);
+-void adc_set_single_conversion_mode(uint32_t adc);
+ void adc_set_sample_time(uint32_t adc, uint8_t channel, uint8_t time);
+ void adc_set_sample_time_on_all_channels(uint32_t adc, uint8_t time);
+ void adc_set_watchdog_high_threshold(uint32_t adc, uint8_t threshold);
+diff --git a/lib/stm32/common/adc_common_v2.c b/lib/stm32/common/adc_common_v2.c
+index fc7f8b8..ab7c63e 100644
+--- a/lib/stm32/common/adc_common_v2.c
++++ b/lib/stm32/common/adc_common_v2.c
+@@ -113,3 +113,27 @@ void adc_power_off(uint32_t adc)
+ 	while (!adc_is_power_off(adc));
+ }
+ 
++/**
++ * Enable Continuous Conversion Mode
++ * In this mode the ADC starts a new conversion of a single channel or a channel
++ * group immediately following completion of the previous channel group
++ * conversion.
++ *
++ * @param[in] adc ADC block register address base @ref adc_reg_base
++ */
++void adc_set_continuous_conversion_mode(uint32_t adc)
++{
++	ADC_CFGR1(adc) |= ADC_CFGR1_CONT;
++}
++
++/**
++ * Enable Single Conversion Mode
++ * In this mode the ADC performs a conversion of one channel or a channel group
++ * and stops.
++ *
++ * @param[in] adc ADC block register address base @ref adc_reg_base
++ */
++void adc_set_single_conversion_mode(uint32_t adc)
++{
++	ADC_CFGR1(adc) &= ~ADC_CFGR1_CONT;
++}
+diff --git a/lib/stm32/f0/adc.c b/lib/stm32/f0/adc.c
+index 47e13d8..8e90031 100644
+--- a/lib/stm32/f0/adc.c
++++ b/lib/stm32/f0/adc.c
+@@ -45,35 +45,6 @@
+  *@{*/
+ 
+ /*---------------------------------------------------------------------------*/
+-/** @brief ADC Enable Continuous Conversion Mode
+- *
+- * In this mode the ADC starts a new conversion of a single channel or a channel
+- * group immediately following completion of the previous channel group
+- * conversion.
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- */
+-
+-void adc_set_continuous_conversion_mode(uint32_t adc)
+-{
+-	ADC_CFGR1(adc) |= ADC_CFGR1_CONT;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Enable Single Conversion Mode
+- *
+- * In this mode the ADC performs a conversion of one channel or a channel group
+- * and stops.
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- */
+-
+-void adc_set_single_conversion_mode(uint32_t adc)
+-{
+-	ADC_CFGR1(adc) &= ~ADC_CFGR1_CONT;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+ /** @brief ADC Enable Discontinuous Mode for Regular Conversions
+  *
+  * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+diff --git a/lib/stm32/f3/adc.c b/lib/stm32/f3/adc.c
+index e8d7f82..06e2cc3 100644
+--- a/lib/stm32/f3/adc.c
++++ b/lib/stm32/f3/adc.c
+@@ -540,36 +540,6 @@ void adc_disable_dma(uint32_t adc)
+ 	ADC_CFGR1(adc) &= ~ADC_CFGR1_DMAEN;
+ }
+ 
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Enable Continuous Conversion Mode
+- *
+- * In this mode the ADC starts a new conversion of a single channel or a channel
+- * group immediately following completion of the previous channel group
+- * conversion.
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base
+- * @ref adc_reg_base
+- */
+-
+-void adc_set_continuous_conversion_mode(uint32_t adc)
+-{
+-	ADC_CFGR(adc) |= ADC_CFGR_CONT;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Enable Single Conversion Mode
+- *
+- * In this mode the ADC performs a conversion of one channel or a channel group
+- * and stops.
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base
+- * @ref adc_reg_base
+- */
+-
+-void adc_set_single_conversion_mode(uint32_t adc)
+-{
+-	ADC_CFGR(adc) &= ~ADC_CFGR_CONT;
+-}
+ 
+ /*---------------------------------------------------------------------------*/
+ /** @brief ADC Set the Sample Time for a Single Channel
+
+From e683e7243bf83454eec8d5599e5600b0c8bdf7d9 Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Sat, 24 Oct 2015 00:16:35 +0000
+Subject: [PATCH 10/22] stm32: adc-v2: pull up temp/vref switches
+
+Common for f0,f3,l0,l4
+---
+ include/libopencm3/stm32/common/adc_common_v2.h |  4 +++
+ include/libopencm3/stm32/f0/adc.h               |  4 ---
+ include/libopencm3/stm32/f3/adc.h               |  2 --
+ lib/stm32/common/adc_common_v2.c                | 41 ++++++++++++++++++++++
+ lib/stm32/f0/adc.c                              | 45 -------------------------
+ lib/stm32/f3/adc.c                              | 32 ------------------
+ 6 files changed, 45 insertions(+), 83 deletions(-)
+
+diff --git a/include/libopencm3/stm32/common/adc_common_v2.h b/include/libopencm3/stm32/common/adc_common_v2.h
+index e767cea..ba067d0 100644
+--- a/include/libopencm3/stm32/common/adc_common_v2.h
++++ b/include/libopencm3/stm32/common/adc_common_v2.h
+@@ -48,6 +48,10 @@ void adc_power_off(uint32_t adc);
+ bool adc_is_power_off(uint32_t adc);
+ void adc_set_continuous_conversion_mode(uint32_t adc);
+ void adc_set_single_conversion_mode(uint32_t adc);
++void adc_enable_temperature_sensor(void);
++void adc_disable_temperature_sensor(void);
++void adc_enable_vrefint(void);
++void adc_disable_vrefint(void);
+ 
+ END_DECLS
+ 
+diff --git a/include/libopencm3/stm32/f0/adc.h b/include/libopencm3/stm32/f0/adc.h
+index 5ef2f1b..3ed6499 100644
+--- a/include/libopencm3/stm32/f0/adc.h
++++ b/include/libopencm3/stm32/f0/adc.h
+@@ -313,10 +313,6 @@ void adc_set_left_aligned(uint32_t adc);
+ void adc_set_right_aligned(uint32_t adc);
+ void adc_enable_dma(uint32_t adc);
+ void adc_disable_dma(uint32_t adc);
+-void adc_enable_temperature_sensor(void);
+-void adc_disable_temperature_sensor(void);
+-void adc_enable_vref_sensor(void);
+-void adc_disable_vref_sensor(void);
+ void adc_enable_vbat_sensor(void);
+ void adc_disable_vbat_sensor(void);
+ void adc_calibrate_start(uint32_t adc);
+diff --git a/include/libopencm3/stm32/f3/adc.h b/include/libopencm3/stm32/f3/adc.h
+index c6802a1..c32b924 100644
+--- a/include/libopencm3/stm32/f3/adc.h
++++ b/include/libopencm3/stm32/f3/adc.h
+@@ -926,8 +926,6 @@ void adc_clear_overrun_flag(uint32_t adc);
+ bool adc_awd(uint32_t adc);
+ /*void adc_set_dma_continue(uint32_t adc);*/
+ /*void adc_set_dma_terminate(uint32_t adc);*/
+-void adc_enable_temperature_sensor(void);
+-void adc_disable_temperature_sensor(void);
+ void adc_enable_regulator(uint32_t adc);
+ void adc_disable_regulator(uint32_t adc);
+ 
+diff --git a/lib/stm32/common/adc_common_v2.c b/lib/stm32/common/adc_common_v2.c
+index ab7c63e..cae5dd0 100644
+--- a/lib/stm32/common/adc_common_v2.c
++++ b/lib/stm32/common/adc_common_v2.c
+@@ -137,3 +137,44 @@ void adc_set_single_conversion_mode(uint32_t adc)
+ {
+ 	ADC_CFGR1(adc) &= ~ADC_CFGR1_CONT;
+ }
++
++/**
++ * Enable the temperature sensor (only)
++ * The channel this is available on is unfortunately not
++ * consistent, even though the bit used to enable it is.
++ * @sa adc_disable_temperature_sensor
++ */
++void adc_enable_temperature_sensor(void)
++{
++	ADC_CCR(ADC1) |= ADC_CCR_TSEN;
++}
++
++/**
++ * Disable the temperature sensor (only)
++ * @sa adc_enable_temperature_sensor
++ */
++void adc_disable_temperature_sensor(void)
++{
++	ADC_CCR(ADC1) &= ~ADC_CCR_TSEN;
++}
++
++/**
++ * Enable the internal voltage reference (only)
++ * The channel this is available on is unfortunately not
++ * consistent, even though the bit used to enable it is.
++ * FIXME - on f3, you can actually have it on ADC34 as well!
++ * @sa adc_disable_vrefint
++ */
++void adc_enable_vrefint(void)
++{
++	ADC_CCR(ADC1) |= ADC_CCR_VREFEN;
++}
++
++/**
++ * Disable the internal voltage reference (only)
++ * @sa adc_enable_vrefint
++ */
++void adc_disable_vrefint(void)
++{
++	ADC_CCR(ADC1) &= ~ADC_CCR_VREFEN;
++}
+diff --git a/lib/stm32/f0/adc.c b/lib/stm32/f0/adc.c
+index 8e90031..fbdf60d 100644
+--- a/lib/stm32/f0/adc.c
++++ b/lib/stm32/f0/adc.c
+@@ -571,51 +571,6 @@ void adc_disable_dma(uint32_t adc)
+ 	ADC_CFGR1(adc) &= ~ADC_CFGR1_DMAEN;
+ }
+ 
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Enable The Temperature Sensor
+- *
+- * This enables the sensor on channel 16
+- */
+-
+-void adc_enable_temperature_sensor(void)
+-{
+-	ADC_CCR |= ADC_CCR_TSEN;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Disable The Temperature Sensor
+- *
+- * Disabling this will reduce power consumption from the temperature sensor
+- * measurement.
+- */
+-
+-void adc_disable_temperature_sensor(void)
+-{
+-	ADC_CCR &= ~ADC_CCR_TSEN;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Enable The VRef Sensor
+- *
+- * This enables the reference voltage measurements on channel 17.
+- */
+-
+-void adc_enable_vref_sensor(void)
+-{
+-	ADC_CCR |= ADC_CCR_VREFEN;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Disable The VRef Sensor
+- *
+- * Disabling this will reduce power consumption from the reference voltage
+- * measurement.
+- */
+-
+-void adc_disable_vref_sensor(void)
+-{
+-	ADC_CCR &= ~ADC_CCR_VREFEN;
+-}
+ 
+ /*---------------------------------------------------------------------------*/
+ /** @brief ADC Enable The VBat Sensor
+diff --git a/lib/stm32/f3/adc.c b/lib/stm32/f3/adc.c
+index 06e2cc3..a07877b 100644
+--- a/lib/stm32/f3/adc.c
++++ b/lib/stm32/f3/adc.c
+@@ -1103,38 +1103,6 @@ bool adc_awd(uint32_t adc)
+ 	       (ADC_ISR(adc) & ADC_ISR_AWD3);
+ }
+ 
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Enable The Temperature Sensor
+- *
+- * This enables both the sensor and the reference voltage measurements on
+- * channels
+- * 16 and 17. These are only available on ADC1 channel 16 and 17 respectively.
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base @ref
+- * adc_reg_base
+- */
+-
+-void adc_enable_temperature_sensor()
+-{
+-	ADC12_CCR |= ADC_CCR_TSEN;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Disable The Temperature Sensor
+- *
+- * Disabling this will reduce power consumption from the sensor and the
+- * reference voltage measurements.
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base @ref
+- * adc_reg_base
+- */
+-
+-void adc_disable_temperature_sensor()
+-{
+-	ADC12_CCR &= ~ADC_CCR_TSEN;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+ 
+ /**
+  * Enable the ADC Voltage regulator
+
+From 2d318cf9fd7e553fa9ee4926eac93d07bd3072ab Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Sat, 24 Oct 2015 01:07:20 +0000
+Subject: [PATCH 11/22] stm32: adc-v2: pull up common register definitions
+
+---
+ include/libopencm3/stm32/common/adc_common_v2.h | 10 ++++++++++
+ include/libopencm3/stm32/f0/adc.h               |  9 ---------
+ include/libopencm3/stm32/f3/adc.h               |  4 ----
+ lib/stm32/f0/adc.c                              |  4 ++--
+ 4 files changed, 12 insertions(+), 15 deletions(-)
+
+diff --git a/include/libopencm3/stm32/common/adc_common_v2.h b/include/libopencm3/stm32/common/adc_common_v2.h
+index ba067d0..6acacc8 100644
+--- a/include/libopencm3/stm32/common/adc_common_v2.h
++++ b/include/libopencm3/stm32/common/adc_common_v2.h
+@@ -35,6 +35,16 @@ specific memorymap.h header before including this header file.*/
+ #ifndef LIBOPENCM3_ADC_COMMON_V2_H
+ #define LIBOPENCM3_ADC_COMMON_V2_H
+ 
++/* ADC common (shared) registers */
++#define ADC_CSR(adc)		MMIO32((adc) + 0x300 + 0x0)
++#define ADC_CCR(adc)		MMIO32((adc) + 0x300 + 0x8)
++#define ADC_CDR(adc)		MMIO32((adc) + 0x300 + 0xa)
++
++/* ADC_CCR Values -----------------------------------------------------------*/
++#define ADC_CCR_VBATEN			(1 << 24)
++#define ADC_CCR_TSEN			(1 << 23)
++#define ADC_CCR_VREFEN			(1 << 22)
++
+ 
+ /* --- Function prototypes ------------------------------------------------- */
+ 
+diff --git a/include/libopencm3/stm32/f0/adc.h b/include/libopencm3/stm32/f0/adc.h
+index 3ed6499..d86ea23 100644
+--- a/include/libopencm3/stm32/f0/adc.h
++++ b/include/libopencm3/stm32/f0/adc.h
+@@ -93,10 +93,6 @@
+ #define ADC_DR(base)			MMIO32((base) + 0x40)
+ #define ADC1_DR				ADC_DR(ADC)
+ 
+-
+-/* Regular Data Register */
+-#define ADC_CCR				MMIO32(ADC_BASE + 0x308)
+-
+ /*****************************************************************************/
+ /* Register values                                                           */
+ /*****************************************************************************/
+@@ -204,11 +200,6 @@
+ 
+ #define ADC_DR_DATA			0xFFFF
+ 
+-/* ADC_CCR Values -----------------------------------------------------------*/
+-
+-#define ADC_CCR_VBATEN			(1 << 24)
+-#define ADC_CCR_TSEN			(1 << 23)
+-#define ADC_CCR_VREFEN			(1 << 22)
+ 
+ /*****************************************************************************/
+ /* API definitions                                                           */
+diff --git a/include/libopencm3/stm32/f3/adc.h b/include/libopencm3/stm32/f3/adc.h
+index c32b924..4bd8fa2 100644
+--- a/include/libopencm3/stm32/f3/adc.h
++++ b/include/libopencm3/stm32/f3/adc.h
+@@ -255,10 +255,6 @@
+ #define ADC3_CALFACT		ADC_CALFACT(ADC3_BASE)
+ #define ADC4_CALFACT		ADC_CALFACT(ADC4_BASE)
+ 
+-/* ADC common (shared) registers, adc_pair is ADC12 or ADC34 */
+-#define ADC_CSR(adc_pair)		MMIO32((adc_pair) + 0x300 + 0x0)
+-#define ADC_CCR(adc_pair)		MMIO32((adc_pair) + 0x300 + 0x8)
+-#define ADC_CDR(adc_pair)		MMIO32((adc_pair) + 0x300 + 0xa)
+ #define ADC12_CSR			ADC_CSR(ADC1)
+ #define ADC12_CCR			ADC_CCR(ADC1)
+ #define ADC12_CDR			ADC_CDR(ADC1)
+diff --git a/lib/stm32/f0/adc.c b/lib/stm32/f0/adc.c
+index fbdf60d..8e2f365 100644
+--- a/lib/stm32/f0/adc.c
++++ b/lib/stm32/f0/adc.c
+@@ -580,7 +580,7 @@ void adc_disable_dma(uint32_t adc)
+ 
+ void adc_enable_vbat_sensor(void)
+ {
+-	ADC_CCR |= ADC_CCR_VBATEN;
++	ADC_CCR(ADC1) |= ADC_CCR_VBATEN;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -592,7 +592,7 @@ void adc_enable_vbat_sensor(void)
+ 
+ void adc_disable_vbat_sensor(void)
+ {
+-	ADC_CCR &= ~ADC_CCR_VBATEN;
++	ADC_CCR(ADC1) &= ~ADC_CCR_VBATEN;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+
+From cfe11b8bbe7370a4d9ba45d424bb5c0645eba5a4 Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Thu, 5 Nov 2015 23:00:55 +0000
+Subject: [PATCH 12/22] stm32: adc-v2: Pull up the two forms of the adc-v2
+
+The adc v2 periph has the same register map, but comes in two flavours, one
+supporting injected channels, more watchdogs, per channel sampling times and
+so on, and one "simple" version.
+
+Pull up the f3 and f0 portions into the appropriate files, after comparing with
+L0 and L4 reference manuals, even if those are not fully landed yet.
+---
+ include/libopencm3/stm32/common/adc_common_v2.h    | 127 ++++++++-
+ .../libopencm3/stm32/common/adc_common_v2_multi.h  | 156 +++++++++++
+ .../libopencm3/stm32/common/adc_common_v2_single.h |  72 +++++
+ include/libopencm3/stm32/f0/adc.h                  | 123 +--------
+ include/libopencm3/stm32/f3/adc.h                  | 289 +--------------------
+ lib/stm32/f0/adc.c                                 |  30 +--
+ lib/stm32/f3/adc.c                                 |   2 +-
+ 7 files changed, 377 insertions(+), 422 deletions(-)
+ create mode 100644 include/libopencm3/stm32/common/adc_common_v2_multi.h
+ create mode 100644 include/libopencm3/stm32/common/adc_common_v2_single.h
+
+diff --git a/include/libopencm3/stm32/common/adc_common_v2.h b/include/libopencm3/stm32/common/adc_common_v2.h
+index 6acacc8..4c3a9cb 100644
+--- a/include/libopencm3/stm32/common/adc_common_v2.h
++++ b/include/libopencm3/stm32/common/adc_common_v2.h
+@@ -35,10 +35,133 @@ specific memorymap.h header before including this header file.*/
+ #ifndef LIBOPENCM3_ADC_COMMON_V2_H
+ #define LIBOPENCM3_ADC_COMMON_V2_H
+ 
++/* ----- ADC registers  -----------------------------------------------------*/
++/* ADC interrupt and status register */
++#define ADC_ISR(adc)		MMIO32((adc) + 0x00)
++/* Interrupt Enable Register */
++#define ADC_IER(adc)		MMIO32((adc) + 0x04)
++/* Control Register */
++#define ADC_CR(adc)		MMIO32((adc) + 0x08)
++/* Configuration Register 1 */
++#define ADC_CFGR1(adc)			MMIO32((adc) + 0x0C)
++/* Configuration Register 2 */
++#define ADC_CFGR2(adc)			MMIO32((adc) + 0x10)
++/* Sample Time Register 1 */
++#define ADC_SMPR1(adc)			MMIO32((adc) + 0x14)
++/* Watchdog Threshold Register 1*/
++#define ADC_TR1(adc)			MMIO32((adc) + 0x20)
++/* Regular Data Register */
++#define ADC_DR(adc)			MMIO32((adc) + 0x40)
++/* CALFACT for all but f0 :(*/
++
+ /* ADC common (shared) registers */
+-#define ADC_CSR(adc)		MMIO32((adc) + 0x300 + 0x0)
+ #define ADC_CCR(adc)		MMIO32((adc) + 0x300 + 0x8)
+-#define ADC_CDR(adc)		MMIO32((adc) + 0x300 + 0xa)
++
++/* --- Register values -------------------------------------------------------*/
++
++/* ADC_ISR Values -----------------------------------------------------------*/
++
++/* AWD1: Analog watchdog 1 flag */
++#define ADC_ISR_AWD1		(1 << 7)
++#define ADC_ISR_OVR			(1 << 4)
++#define ADC_ISR_EOS			(1 << 3)
++#define ADC_ISR_EOSEQ			ADC_ISR_EOS /* TODO - keep only one? */
++#define ADC_ISR_EOC			(1 << 2)
++#define ADC_ISR_EOSMP			(1 << 1)
++#define ADC_ISR_ADRDY			(1 << 0)
++
++/* ADC_IER Values -----------------------------------------------------------*/
++
++/* AWD1IE: Analog watchdog 1 interrupt enable */
++#define ADC_IER_AWD1IE		(1 << 7)
++/* OVRIE: Overrun interrupt enable */
++#define ADC_IER_OVRIE		(1 << 4)
++/* EOSIE: End of regular sequence of conversions interrupt enable */
++#define ADC_IER_EOSIE		(1 << 3)
++#define ADC_IER_EOSEQIE		ADC_IER_EOSIE /* TODO - keep only one? */
++/* EOCIE: End of regular conversion interrupt enable */
++#define ADC_IER_EOCIE		(1 << 2)
++/* EOSMPIE: End of sampling flag interrupt enable for regular conversions */
++#define ADC_IER_EOSMPIE		(1 << 1)
++/* ADRDYIE : ADC ready interrupt enable */
++#define ADC_IER_ADRDYIE		(1 << 0)
++
++/* ADC_CR Values -----------------------------------------------------------*/
++
++/* ADCAL: ADC calibration */
++#define ADC_CR_ADCAL		(1 << 31)
++/* ADSTP: ADC stop of regular conversion command */
++#define ADC_CR_ADSTP		(1 << 4)
++/* ADSTART: ADC start of regular conversion */
++#define ADC_CR_ADSTART		(1 << 2)
++/* ADDIS: ADC disable command */
++#define ADC_CR_ADDIS		(1 << 1)
++/* ADEN: ADC enable control */
++#define ADC_CR_ADEN		(1 << 0)
++
++/* ADC_CFGR1 Values -----------------------------------------------------------*/
++
++/* AWD1CH[4:0]: Analog watchdog 1 channel selection */
++#define ADC_CFGR1_AWD1CH_SHIFT		26
++#define ADC_CFGR1_AWD1CH			(0x1F << ADC_CFGR1_AWD1CH_SHIFT)
++#define ADC_CFGR1_AWD1CH_VAL(x)		((x) << ADC_CFGR1_AWD1CH_SHIFT)
++
++/* AWD1EN: Analog watchdog 1 enable on regular channels */
++#define ADC_CFGR1_AWD1EN		(1 << 23)
++
++/* AWD1SGL: Enable the watchdog 1 on a single channel or on all channels */
++#define ADC_CFGR1_AWD1SGL		(1 << 22)
++
++/* DISCEN: Discontinuous mode for regular channels */
++#define ADC_CFGR1_DISCEN		(1 << 16)
++
++/* AUTDLY: Delayed conversion mode */
++#define ADC_CFGR1_AUTDLY		(1 << 14)
++
++/* CONT: Single / continuous conversion mode for regular conversions */
++#define ADC_CFGR1_CONT		(1 << 13)
++
++/* OVRMOD: Overrun Mode */
++#define ADC_CFGR1_OVRMOD		(1 << 12)
++
++/*
++ * EXTEN[1:0]: External trigger enable and polarity selection for regular
++ * channels
++ */
++#define ADC_CFGR1_EXTEN_DISABLED		(0x0 << 10)
++#define ADC_CFGR1_EXTEN_RISING_EDGE	(0x1 << 10)
++#define ADC_CFGR1_EXTEN_FALLING_EDGE	(0x2 << 10)
++#define ADC_CFGR1_EXTEN_BOTH_EDGES	(0x3 << 10)
++
++#define ADC_CFGR1_EXTEN_MASK		(0x3 << 10)
++
++/* ALIGN: Data alignment */
++#define ADC_CFGR1_ALIGN		(1 << 5)
++
++/* RES[1:0]: Data resolution */
++#define ADC_CFGR1_RES_12_BIT	(0x0 << 3)
++#define ADC_CFGR1_RES_10_BIT	(0x1 << 3)
++#define ADC_CFGR1_RES_8_BIT	(0x2 << 3)
++#define ADC_CFGR1_RES_6_BIT	(0x3 << 3)
++#define ADC_CFGR1_RES_MASK	(0x3 << 3)
++
++/* DMACFG: Direct memory access configuration */
++#define ADC_CFGR1_DMACFG		(1 << 1)
++
++/* DMAEN: Direct memory access enable */
++#define ADC_CFGR1_DMAEN		(1 << 0)
++
++/* ADC_TR1 Values ------------------------------------------------------------*/
++
++#define ADC_TR1_LT_SHIFT		0
++#define ADC_TR1_LT			(0xFFF << ADC_TR1_LT_SHIFT)
++#define ADC_TR1_LT_VAL(x)		((x) << ADC_TR1_LT_SHIFT)
++
++#define ADC_TR1_HT_SHIFT		16
++#define ADC_TR1_HT			(0xFFF << ADC_TR1_HT_SHIFT)
++#define ADC_TR1_HT_VAL(x)		((x) << ADC_TR1_HT_SHIFT)
++
++
+ 
+ /* ADC_CCR Values -----------------------------------------------------------*/
+ #define ADC_CCR_VBATEN			(1 << 24)
+diff --git a/include/libopencm3/stm32/common/adc_common_v2_multi.h b/include/libopencm3/stm32/common/adc_common_v2_multi.h
+new file mode 100644
+index 0000000..fb63041
+--- /dev/null
++++ b/include/libopencm3/stm32/common/adc_common_v2_multi.h
+@@ -0,0 +1,156 @@
++/** @addtogroup adc_defines
++
++@author @htmlonly &copy; @endhtmlonly 2015 Karl Palsson <karlp@tweak.net.au>
++
++ */
++
++/*
++ * This file is part of the libopencm3 project.
++ *
++ * Copyright (C) 2015 Karl Palsson <karlp@tweak.net.au>
++ *
++ * This library is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU Lesser General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this library.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++/**@{*/
++
++/* THIS FILE SHOULD NOT BE INCLUDED DIRECTLY, BUT ONLY VIA ADC.H
++The order of header inclusion is important. adc.h includes the device
++specific memorymap.h header before including this header file.*/
++
++/** @cond */
++#ifdef LIBOPENCM3_ADC_H
++/** @endcond */
++#ifndef LIBOPENCM3_ADC_COMMON_V2_MULTI_H
++#define LIBOPENCM3_ADC_COMMON_V2_MULTI_H
++
++/*
++ * The adc v2 peripheral optionally supports per channel sampling, injected
++ * sequences, watchdogs, offsets and other "advanced" features, and is 
++ * found on the (so far) F3 and L4,
++ * or only a much "simpler" version as found on (so far) f0 and l0.
++ */
++
++/* ----- ADC registers  -----------------------------------------------------*/
++/* Sample Time Register 2 */
++#define ADC_SMPR2(adc)		MMIO32((adc) + 0x18)
++/* Watchdog Threshold Register 2 */
++#define ADC_TR2(adc)		MMIO32((adc) + 0x24)
++/* Watchdog Threshold Register 3 */
++#define ADC_TR3(adc)		MMIO32((adc) + 0x28)
++/* Regular Sequence Register x (ADCx_SQRy, x=1..4, y=1..4) SQRy */
++#define ADC_SQR1(adc)		MMIO32((adc) + 0x30)
++#define ADC_SQR2(adc)		MMIO32((adc) + 0x34)
++#define ADC_SQR3(adc)		MMIO32((adc) + 0x38)
++#define ADC_SQR4(adc)		MMIO32((adc) + 0x3C)
++
++/* Injected Sequence Register (ADCx_JSQR, x=1..4) JSQR */
++#define ADC_JSQR(adc)		MMIO32((adc) + 0x30)
++
++/* Offset Register x (ADCx_OFRy, x=1..4) (y=1..4) OFRy */
++#define ADC_OFR1(adc)		MMIO32((adc) + 0x60)
++#define ADC_OFR2(adc)		MMIO32((adc) + 0x64)
++#define ADC_OFR3(adc)		MMIO32((adc) + 0x68)
++#define ADC_OFR4(adc)		MMIO32((adc) + 0x6C)
++
++/* Injected Data Register y (ADCx_JDRy, x=1..4, y= 1..4) JDRy */
++#define ADC_JDR1(adc)		MMIO32((adc) + 0x80)
++#define ADC_JDR2(adc)		MMIO32((adc) + 0x84)
++#define ADC_JDR3(adc)		MMIO32((adc) + 0x88)
++#define ADC_JDR4(adc)		MMIO32((adc) + 0x8C)
++
++/* Analog Watchdog 2 Configuration Register (ADCx_AWD2CR, x=1..4) AWD2CR */
++#define ADC_AWD2CR(adc)		MMIO32((adc) + 0xA0)
++/* Analog Watchdog 3 Configuration Register (ADCx_AWD3CR, x=1..4) AWD3CR */
++#define ADC_AWD3CR(adc)		MMIO32((adc) + 0xA4)
++
++/* Differential Mode Selection Register 2 (ADCx_DIFSEL, x=1..4) DIFSEL */
++#define ADC_DIFSEL(adc)		MMIO32((adc) + 0xB0)
++
++/* Calibration Factors (ADCx_CALFACT, x=1..4) CALFACT */
++#define ADC_CALFACT(adc)	MMIO32((adc) + 0xB4)
++
++/* ADC common (shared) registers */
++#define ADC_CSR(adc)		MMIO32((adc) + 0x300 + 0x0)
++#define ADC_CDR(adc)		MMIO32((adc) + 0x300 + 0xa)
++
++/* --- Register values ------------------------------------------------------*/
++/* ADC_ISR Values -----------------------------------------------------------*/
++
++/* QOVF: Injected context queue overflow */
++#define ADC_ISR_JQOVF		(1 << 10)
++/* AWD3: Analog watchdog 3 flag */
++#define ADC_ISR_AWD3		(1 << 9)
++/* AWD2: Analog watchdog 2 flag */
++#define ADC_ISR_AWD2		(1 << 8)
++/* JEOS: Injected channel end of sequence flag */
++#define ADC_ISR_JEOS		(1 << 6)
++/* JEOC: Injected channel end of conversion flag */
++#define ADC_ISR_JEOC		(1 << 5)
++
++/* ADC_IER Values -----------------------------------------------------------*/
++
++/* JQOVFIE: Injected context queue overflow interrupt enable */
++#define ADC_IER_JQOVFIE		(1 << 10)
++/* AWD3IE: Analog watchdog 3 interrupt enable */
++#define ADC_IER_AWD3IE		(1 << 9)
++/* AWD2IE: Analog watchdog 2 interrupt enable */
++#define ADC_IER_AWD2IE		(1 << 8)
++/* JEOSIE: End of injected sequence of conversions interrupt enable */
++#define ADC_IER_JEOSIE		(1 << 6)
++/* JEOCIE: End of injected conversion interrupt enable */
++#define ADC_IER_JEOCIE		(1 << 5)
++
++/* ADC_CR Values ------------------------------------------------------------*/
++
++/* ADCALDIF: Differential mode for calibration */
++#define ADC_CR_ADCALDIF		(1 << 30)
++/* JADSTP: ADC stop of injected conversion command */
++#define ADC_CR_JADSTP		(1 << 5)
++/* JADSTART: ADC start of injected conversion */
++#define ADC_CR_JADSTART		(1 << 3)
++
++/* ADC_CFGR1 Values ---------------------------------------------------------*/
++
++/* JAUTO: Autoamtic injected group conversion */
++#define ADC_CFGR1_JAUTO		(1 << 25)
++
++/* JAWD1EN: Analog watchdog 1 enable on injected channels */
++#define ADC_CFGR1_JAWD1EN	(1 << 24)
++
++/* JQM: JSQR queue mode */
++#define ADC_CFGR1_JQM		(1 << 21)
++
++/* JDISCEN: Discontinuous mode on injected channels */
++#define ADC_CFGR1_JDISCEN	(1 << 20)
++
++/* DISCNUM[2:0]: Discontinuous mode channel count */
++#define ADC_CFGR1_DISCNUM_SHIFT	17
++#define ADC_CFGR1_DISCNUM_MASK  (0x7 << ADC_CFGR1_DISCNUM_SHIFT)
++#define ADC_CFGR1_DISCNUM_VAL(x)	(((x) - 1) << ADC_CFGR1_DISCNUM_SHIFT)
++
++/* EXTSEL[3:0]: External trigger selection for regular group */
++#define ADC_CFGR1_EXTSEL_SHIFT		6
++#define ADC_CFGR1_EXTSEL_MASK		(0xf << ADC_CFGR1_EXTSEL_SHIFT)
++#define ADC_CFGR1_EXTSEL_VAL(x)		((x) << ADC_CFGR1_EXTSEL_SHIFT)
++
++/* --- Function prototypes ------------------------------------------------- */
++
++BEGIN_DECLS
++
++END_DECLS
++
++#endif
++#endif	/* LIBOPENCM3_ADC_H */
++/**@}*/
+diff --git a/include/libopencm3/stm32/common/adc_common_v2_single.h b/include/libopencm3/stm32/common/adc_common_v2_single.h
+new file mode 100644
+index 0000000..59d2b32
+--- /dev/null
++++ b/include/libopencm3/stm32/common/adc_common_v2_single.h
+@@ -0,0 +1,72 @@
++/** @addtogroup adc_defines
++
++@author @htmlonly &copy; @endhtmlonly 2015 Karl Palsson <karlp@tweak.net.au>
++
++ */
++
++/*
++ * This file is part of the libopencm3 project.
++ *
++ * Copyright (C) 2015 Karl Palsson <karlp@tweak.net.au>
++ *
++ * This library is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU Lesser General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this library.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++/**@{*/
++
++/* THIS FILE SHOULD NOT BE INCLUDED DIRECTLY, BUT ONLY VIA ADC.H
++The order of header inclusion is important. adc.h includes the device
++specific memorymap.h header before including this header file.*/
++
++/*
++ * The adc v2 peripheral optionally supports per channel sampling, injected
++ * sequences, watchdogs, offsets and other "advanced" features, and is 
++ * found on the (so far) F3 and L4,
++ * or only a much "simpler" version as found on (so far) f0 and l0.
++ */ 
++
++/** @cond */
++#ifdef LIBOPENCM3_ADC_H
++/** @endcond */
++#ifndef LIBOPENCM3_ADC_COMMON_V2_SINGLE_H
++#define LIBOPENCM3_ADC_COMMON_V2_SINGLE_H
++
++/* ----- ADC registers  -----------------------------------------------------*/
++/* Channel Select Register */
++#define ADC_CHSELR(adc)		MMIO32((adc) + 0x28)
++
++/* ----- ADC registers values -----------------------------------------------*/
++/* ADC_CFGR1 values */
++#define ADC_CFGR1_WAIT		(1<<14)
++/* EXTSEL[2:0]: External trigger selection for regular group */
++#define ADC_CFGR1_EXTSEL_SHIFT		6
++#define ADC_CFGR1_EXTSEL		(0x7 << ADC_CFGR1_EXTSEL_SHIFT)
++#define ADC_CFGR1_EXTSEL_VAL(x)		((x) << ADC_CFGR1_EXTSEL_SHIFT)
++
++#define ADC_CFGR1_SCANDIR		(1 << 2)
++
++/* ADC_CHSELR Values --------------------------------------------------------*/
++
++#define ADC_CHSELR_CHSEL(x)		(1 << (x))
++
++
++/* --- Function prototypes ------------------------------------------------- */
++
++BEGIN_DECLS
++
++END_DECLS
++
++#endif
++#endif	/* LIBOPENCM3_ADC_H */
++/**@}*/
+diff --git a/include/libopencm3/stm32/f0/adc.h b/include/libopencm3/stm32/f0/adc.h
+index d86ea23..b1c43a0 100644
+--- a/include/libopencm3/stm32/f0/adc.h
++++ b/include/libopencm3/stm32/f0/adc.h
+@@ -34,6 +34,7 @@
+ #define LIBOPENCM3_ADC_H
+ 
+ #include <libopencm3/stm32/common/adc_common_v2.h>
++#include <libopencm3/stm32/common/adc_common_v2_single.h>
+ 
+ /*****************************************************************************/
+ /* Module definitions                                                        */
+@@ -51,116 +52,24 @@
+ /* Register definitions                                                      */
+ /*****************************************************************************/
+ 
+-/* ADC interrupt and status register */
+-#define ADC_ISR(base)			MMIO32((base) + 0x00)
+ #define ADC1_ISR			ADC_ISR(ADC)
+-
+-/* Interrupt Enable Register */
+-#define ADC_IER(base)			MMIO32((base) + 0x04)
+ #define ADC1_IER			ADC_IER(ADC)
+-
+-/* Control Register */
+-#define ADC_CR(base)			MMIO32((base) + 0x08)
+ #define ADC1_CR				ADC_CR(ADC)
+-
+-
+-/* Configuration Register 1 */
+-#define ADC_CFGR1(base)			MMIO32((base) + 0x0C)
+ #define ADC1_CFGR1			ADC_CFGR1(ADC)
+-
+-
+-/* Configuration Register 2 */
+-#define ADC_CFGR2(base)			MMIO32((base) + 0x10)
+ #define ADC1_CFGR2			ADC_CFGR2(ADC)
+-
+-
+-/* Sample Time Register 1 */
+-#define ADC_SMPR(base)			MMIO32((base) + 0x14)
+-#define ADC1_SMPR			ADC_SMPR(ADC)
+-
+-
+-/* Watchdog Threshold Register */
+-#define ADC_TR(base)			MMIO32((base) + 0x20)
+-#define ADC1_TR				ADC_TR(ADC)
+-
+-
+-/* Channel Select Register */
+-#define ADC_CHSELR(base)		MMIO32((base) + 0x28)
++#define ADC1_SMPR1			ADC_SMPR1(ADC)
++#define ADC_SMPR(adc)			ADC_SMPR1(adc)  /* Compatibility */
++#define ADC1_SMPR			ADC_SMPR1(ADC) /* Compatibility */
++#define ADC1_TR1			ADC_TR1(ADC)
++#define ADC_TR(adc)			ADC_TR1(adc) /* Compatibility */
++#define ADC1_TR				ADC1_TR(ADC) /* Compatibility */
+ #define ADC1_CHSELR			ADC_CHSELR(ADC)
+-
+-
+-/* Regular Data Register */
+-#define ADC_DR(base)			MMIO32((base) + 0x40)
+ #define ADC1_DR				ADC_DR(ADC)
+ 
+ /*****************************************************************************/
+ /* Register values                                                           */
+ /*****************************************************************************/
+ 
+-/* ADC_ISR Values -----------------------------------------------------------*/
+-
+-#define ADC_ISR_AWD			(1 << 7)
+-#define ADC_ISR_OVR			(1 << 4)
+-#define ADC_ISR_EOSEQ			(1 << 3)
+-#define ADC_ISR_EOC			(1 << 2)
+-#define ADC_ISR_EOSMP			(1 << 1)
+-#define ADC_ISR_ADRDY			(1 << 0)
+-
+-/* ADC_IER Values -----------------------------------------------------------*/
+-
+-#define ADC_IER_AWDIE			(1 << 7)
+-#define ADC_IER_OVRIE			(1 << 4)
+-#define ADC_IER_EOSEQIE			(1 << 3)
+-#define ADC_IER_EOCIE			(1 << 2)
+-#define ADC_IER_EOSMPIE			(1 << 1)
+-#define ADC_IER_ADRDYIE			(1 << 0)
+-
+-/* ADC_CR Values ------------------------------------------------------------*/
+-
+-#define ADC_CR_ADCAL			(1 << 31)
+-#define ADC_CR_ADSTP			(1 << 4)
+-#define ADC_CR_ADSTART			(1 << 2)
+-#define ADC_CR_ADDIS			(1 << 1)
+-#define ADC_CR_ADEN			(1 << 0)
+-
+-/* ADC_CFGR1 Values ---------------------------------------------------------*/
+-
+-#define ADC_CFGR1_AWDCH_SHIFT		26
+-#define ADC_CFGR1_AWDCH			(0x1F << ADC_CFGR1_AWDCH_SHIFT)
+-#define ADC_CFGR1_AWDCH_VAL(x)		((x) << ADC_CFGR1_AWDCH_SHIFT)
+-
+-#define ADC_CFGR1_AWDEN			(1 << 23)
+-#define ADC_CFGR1_AWDSGL		(1 << 22)
+-#define ADC_CFGR1_DISCEN		(1 << 16)
+-#define ADC_CFGR1_AUTOFF		(1 << 15)
+-#define ADC_CFGR1_WAIT			(1 << 14)
+-#define ADC_CFGR1_CONT			(1 << 13)
+-#define ADC_CFGR1_OVRMOD		(1 << 12)
+-
+-#define ADC_CFGR1_EXTEN_SHIFT		10
+-#define ADC_CFGR1_EXTEN			(3 << ADC_CFGR1_EXTEN_SHIFT)
+-#define ADC_CFGR1_EXTEN_DISABLE		(0 << ADC_CFGR1_EXTEN_SHIFT)
+-#define ADC_CFGR1_EXTEN_RISING		(1 << ADC_CFGR1_EXTEN_SHIFT)
+-#define ADC_CFGR1_EXTEN_FALLING		(2 << ADC_CFGR1_EXTEN_SHIFT)
+-#define ADC_CFGR1_EXTEN_BOTH		(3 << ADC_CFGR1_EXTEN_SHIFT)
+-
+-#define ADC_CFGR1_EXTSEL_SHIFT		6
+-#define ADC_CFGR1_EXTSEL		(7 << ADC_CFGR1_EXTSEL_SHIFT)
+-#define ADC_CFGR1_EXTSEL_VAL(x)		((x) << ADC_CFGR1_EXTSEL_SHIFT)
+-
+-#define ADC_CFGR1_ALIGN			(1 << 5)
+-
+-#define ADC_CFGR1_RES_SHIFT		3
+-#define ADC_CFGR1_RES			(3 << ADC_CFGR1_RES_SHIFT)
+-#define ADC_CFGR1_RES_12_BIT		(0 << ADC_CFGR1_RES_SHIFT)
+-#define ADC_CFGR1_RES_10_BIT		(1 << ADC_CFGR1_RES_SHIFT)
+-#define ADC_CFGR1_RES_8_BIT		(2 << ADC_CFGR1_RES_SHIFT)
+-#define ADC_CFGR1_RES_6_BIT		(3 << ADC_CFGR1_RES_SHIFT)
+-
+-#define ADC_CFGR1_SCANDIR		(1 << 2)
+-#define ADC_CFGR1_DMACFG		(1 << 1)
+-#define ADC_CFGR1_DMAEN			(1 << 0)
+-
+ /* ADC_CFGR2 Values ---------------------------------------------------------*/
+ 
+ #define ADC_CFGR2_CKMODE_SHIFT		30
+@@ -182,24 +91,6 @@
+ #define ADC_SMPR_SMP_071DOT5		(6 << ADC_SMPR_SMP_SHIFT)
+ #define ADC_SMPR_SMP_239DOT5		(7 << ADC_SMPR_SMP_SHIFT)
+ 
+-/* ADC_TR Values ------------------------------------------------------------*/
+-
+-#define ADC_TR_LT_SHIFT			0
+-#define ADC_TR_LT			(0xFFF << ADC_TR_LT_SHIFT)
+-#define ADC_TR_LT_VAL(x)		((x) << ADC_TR_LT_SHIFT)
+-
+-#define ADC_TR_HT_SHIFT			16
+-#define ADC_TR_HT			(0xFFF << ADC_TR_HT_SHIFT)
+-#define ADC_TR_HT_VAL(x)		((x) << ADC_TR_HT_SHIFT)
+-
+-/* ADC_CHSELR Values --------------------------------------------------------*/
+-
+-#define ADC_CHSELR_CHSEL(x)		(1 << (x))
+-
+-/* ADC_DR Values ------------------------------------------------------------*/
+-
+-#define ADC_DR_DATA			0xFFFF
+-
+ 
+ /*****************************************************************************/
+ /* API definitions                                                           */
+diff --git a/include/libopencm3/stm32/f3/adc.h b/include/libopencm3/stm32/f3/adc.h
+index 4bd8fa2..9e363d8 100644
+--- a/include/libopencm3/stm32/f3/adc.h
++++ b/include/libopencm3/stm32/f3/adc.h
+@@ -35,6 +35,7 @@
+ #define LIBOPENCM3_ADC_H
+ 
+ #include <libopencm3/stm32/common/adc_common_v2.h>
++#include <libopencm3/stm32/common/adc_common_v2_multi.h>
+ 
+ #define ADC1		ADC1_BASE
+ #define ADC2		ADC2_BASE
+@@ -46,32 +47,21 @@
+ 
+ /*----------- ADC registers -------------------------------------- */
+ 
+-/* ADC interrupt and status register (ADCx_ISR, x=1..4) */
+-#define ADC_ISR(adc_base)	MMIO32((adc_base) + 0x00)
+ #define ADC1_ISR		ADC_ISR(ADC1_BASE)
+ #define ADC2_ISR		ADC_ISR(ADC2_BASE)
+ #define ADC3_ISR		ADC_ISR(ADC3_BASE)
+ #define ADC4_ISR		ADC_ISR(ADC4_BASE)
+ 
+-
+-/* Interrupt Enable Register (ADCx_IER, x=1..4) IER */
+-#define ADC_IER(adc_base)	MMIO32((adc_base) + 0x04)
+ #define ADC1_IER		ADC_IER(ADC1_BASE)
+ #define ADC2_IER		ADC_IER(ADC2_BASE)
+ #define ADC3_IER		ADC_IER(ADC3_BASE)
+ #define ADC4_IER		ADC_IER(ADC4_BASE)
+ 
+-
+-/* Control Register (ADCx_CR, x=1..4) CR */
+-#define ADC_CR(adc_base)	MMIO32((adc_base) + 0x08)
+ #define ADC1_CR			ADC_CR(ADC1_BASE)
+ #define ADC2_CR			ADC_CR(ADC2_BASE)
+ #define ADC3_CR			ADC_CR(ADC3_BASE)
+ #define ADC4_CR			ADC_CR(ADC4_BASE)
+ 
+-
+-/* Configuration Register (ADCx_CFGR1, x=1..4) CFGR */
+-#define ADC_CFGR1(adc_base)	MMIO32((adc_base) + 0x0C)
+ #define ADC1_CFGR1		ADC_CFGR1(ADC1_BASE)
+ #define ADC2_CFGR1		ADC_CFGR1(ADC2_BASE)
+ #define ADC3_CFGR1		ADC_CFGR1(ADC3_BASE)
+@@ -83,173 +73,116 @@
+ #define ADC3_CFGR		ADC_CFGR1(ADC3_BASE)
+ #define ADC4_CFGR		ADC_CFGR1(ADC4_BASE)
+ 
+-
+-/* Sample Time Register 1 (ADCx_SMPR1, x=1..4) SMPR1 */
+-#define ADC_SMPR1(adc_base)	MMIO32((adc_base) + 0x14)
+ #define ADC1_SMPR1		ADC_SMPR1(ADC1_BASE)
+ #define ADC2_SMPR1		ADC_SMPR1(ADC2_BASE)
+ #define ADC3_SMPR1		ADC_SMPR1(ADC3_BASE)
+ #define ADC4_SMPR1		ADC_SMPR1(ADC4_BASE)
+ 
+-
+-/* Sample Time Register 2 (ADCx_SMPR2, x=1..4) SMPR2 */
+-#define ADC_SMPR2(adc_base)	MMIO32((adc_base) + 0x18)
+ #define ADC1_SMPR2		ADC_SMPR2(ADC1_BASE)
+ #define ADC2_SMPR2		ADC_SMPR2(ADC2_BASE)
+ #define ADC3_SMPR2		ADC_SMPR2(ADC3_BASE)
+ #define ADC4_SMPR2		ADC_SMPR2(ADC4_BASE)
+ 
+-
+-/* Watchdog Threshold Register 1 (ADCx_TR1, x=1..4) TR1 */
+-#define ADC_TR1(adc_base)	MMIO32((adc_base) + 0x20)
+ #define ADC1_TR1		ADC_TR1(ADC1_BASE)
+ #define ADC2_TR1		ADC_TR1(ADC2_BASE)
+ #define ADC3_TR1		ADC_TR1(ADC3_BASE)
+ #define ADC4_TR1		ADC_TR1(ADC4_BASE)
+ 
+-
+-/* Watchdog Threshold Register 2 (ADCx_TR2, x=1..4) TR2 */
+-#define ADC_TR2(adc_base)	MMIO32((adc_base) + 0x24)
+ #define ADC1_TR2		ADC_TR2(ADC1_BASE)
+ #define ADC2_TR2		ADC_TR2(ADC2_BASE)
+ #define ADC3_TR2		ADC_TR2(ADC3_BASE)
+ #define ADC4_TR2		ADC_TR2(ADC4_BASE)
+ 
+-
+-/* Watchdog Threshold Register 3 (ADCx_TR3, x=1..4) TR3 */
+-#define ADC_TR3(adc_base)	MMIO32((adc_base) + 0x28)
+ #define ADC1_TR3		ADC_TR3(ADC1_BASE)
+ #define ADC2_TR3		ADC_TR3(ADC2_BASE)
+ #define ADC3_TR3		ADC_TR3(ADC3_BASE)
+ #define ADC4_TR3		ADC_TR3(ADC4_BASE)
+ 
+-
+-/* Regular Sequence Register 1 (ADCx_SQR1, x=1..4) SQR1 */
+-#define ADC_SQR1(adc_base)	MMIO32((adc_base) + 0x30)
+ #define ADC1_SQR1		ADC_SQR1(ADC1_BASE)
+ #define ADC2_SQR1		ADC_SQR1(ADC2_BASE)
+ #define ADC3_SQR1		ADC_SQR1(ADC3_BASE)
+ #define ADC4_SQR1		ADC_SQR1(ADC4_BASE)
+ 
+-
+-/* Regular Sequence Register 2 (ADCx_SQR2, x=1..4) SQR2 */
+-#define ADC_SQR2(adc_base)	MMIO32((adc_base) + 0x34)
+ #define ADC1_SQR2		ADC_SQR2(ADC1_BASE)
+ #define ADC2_SQR2		ADC_SQR2(ADC2_BASE)
+ #define ADC3_SQR2		ADC_SQR2(ADC3_BASE)
+ #define ADC4_SQR2		ADC_SQR2(ADC4_BASE)
+ 
+-
+-/* Regular Sequence Register 3 (ADCx_SQR3, x=1..4) SQR3 */
+-#define ADC_SQR3(adc_base)	MMIO32((adc_base) + 0x38)
+ #define ADC1_SQR3		ADC_SQR3(ADC1_BASE)
+ #define ADC2_SQR3		ADC_SQR3(ADC2_BASE)
+ #define ADC3_SQR3		ADC_SQR3(ADC3_BASE)
+ #define ADC4_SQR3		ADC_SQR3(ADC4_BASE)
+ 
+-
+-/* Regular Sequence Register 4 (ADCx_SQR3, x=1..4) SQR4 */
+-#define ADC_SQR4(adc_base)	MMIO32((adc_base) + 0x3C)
+ #define ADC1_SQR4		ADC_SQR4(ADC1_BASE)
+ #define ADC2_SQR4		ADC_SQR4(ADC2_BASE)
+ #define ADC3_SQR4		ADC_SQR4(ADC3_BASE)
+ #define ADC4_SQR4		ADC_SQR4(ADC4_BASE)
+ 
+-
+-/* regular Data Register (ADCx_DR, x=1..4) DR */
+-#define ADC_DR(adc_base)	MMIO32((adc_base) + 0x40)
+ #define ADC1_DR			ADC_DR(ADC1_BASE)
+ #define ADC2_DR			ADC_DR(ADC2_BASE)
+ #define ADC3_DR			ADC_DR(ADC3_BASE)
+ #define ADC4_DR			ADC_DR(ADC4_BASE)
+ 
+-
+-/* Injected Sequence Register (ADCx_JSQR, x=1..4) JSQR */
+-#define ADC_JSQR(adc_base)	MMIO32((adc_base) + 0x30)
+ #define ADC1_JSQR		ADC_JSQR(ADC1_BASE)
+ #define ADC2_JSQR		ADC_JSQR(ADC2_BASE)
+ #define ADC3_JSQR		ADC_JSQR(ADC3_BASE)
+ #define ADC4_JSQR		ADC_JSQR(ADC4_BASE)
+ 
+-
+-/* Offset Register x (ADCx_OFRy, x=1..4) (y=1..4) OFRy */
+-#define ADC_OFR1(adc_base)	MMIO32((adc_base) + 0x60)
+ #define ADC1_OFR1		ADC_OFR1(ADC1_BASE)
+ #define ADC2_OFR1		ADC_OFR1(ADC2_BASE)
+ #define ADC3_OFR1		ADC_OFR1(ADC3_BASE)
+ #define ADC4_OFR1		ADC_OFR1(ADC4_BASE)
+ 
+-#define ADC_OFR2(adc_base)	MMIO32((adc_base) + 0x64)
+ #define ADC1_OFR2		ADC_OFR2(ADC1_BASE)
+ #define ADC2_OFR2		ADC_OFR2(ADC2_BASE)
+ #define ADC3_OFR2		ADC_OFR2(ADC3_BASE)
+ #define ADC4_OFR2		ADC_OFR2(ADC4_BASE)
+ 
+-#define ADC_OFR3(adc_base)	MMIO32((adc_base) + 0x68)
+ #define ADC1_OFR3		ADC_OFR3(ADC1_BASE)
+ #define ADC2_OFR3		ADC_OFR3(ADC2_BASE)
+ #define ADC3_OFR3		ADC_OFR3(ADC3_BASE)
+ #define ADC4_OFR3		ADC_OFR3(ADC4_BASE)
+ 
+-#define ADC_OFR4(adc_base)	MMIO32((adc_base) + 0x6C)
+ #define ADC1_OFR4		ADC_OFR4(ADC1_BASE)
+ #define ADC2_OFR4		ADC_OFR4(ADC2_BASE)
+ #define ADC3_OFR4		ADC_OFR4(ADC3_BASE)
+ #define ADC4_OFR4		ADC_OFR4(ADC4_BASE)
+ 
+-
+-/* Injected Data Register y (ADCx_JDRy, x=1..4, y= 1..4) JDRy */
+-#define ADC_JDR1(adc_base)	MMIO32((adc_base) + 0x80)
+ #define ADC1_JDR1		ADC_JDR1(ADC1_BASE)
+ #define ADC2_JDR1		ADC_JDR1(ADC2_BASE)
+ #define ADC3_JDR1		ADC_JDR1(ADC3_BASE)
+ #define ADC4_JDR1		ADC_JDR1(ADC4_BASE)
+ 
+-#define ADC_JDR2(adc_base)	MMIO32((adc_base) + 0x84)
+ #define ADC1_JDR2		ADC_JDR2(ADC1_BASE)
+ #define ADC2_JDR2		ADC_JDR2(ADC2_BASE)
+ #define ADC3_JDR2		ADC_JDR2(ADC3_BASE)
+ #define ADC4_JDR2		ADC_JDR2(ADC4_BASE)
+ 
+-#define ADC_JDR3(adc_base)	MMIO32((adc_base) + 0x88)
+ #define ADC1_JDR3		ADC_JDR3(ADC1_BASE)
+ #define ADC2_JDR3		ADC_JDR3(ADC2_BASE)
+ #define ADC3_JDR3		ADC_JDR3(ADC3_BASE)
+ #define ADC4_JDR3		ADC_JDR3(ADC4_BASE)
+ 
+-#define ADC_JDR4(adc_base)	MMIO32((adc_base) + 0x8C)
+ #define ADC1_JDR4		ADC_JDR4(ADC1_BASE)
+ #define ADC2_JDR4		ADC_JDR4(ADC2_BASE)
+ #define ADC3_JDR4		ADC_JDR4(ADC3_BASE)
+ #define ADC4_JDR4		ADC_JDR4(ADC4_BASE)
+ 
+-
+-/* Analog Watchdog 2 Configuration Register (ADCx_AWD2CR, x=1..4) AWD2CR */
+-#define ADC_AWD2CR(adc_base)	MMIO32((adc_base) + 0xA0)
+ #define ADC1_AWD2CR		ADC_AWD2CR(ADC1_BASE)
+ #define ADC2_AWD2CR		ADC_AWD2CR(ADC2_BASE)
+ #define ADC3_AWD2CR		ADC_AWD2CR(ADC3_BASE)
+ #define ADC4_AWD2CR		ADC_AWD2CR(ADC4_BASE)
+ 
+-
+-/* Analog Watchdog 3 Configuration Register (ADCx_AWD3CR, x=1..4) AWD3CR */
+-#define ADC_AWD3CR(adc_base)	MMIO32((adc_base) + 0xA4)
+ #define ADC1_AWD3CR		ADC_AWD3CR(ADC1_BASE)
+ #define ADC2_AWD3CR		ADC_AWD3CR(ADC2_BASE)
+ #define ADC3_AWD3CR		ADC_AWD3CR(ADC3_BASE)
+ #define ADC4_AWD3CR		ADC_AWD3CR(ADC4_BASE)
+ 
+-
+-/* Differential Mode Selection Register 2 (ADCx_DIFSEL, x=1..4) DIFSEL */
+-#define ADC_DIFSEL(adc_base)	MMIO32((adc_base) + 0xB0)
+ #define ADC1_DIFSEL		ADC_DIFSEL(ADC1_BASE)
+ #define ADC2_DIFSEL		ADC_DIFSEL(ADC2_BASE)
+ #define ADC3_DIFSEL		ADC_DIFSEL(ADC3_BASE)
+ #define ADC4_DIFSEL		ADC_DIFSEL(ADC4_BASE)
+ 
+-
+-/* Calibration Factors (ADCx_CALFACT, x=1..4) CALFACT */
+-#define ADC_CALFACT(adc_base)	MMIO32((adc_base) + 0xB4)
+ #define ADC1_CALFACT		ADC_CALFACT(ADC1_BASE)
+ #define ADC2_CALFACT		ADC_CALFACT(ADC2_BASE)
+ #define ADC3_CALFACT		ADC_CALFACT(ADC3_BASE)
+@@ -263,226 +196,13 @@
+ #define ADC34_CDR			ADC_CDR(ADC3)
+ 
+ 
+-/*------- ADC_ISR values ---------*/
+-
+-/* QOVF: Injected context queue overflow */
+-#define ADC_ISR_JQOVF		(1 << 10)
+-
+-/* AWD3: Analog watchdog 3 flag */
+-#define ADC_ISR_AWD3		(1 << 9)
+-
+-/* AWD2: Analog watchdog 2 flag */
+-#define ADC_ISR_AWD2		(1 << 8)
+-
+-/* AWD1: Analog watchdog 1 flag */
+-#define ADC_ISR_AWD1		(1 << 7)
+-
+-/* JEOS: Injected channel end of sequence flag */
+-#define ADC_ISR_JEOS		(1 << 6)
+-
+-/* JEOC: Injected channel end of conversion flag */
+-#define ADC_ISR_JEOC		(1 << 5)
+-
+-/* OVR: ADC overrun */
+-#define ADC_ISR_OVR		(1 << 4)
+-
+-/* EOS: End of regular sequence flag */
+-#define ADC_ISR_EOS		(1 << 3)
+-
+-/* EOC: End of conversion flag */
+-#define ADC_ISR_EOC		(1 << 2)
+-
+-/* EOSMP: End of sampling flag */
+-#define ADC_ISR_EOSMP		(1 << 1)
+-
+-/* ADRDY: ADC ready */
+-#define ADC_ISR_ADRDY		(1 << 0)
+-
+-
+-/*------- ADC_IER values ---------*/
+-
+-/* JQOVFIE: Injected context queue overflow interrupt enable */
+-#define ADC_IER_JQOVFIE		(1 << 10)
+-
+-/* AWD3IE: Analog watchdog 3 interrupt enable */
+-#define ADC_IER_AWD3IE		(1 << 9)
+-
+-/* AWD2IE: Analog watchdog 2 interrupt enable */
+-#define ADC_IER_AWD2IE		(1 << 8)
+-
+-/* AWD1IE: Analog watchdog 1 interrupt enable */
+-#define ADC_IER_AWD1IE		(1 << 7)
+-
+-/* JEOSIE: End of injected sequence of conversions interrupt enable */
+-#define ADC_IER_JEOSIE		(1 << 6)
+-
+-/* JEOCIE: End of injected conversion interrupt enable */
+-#define ADC_IER_JEOCIE		(1 << 5)
+-
+-/* OVRIE: Overrun interrupt enable */
+-#define ADC_IER_OVRIE		(1 << 4)
+-
+-/* EOSIE: End of regular sequence of conversions interrupt enable */
+-#define ADC_IER_EOSIE		(1 << 3)
+-
+-/* EOCIE: End of regular conversion interrupt enable */
+-#define ADC_IER_EOCIE		(1 << 2)
+-
+-/* EOSMPIE: End of sampling flag interrupt enable for regular conversions */
+-#define ADC_IER_EOSMPIE		(1 << 1)
+-
+-/* ADRDYIE : ADC ready interrupt enable */
+-#define ADC_IER_ADRDYIE		(1 << 0)
+-
+-
+ /*------- ADC_CR values ---------*/
+ 
+-/* ADCAL: ADC calibration */
+-#define ADC_CR_ADCAL		(1 << 31)
+-
+-/* ADCALDIF: Differential mode for calibration */
+-#define ADC_CR_ADCALDIF		(1 << 30)
+-
+ /** ADVREGEN: ADC voltage regulator enable */
+ #define ADC_CR_ADVREGEN_ENABLE		(0x1 << 28)
+ #define ADC_CR_ADVREGEN_DISABLE		(0x2 << 28)
+ #define ADC_CR_ADVREGEN_MASK		(0x3 << 28)
+ 
+-/* JADSTP: ADC stop of injected conversion command */
+-#define ADC_CR_JADSTP		(1 << 5)
+-
+-/* ADSTP: ADC stop of regular conversion command */
+-#define ADC_CR_ADSTP		(1 << 4)
+-
+-/* JADSTART: ADC start of injected conversion */
+-#define ADC_CR_JADSTART		(1 << 3)
+-
+-/* ADSTART: ADC start of regular conversion */
+-#define ADC_CR_ADSTART		(1 << 2)
+-
+-/* ADDIS: ADC disable command */
+-#define ADC_CR_ADDIS		(1 << 1)
+-
+-/* ADEN: ADC enable control */
+-#define ADC_CR_ADEN		(1 << 0)
+-
+-
+-/*------- ADC_CFGR1 values ---------*/
+-
+-/* AWD1CH[4:0]: Analog watchdog 1 channel selection */
+-/* Bit 0x0 reserved */
+-#define ADC_CFGR1_AWD1CH_ADC_IN_CH_1	(0x01 << 26)
+-#define ADC_CFGR1_AWD1CH_ADC_IN_CH_2	(0x02 << 26)
+-#define ADC_CFGR1_AWD1CH_ADC_IN_CH_3	(0x03 << 26)
+-#define ADC_CFGR1_AWD1CH_ADC_IN_CH_4	(0x04 << 26)
+-#define ADC_CFGR1_AWD1CH_ADC_IN_CH_5	(0x05 << 26)
+-#define ADC_CFGR1_AWD1CH_ADC_IN_CH_6	(0x06 << 26)
+-#define ADC_CFGR1_AWD1CH_ADC_IN_CH_7	(0x07 << 26)
+-#define ADC_CFGR1_AWD1CH_ADC_IN_CH_8	(0x08 << 26)
+-#define ADC_CFGR1_AWD1CH_ADC_IN_CH_9	(0x09 << 26)
+-#define ADC_CFGR1_AWD1CH_ADC_IN_CH_10	(0x0A << 26)
+-#define ADC_CFGR1_AWD1CH_ADC_IN_CH_11	(0x0B << 26)
+-#define ADC_CFGR1_AWD1CH_ADC_IN_CH_12	(0x0C << 26)
+-#define ADC_CFGR1_AWD1CH_ADC_IN_CH_13	(0x0D << 26)
+-#define ADC_CFGR1_AWD1CH_ADC_IN_CH_14	(0x0E << 26)
+-#define ADC_CFGR1_AWD1CH_ADC_IN_CH_15	(0x0F << 26)
+-#define ADC_CFGR1_AWD1CH_ADC_IN_CH_16	(0x10 << 26)
+-#define ADC_CFGR1_AWD1CH_ADC_IN_CH_17	(0x11 << 26)
+-
+-#define ADC_CFGR1_AWD1CH_MASK		(0x1F << 26)
+-
+-/* Ohters bits reserved, must not be used */
+-
+-/* JAUTO: Autoamtic injected group conversion */
+-#define ADC_CFGR1_JAUTO		(1 << 25)
+-
+-/* JAWD1EN: Analog watchdog 1 enable on injected channels */
+-#define ADC_CFGR1_JAWD1EN	(1 << 24)
+-
+-/* AWD1EN: Analog watchdog 1 enable on regular channels */
+-#define ADC_CFGR1_AWD1EN		(1 << 23)
+-
+-/* AWD1SGL: Enable the watchdog 1 on a single channel or on all channels */
+-#define ADC_CFGR1_AWD1SGL	(1 << 22)
+-
+-/* JQM: JSQR queue mode */
+-#define ADC_CFGR1_JQM		(1 << 21)
+-
+-/* JDISCEN: Discontinuous mode on injected channels */
+-#define ADC_CFGR1_JDISCEN	(1 << 20)
+-
+-/* DISCNUM[2:0]: Discontinuous mode channel count */
+-#define ADC_CFGR1_DISCNUM_1_CH	(0x0 << 17)
+-#define ADC_CFGR1_DISCNUM_2_CH	(0x1 << 17)
+-#define ADC_CFGR1_DISCNUM_3_CH	(0x2 << 17)
+-#define ADC_CFGR1_DISCNUM_4_CH	(0x3 << 17)
+-#define ADC_CFGR1_DISCNUM_5_CH	(0x4 << 17)
+-#define ADC_CFGR1_DISCNUM_6_CH	(0x5 << 17)
+-#define ADC_CFGR1_DISCNUM_7_CH	(0x6 << 17)
+-#define ADC_CFGR1_DISCNUM_8_CH	(0x7 << 17)
+-#define ADC_CFGR1_DISCNUM_SHIFT	17
+-
+-/* DISCEN: Discontinuous mode for regular channels */
+-#define ADC_CFGR1_DISCEN		(1 << 16)
+-
+-/* AUTDLY: Delayed conversion mode */
+-#define ADC_CFGR1_AUTDLY		(1 << 14)
+-
+-/* CONT: Single / continuous conversion mode for regular conversions */
+-#define ADC_CFGR1_CONT		(1 << 13)
+-
+-/* OVRMOD: Overrun Mode */
+-#define ADC_CFGR1_OVRMOD		(1 << 12)
+-
+-/*
+- * EXTEN[1:0]: External trigger enable and polarity selection for regular
+- * channels
+- */
+-#define ADC_CFGR1_EXTEN_DISABLED		(0x0 << 10)
+-#define ADC_CFGR1_EXTEN_RISING_EDGE	(0x1 << 10)
+-#define ADC_CFGR1_EXTEN_FALLING_EDGE	(0x2 << 10)
+-#define ADC_CFGR1_EXTEN_BOTH_EDGES	(0x3 << 10)
+-
+-#define ADC_CFGR1_EXTEN_MASK		(0x3 << 10)
+-
+-/* EXTSEL[3:0]: External trigger selection for regular group */
+-#define ADC_CFGR1_EXTSEL_EVENT_0		(0x0 << 6)
+-#define ADC_CFGR1_EXTSEL_EVENT_1		(0x1 << 6)
+-#define ADC_CFGR1_EXTSEL_EVENT_2		(0x2 << 6)
+-#define ADC_CFGR1_EXTSEL_EVENT_3		(0x3 << 6)
+-#define ADC_CFGR1_EXTSEL_EVENT_4		(0x4 << 6)
+-#define ADC_CFGR1_EXTSEL_EVENT_5		(0x5 << 6)
+-#define ADC_CFGR1_EXTSEL_EVENT_6		(0x6 << 6)
+-#define ADC_CFGR1_EXTSEL_EVENT_7		(0x7 << 6)
+-#define ADC_CFGR1_EXTSEL_EVENT_8		(0x8 << 6)
+-#define ADC_CFGR1_EXTSEL_EVENT_9		(0x9 << 6)
+-#define ADC_CFGR1_EXTSEL_EVENT_10	(0xA << 6)
+-#define ADC_CFGR1_EXTSEL_EVENT_11	(0xB << 6)
+-#define ADC_CFGR1_EXTSEL_EVENT_12	(0xC << 6)
+-#define ADC_CFGR1_EXTSEL_EVENT_13	(0xD << 6)
+-#define ADC_CFGR1_EXTSEL_EVENT_14	(0xE << 6)
+-#define ADC_CFGR1_EXTSEL_EVENT_15	(0xF << 6)
+-
+-#define ADC_CFGR1_EXTSEL_MASK		(0xF << 6)
+-
+-/* ALIGN: Data alignment */
+-#define ADC_CFGR1_ALIGN		(1 << 5)
+-
+-/* RES[1:0]: Data resolution */
+-#define ADC_CFGR1_RES_12_BIT	(0x0 << 3)
+-#define ADC_CFGR1_RES_10_BIT	(0x1 << 3)
+-#define ADC_CFGR1_RES_8_BIT	(0x2 << 3)
+-#define ADC_CFGR1_RES_6_BIT	(0x3 << 3)
+-
+-#define ADC_CFGR1_RES_MASK	(0x3 << 3)
+-
+-/* DMACFG: Direct memory access configuration */
+-#define ADC_CFGR1_DMACFG		(1 << 1)
+-
+-/* DMAEN: Direct memory access enable */
+-#define ADC_CFGR1_DMAEN		(1 << 0)
+-
+-
+ /****************************************************************************/
+ /* ADC_SMPRx ADC Sample Time Selection for Channels */
+ /** @defgroup adc_sample ADC Sample Time Selection values
+@@ -501,13 +221,6 @@
+ 
+ /* SMPx[2:0]: Channel x sampling time selection */
+ 
+-/*------- ADC_TR1 values ---------*/
+-
+-/* Bits 27:16 HT1[11:0]: Analog watchdog 1 higher threshold */
+-
+-/* Bit 11:0 LT1[11:0]: Analog watchdog 1 lower threshold */
+-
+-
+ /*------- ADC_T2 values ---------*/
+ 
+ /* Bits 23:16 HT2[7:0]: Analog watchdog 2 higher threshold */
+diff --git a/lib/stm32/f0/adc.c b/lib/stm32/f0/adc.c
+index 8e2f365..ce23da6 100644
+--- a/lib/stm32/f0/adc.c
++++ b/lib/stm32/f0/adc.c
+@@ -233,7 +233,7 @@ void adc_enable_external_trigger_regular(uint32_t adc, uint32_t trigger,
+ 				 uint32_t polarity)
+ {
+ 	ADC_CFGR1(adc) = (ADC_CFGR1(adc) & ~ADC_CFGR1_EXTSEL) | trigger;
+-	ADC_CFGR1(adc) = (ADC_CFGR1(adc) & ~ADC_CFGR1_EXTEN) | polarity;
++	ADC_CFGR1(adc) = (ADC_CFGR1(adc) & ~ADC_CFGR1_EXTEN_MASK) | polarity;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -244,7 +244,7 @@ void adc_enable_external_trigger_regular(uint32_t adc, uint32_t trigger,
+ 
+ void adc_disable_external_trigger_regular(uint32_t adc)
+ {
+-	ADC_CFGR1(adc) &= ~ADC_CFGR1_EXTEN;
++	ADC_CFGR1(adc) &= ~ADC_CFGR1_EXTEN_MASK;
+ }
+ 
+ /**@}*/
+@@ -268,7 +268,7 @@ void adc_disable_external_trigger_regular(uint32_t adc)
+ 
+ void adc_enable_watchdog_interrupt(uint32_t adc)
+ {
+-	ADC_IER(adc) |= ADC_IER_AWDIE;
++	ADC_IER(adc) |= ADC_IER_AWD1IE;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -279,7 +279,7 @@ void adc_enable_watchdog_interrupt(uint32_t adc)
+ 
+ void adc_disable_watchdog_interrupt(uint32_t adc)
+ {
+-	ADC_IER(adc) &= ~ADC_IER_AWDIE;
++	ADC_IER(adc) &= ~ADC_IER_AWD1IE;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -294,7 +294,7 @@ void adc_disable_watchdog_interrupt(uint32_t adc)
+ 
+ bool adc_get_watchdog_flag(uint32_t adc)
+ {
+-	return ADC_ISR(adc) & ADC_ISR_AWD;
++	return ADC_ISR(adc) & ADC_ISR_AWD1;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -305,7 +305,7 @@ bool adc_get_watchdog_flag(uint32_t adc)
+ 
+ void adc_clear_watchdog_flag(uint32_t adc)
+ {
+-	ADC_ISR(adc) = ADC_ISR_AWD;
++	ADC_ISR(adc) = ADC_ISR_AWD1;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -524,7 +524,7 @@ void adc_set_sample_time_on_all_channels(uint32_t adc, uint8_t time)
+ 
+ void adc_set_resolution(uint32_t adc, uint16_t resolution)
+ {
+-	ADC_CFGR1(adc) = (ADC_CFGR1(adc) & ~ADC_CFGR1_RES) | resolution;
++	ADC_CFGR1(adc) = (ADC_CFGR1(adc) & ~ADC_CFGR1_RES_MASK) | resolution;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -673,8 +673,8 @@ void adc_calibrate_wait_finish(uint32_t adc)
+ 
+ void adc_enable_analog_watchdog_on_all_channels(uint32_t adc)
+ {
+-	ADC_CFGR1(adc) |= ADC_CFGR1_AWDEN;
+-	ADC_CFGR1(adc) &= ~ADC_CFGR1_AWDSGL;
++	ADC_CFGR1(adc) |= ADC_CFGR1_AWD1EN;
++	ADC_CFGR1(adc) &= ~ADC_CFGR1_AWD1SGL;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -686,10 +686,10 @@ void adc_enable_analog_watchdog_on_all_channels(uint32_t adc)
+ 
+ void adc_enable_analog_watchdog_on_selected_channel(uint32_t adc, uint8_t chan)
+ {
+-	ADC_CFGR1(adc) = (ADC_CFGR1(adc) & ~ADC_CFGR1_AWDCH) |
+-			  ADC_CFGR1_AWDCH_VAL(chan);
++	ADC_CFGR1(adc) = (ADC_CFGR1(adc) & ~ADC_CFGR1_AWD1CH) |
++			  ADC_CFGR1_AWD1CH_VAL(chan);
+ 
+-	ADC_CFGR1(adc) |= ADC_CFGR1_AWDEN | ADC_CFGR1_AWDSGL;
++	ADC_CFGR1(adc) |= ADC_CFGR1_AWD1EN | ADC_CFGR1_AWD1SGL;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -699,7 +699,7 @@ void adc_enable_analog_watchdog_on_selected_channel(uint32_t adc, uint8_t chan)
+  */
+ void adc_disable_analog_watchdog(uint32_t adc)
+ {
+-	ADC_CFGR1(adc) &= ~ADC_CFGR1_AWDEN;
++	ADC_CFGR1(adc) &= ~ADC_CFGR1_AWD1EN;
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -711,7 +711,7 @@ void adc_disable_analog_watchdog(uint32_t adc)
+ 
+ void adc_set_watchdog_high_threshold(uint32_t adc, uint8_t threshold)
+ {
+-	ADC_TR(adc) = (ADC_TR(adc) & ~ADC_TR_HT) | ADC_TR_HT_VAL(threshold);
++	ADC_TR1(adc) = (ADC_TR1(adc) & ~ADC_TR1_HT) | ADC_TR1_HT_VAL(threshold);
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+@@ -723,7 +723,7 @@ void adc_set_watchdog_high_threshold(uint32_t adc, uint8_t threshold)
+ 
+ void adc_set_watchdog_low_threshold(uint32_t adc, uint8_t threshold)
+ {
+-	ADC_TR(adc) = (ADC_TR(adc) & ~ADC_TR_LT) | ADC_TR_LT_VAL(threshold);
++	ADC_TR1(adc) = (ADC_TR1(adc) & ~ADC_TR1_LT) | ADC_TR1_LT_VAL(threshold);
+ }
+ 
+ /**@}*/
+diff --git a/lib/stm32/f3/adc.c b/lib/stm32/f3/adc.c
+index a07877b..3940853 100644
+--- a/lib/stm32/f3/adc.c
++++ b/lib/stm32/f3/adc.c
+@@ -287,7 +287,7 @@ void adc_enable_analog_watchdog_on_selected_channel(uint32_t adc,
+ {
+ 	uint32_t reg32;
+ 
+-	reg32 = (ADC_CFGR1(adc) & ~ADC_CFGR1_AWD1CH_MASK); /* Clear bit [4:0]. */
++	reg32 = (ADC_CFGR1(adc) & ~ADC_CFGR1_AWD1CH); /* Clear bit [4:0]. */
+ 	if (channel < 18) {
+ 		reg32 |= channel;
+ 	}
+
+From 8fb5bca21972c4ed3084480b25a9fa6daad30216 Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Fri, 16 Oct 2015 22:42:00 +0000
+Subject: [PATCH 13/22] stm32l0: land adc-v2 peripheral support
+
+Now that the big pieces of the adc-v2 common files are in place, start
+including l0 in the builds.  This includes only the very very basic core v2
+peripheral functions, and the very basic definitions.
+---
+ include/libopencm3/stm32/adc.h    |  2 ++
+ include/libopencm3/stm32/l0/adc.h | 76 +++++++++++++++++++++++++++++++++++++++
+ lib/stm32/l0/Makefile             |  1 +
+ 3 files changed, 79 insertions(+)
+ create mode 100644 include/libopencm3/stm32/l0/adc.h
+
+diff --git a/include/libopencm3/stm32/adc.h b/include/libopencm3/stm32/adc.h
+index 54388be..e03bae0 100644
+--- a/include/libopencm3/stm32/adc.h
++++ b/include/libopencm3/stm32/adc.h
+@@ -28,6 +28,8 @@
+ #       include <libopencm3/stm32/f3/adc.h>
+ #elif defined(STM32F4)
+ #       include <libopencm3/stm32/f4/adc.h>
++#elif defined(STM32L0)
++#       include <libopencm3/stm32/l0/adc.h>
+ #elif defined(STM32L1)
+ #       include <libopencm3/stm32/l1/adc.h>
+ #else
+diff --git a/include/libopencm3/stm32/l0/adc.h b/include/libopencm3/stm32/l0/adc.h
+new file mode 100644
+index 0000000..a7b3f1f
+--- /dev/null
++++ b/include/libopencm3/stm32/l0/adc.h
+@@ -0,0 +1,76 @@
++/** @defgroup adc_defines ADC Defines
++ *
++ * @brief <b>Defined Constants and Types for the STM32L0xx Analog to Digital
++ * Converter</b>
++ *
++ * @ingroup STM32L0xx_defines
++ *
++ * @version 1.0.0
++ *
++ * @date 16 Oct 2015
++ *
++ * LGPL License Terms @ref lgpl_license
++ */
++/*
++ * This file is part of the libopencm3 project.
++ *
++ * Copyright (C) 2015 Karl Palsson <karlp@tweak.net.au>
++ *
++ * This library is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU Lesser General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this library.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef LIBOPENCM3_ADC_H
++#define LIBOPENCM3_ADC_H
++
++#include <libopencm3/stm32/common/adc_common_v2.h>
++#include <libopencm3/stm32/common/adc_common_v2_single.h>
++
++/** @defgroup adc_reg_base ADC register base addresses
++ * @ingroup adc_defines
++ *
++ *@{*/
++#define ADC1				ADC1_BASE
++/**@}*/
++
++
++/** @defgroup adc_channel ADC Channel Numbers
++ * @ingroup adc_defines
++ *
++ *@{*/
++#define ADC_CHANNEL_VLCD	16
++#define ADC_CHANNEL_VREF	17
++#define ADC_CHANNEL_TEMP	18
++/**@}*/
++
++/* Calibration Factors */
++#define ADC_CALFACT(adc)	MMIO32((adc) + 0xB4)
++
++/* Register values */
++/* ADC_CFGR2 Values ---------------------------------------------------------*/
++
++#define ADC_CFGR2_CKMODE_SHIFT		30
++#define ADC_CFGR2_CKMODE		(3 << ADC_CFGR2_CKMODE_SHIFT)
++#define ADC_CFGR2_CKMODE_CK_ADC		(0 << ADC_CFGR2_CKMODE_SHIFT)
++#define ADC_CFGR2_CKMODE_PCLK_DIV2	(1 << ADC_CFGR2_CKMODE_SHIFT)
++#define ADC_CFGR2_CKMODE_PCLK_DIV4	(2 << ADC_CFGR2_CKMODE_SHIFT)
++#define ADC_CFGR2_CKMODE_PCLK		(3 << ADC_CFGR2_CKMODE_SHIFT)
++
++
++BEGIN_DECLS
++
++
++END_DECLS
++
++
++#endif
+diff --git a/lib/stm32/l0/Makefile b/lib/stm32/l0/Makefile
+index fa87b25..6cf194e 100644
+--- a/lib/stm32/l0/Makefile
++++ b/lib/stm32/l0/Makefile
+@@ -39,6 +39,7 @@ OBJS		= gpio.o rcc.o desig.o
+ OBJS		+= pwr_common_all.o pwr_common_l01.o
+ 
+ OBJS            += gpio_common_all.o gpio_common_f0234.o rcc_common_all.o
++OBJS		+= adc_common_v2.o
+ OBJS		+= crs_common_all.o
+ 
+ OBJS            += usb.o usb_control.o usb_standard.o
+
+From 360555e6c4a6000dc4e34050e39baf28111f6d5c Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Thu, 5 Nov 2015 23:24:02 +0000
+Subject: [PATCH 14/22] stm32: adc-v2: pull up more common functionality
+
+More easy bit on/off settings.  Every piece that gets pulled up here becomes
+automatically available for l0/l4 when they land
+---
+ include/libopencm3/stm32/common/adc_common_v2.h |  5 ++
+ include/libopencm3/stm32/f0/adc.h               |  5 --
+ include/libopencm3/stm32/f3/adc.h               |  5 --
+ lib/stm32/common/adc_common_v2.c                | 50 ++++++++++++++++++
+ lib/stm32/f0/adc.c                              | 60 ---------------------
+ lib/stm32/f3/adc.c                              | 69 -------------------------
+ 6 files changed, 55 insertions(+), 139 deletions(-)
+
+diff --git a/include/libopencm3/stm32/common/adc_common_v2.h b/include/libopencm3/stm32/common/adc_common_v2.h
+index 4c3a9cb..41930b2 100644
+--- a/include/libopencm3/stm32/common/adc_common_v2.h
++++ b/include/libopencm3/stm32/common/adc_common_v2.h
+@@ -185,6 +185,11 @@ void adc_enable_temperature_sensor(void);
+ void adc_disable_temperature_sensor(void);
+ void adc_enable_vrefint(void);
+ void adc_disable_vrefint(void);
++void adc_set_resolution(uint32_t adc, uint16_t resolution);
++void adc_set_left_aligned(uint32_t adc);
++void adc_set_right_aligned(uint32_t adc);
++void adc_enable_dma(uint32_t adc);
++void adc_disable_dma(uint32_t adc);
+ 
+ END_DECLS
+ 
+diff --git a/include/libopencm3/stm32/f0/adc.h b/include/libopencm3/stm32/f0/adc.h
+index b1c43a0..123376d 100644
+--- a/include/libopencm3/stm32/f0/adc.h
++++ b/include/libopencm3/stm32/f0/adc.h
+@@ -190,11 +190,6 @@ void adc_disable_eoc_interrupt(uint32_t adc);
+ void adc_set_clk_source(uint32_t adc, uint32_t source);
+ void adc_set_regular_sequence(uint32_t adc, uint8_t length, uint8_t channel[]);
+ void adc_set_sample_time_on_all_channels(uint32_t adc, uint8_t time);
+-void adc_set_resolution(uint32_t adc, uint16_t resolution);
+-void adc_set_left_aligned(uint32_t adc);
+-void adc_set_right_aligned(uint32_t adc);
+-void adc_enable_dma(uint32_t adc);
+-void adc_disable_dma(uint32_t adc);
+ void adc_enable_vbat_sensor(void);
+ void adc_disable_vbat_sensor(void);
+ void adc_calibrate_start(uint32_t adc);
+diff --git a/include/libopencm3/stm32/f3/adc.h b/include/libopencm3/stm32/f3/adc.h
+index 9e363d8..cc9797a 100644
+--- a/include/libopencm3/stm32/f3/adc.h
++++ b/include/libopencm3/stm32/f3/adc.h
+@@ -603,10 +603,6 @@ void adc_start_conversion_regular(uint32_t adc);
+ void adc_start_conversion_injected(uint32_t adc);
+ void adc_disable_external_trigger_regular(uint32_t adc);
+ void adc_disable_external_trigger_injected(uint32_t adc);
+-void adc_set_left_aligned(uint32_t adc);
+-void adc_set_right_aligned(uint32_t adc);
+-void adc_enable_dma(uint32_t adc);
+-void adc_disable_dma(uint32_t adc);
+ void adc_set_sample_time(uint32_t adc, uint8_t channel, uint8_t time);
+ void adc_set_sample_time_on_all_channels(uint32_t adc, uint8_t time);
+ void adc_set_watchdog_high_threshold(uint32_t adc, uint8_t threshold);
+@@ -627,7 +623,6 @@ void adc_enable_external_trigger_regular(uint32_t adc, uint32_t trigger,
+ 					 uint32_t polarity);
+ void adc_enable_external_trigger_injected(uint32_t adc, uint32_t trigger,
+ 					  uint32_t polarity);
+-void adc_set_resolution(uint32_t adc, uint16_t resolution);
+ void adc_enable_overrun_interrupt(uint32_t adc);
+ void adc_disable_overrun_interrupt(uint32_t adc);
+ bool adc_get_overrun_flag(uint32_t adc);
+diff --git a/lib/stm32/common/adc_common_v2.c b/lib/stm32/common/adc_common_v2.c
+index cae5dd0..3c84e0a 100644
+--- a/lib/stm32/common/adc_common_v2.c
++++ b/lib/stm32/common/adc_common_v2.c
+@@ -138,6 +138,56 @@ void adc_set_single_conversion_mode(uint32_t adc)
+ 	ADC_CFGR1(adc) &= ~ADC_CFGR1_CONT;
+ }
+ 
++/** @brief ADC Set Resolution
++ *
++ * ADC Resolution can be reduced from 12 bits to 10, 8 or 6 bits for a
++ * corresponding reduction in conversion time.
++ *
++ * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
++ * @param[in] resolution Unsigned int16. Resolution value (@ref adc_api_res)
++ */
++void adc_set_resolution(uint32_t adc, uint16_t resolution)
++{
++	ADC_CFGR1(adc) = (ADC_CFGR1(adc) & ~ADC_CFGR1_RES_MASK) | resolution;
++}
++
++/** @brief ADC Set the Data as Left Aligned
++ *
++ * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
++ */
++void adc_set_left_aligned(uint32_t adc)
++{
++	ADC_CFGR1(adc) |= ADC_CFGR1_ALIGN;
++}
++
++/** @brief ADC Set the Data as Right Aligned
++ *
++ * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
++ */
++void adc_set_right_aligned(uint32_t adc)
++{
++	ADC_CFGR1(adc) &= ~ADC_CFGR1_ALIGN;
++}
++
++/** @brief ADC Enable DMA Transfers
++ *
++ * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
++ */
++void adc_enable_dma(uint32_t adc)
++{
++	ADC_CFGR1(adc) |= ADC_CFGR1_DMAEN;
++}
++
++/** @brief ADC Disable DMA Transfers
++ *
++ * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
++ */
++void adc_disable_dma(uint32_t adc)
++{
++	ADC_CFGR1(adc) &= ~ADC_CFGR1_DMAEN;
++}
++
++
+ /**
+  * Enable the temperature sensor (only)
+  * The channel this is available on is unfortunately not
+diff --git a/lib/stm32/f0/adc.c b/lib/stm32/f0/adc.c
+index ce23da6..ee59ce4 100644
+--- a/lib/stm32/f0/adc.c
++++ b/lib/stm32/f0/adc.c
+@@ -513,66 +513,6 @@ void adc_set_sample_time_on_all_channels(uint32_t adc, uint8_t time)
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+-/** @brief ADC Set Resolution
+- *
+- * ADC Resolution can be reduced from 12 bits to 10, 8 or 6 bits for a
+- * corresponding reduction in conversion time.
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- * @param[in] resolution Unsigned int16. Resolution value (@ref adc_api_res)
+- */
+-
+-void adc_set_resolution(uint32_t adc, uint16_t resolution)
+-{
+-	ADC_CFGR1(adc) = (ADC_CFGR1(adc) & ~ADC_CFGR1_RES_MASK) | resolution;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Set the Data as Left Aligned
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- */
+-
+-void adc_set_left_aligned(uint32_t adc)
+-{
+-	ADC_CFGR1(adc) |= ADC_CFGR1_ALIGN;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Set the Data as Right Aligned
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- */
+-
+-void adc_set_right_aligned(uint32_t adc)
+-{
+-	ADC_CFGR1(adc) &= ~ADC_CFGR1_ALIGN;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Enable DMA Transfers
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- */
+-
+-void adc_enable_dma(uint32_t adc)
+-{
+-	ADC_CFGR1(adc) |= ADC_CFGR1_DMAEN;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Disable DMA Transfers
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- */
+-
+-void adc_disable_dma(uint32_t adc)
+-{
+-	ADC_CFGR1(adc) &= ~ADC_CFGR1_DMAEN;
+-}
+-
+-
+-/*---------------------------------------------------------------------------*/
+ /** @brief ADC Enable The VBat Sensor
+  *
+  * This enables the battery voltage measurements on channel 17.
+diff --git a/lib/stm32/f3/adc.c b/lib/stm32/f3/adc.c
+index 3940853..9568ad0 100644
+--- a/lib/stm32/f3/adc.c
++++ b/lib/stm32/f3/adc.c
+@@ -493,55 +493,6 @@ void adc_start_conversion_injected(uint32_t adc)
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+-/** @brief ADC Set the Data as Left Aligned
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base @ref
+- * adc_reg_base
+- */
+-
+-void adc_set_left_aligned(uint32_t adc)
+-{
+-	ADC_CFGR1(adc) |= ADC_CFGR1_ALIGN;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Set the Data as Right Aligned
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base @ref
+- * adc_reg_base
+- */
+-
+-void adc_set_right_aligned(uint32_t adc)
+-{
+-	ADC_CFGR1(adc) &= ~ADC_CFGR1_ALIGN;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Enable DMA Transfers
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base
+- * @ref adc_reg_base
+- */
+-
+-void adc_enable_dma(uint32_t adc)
+-{
+-	ADC_CFGR1(adc) |= ADC_CFGR1_DMAEN;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Disable DMA Transfers
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base
+- * @ref adc_reg_base
+- */
+-
+-void adc_disable_dma(uint32_t adc)
+-{
+-	ADC_CFGR1(adc) &= ~ADC_CFGR1_DMAEN;
+-}
+-
+-
+-/*---------------------------------------------------------------------------*/
+ /** @brief ADC Set the Sample Time for a Single Channel
+  *
+  * The sampling time can be selected in ADC clock cycles from 1.5 to 239.5.
+@@ -967,26 +918,6 @@ void adc_disable_external_trigger_injected(uint32_t adc)
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+-/** @brief ADC Set Resolution
+- *
+- * ADC Resolution can be reduced from 12 bits to 10, 8 or 6 bits for a
+- * corresponding reduction in conversion time (resolution + 3 ADC clock cycles).
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base @ref
+- * adc_reg_base
+- * @param[in] resolution Unsigned int8. Resolution value @ref adc_cr1_res
+- */
+-
+-void adc_set_resolution(uint32_t adc, uint16_t resolution)
+-{
+-	uint32_t reg32 = ADC_CFGR1(adc);
+-
+-	reg32 &= ~ADC_CFGR1_RES_MASK;
+-	reg32 |= resolution;
+-	ADC_CFGR1(adc) = reg32;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+ /** @brief ADC Enable the Overrun Interrupt
+  *
+  * The overrun interrupt is generated when data is not read from a result
+
+From 4ef9830f2dc4fbce4d9591d8265ed9550a42c74b Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Thu, 5 Nov 2015 23:31:41 +0000
+Subject: [PATCH 15/22] stm32: adc-v2: Pull up more common basic functionality
+
+Pull up eoc/eos/read_regular functions.  More simple, basic core functionality.
+---
+ include/libopencm3/stm32/common/adc_common_v2.h |  3 ++
+ include/libopencm3/stm32/f0/adc.h               |  2 --
+ include/libopencm3/stm32/f3/adc.h               |  3 --
+ lib/stm32/common/adc_common_v2.c                | 43 ++++++++++++++++++++++
+ lib/stm32/f0/adc.c                              | 31 ----------------
+ lib/stm32/f3/adc.c                              | 48 -------------------------
+ 6 files changed, 46 insertions(+), 84 deletions(-)
+
+diff --git a/include/libopencm3/stm32/common/adc_common_v2.h b/include/libopencm3/stm32/common/adc_common_v2.h
+index 41930b2..baa2fb3 100644
+--- a/include/libopencm3/stm32/common/adc_common_v2.h
++++ b/include/libopencm3/stm32/common/adc_common_v2.h
+@@ -190,6 +190,9 @@ void adc_set_left_aligned(uint32_t adc);
+ void adc_set_right_aligned(uint32_t adc);
+ void adc_enable_dma(uint32_t adc);
+ void adc_disable_dma(uint32_t adc);
++bool adc_eoc(uint32_t adc);
++bool adc_eos(uint32_t adc);
++uint32_t adc_read_regular(uint32_t adc);
+ 
+ END_DECLS
+ 
+diff --git a/include/libopencm3/stm32/f0/adc.h b/include/libopencm3/stm32/f0/adc.h
+index 123376d..f286009 100644
+--- a/include/libopencm3/stm32/f0/adc.h
++++ b/include/libopencm3/stm32/f0/adc.h
+@@ -168,8 +168,6 @@ void adc_disable_external_trigger_regular(uint32_t adc);
+ 
+ /* Conversion API */
+ void adc_start_conversion_regular(uint32_t adc);
+-bool adc_eoc(uint32_t adc);
+-uint32_t adc_read_regular(uint32_t adc);
+ 
+ /* Interrupt configuration */
+ void adc_enable_watchdog_interrupt(uint32_t adc);
+diff --git a/include/libopencm3/stm32/f3/adc.h b/include/libopencm3/stm32/f3/adc.h
+index cc9797a..db10b76 100644
+--- a/include/libopencm3/stm32/f3/adc.h
++++ b/include/libopencm3/stm32/f3/adc.h
+@@ -609,11 +609,8 @@ void adc_set_watchdog_high_threshold(uint32_t adc, uint8_t threshold);
+ void adc_set_watchdog_low_threshold(uint32_t adc, uint8_t threshold);
+ void adc_set_regular_sequence(uint32_t adc, uint8_t length, uint8_t channel[]);
+ void adc_set_injected_sequence(uint32_t adc, uint8_t length, uint8_t channel[]);
+-bool adc_eoc(uint32_t adc);
+ bool adc_eoc_injected(uint32_t adc);
+-bool adc_eos(uint32_t adc);
+ bool adc_eos_injected(uint32_t adc);
+-uint32_t adc_read_regular(uint32_t adc);
+ uint32_t adc_read_injected(uint32_t adc, uint8_t reg);
+ void adc_set_injected_offset(uint32_t adc, uint8_t reg, uint32_t offset);
+ 
+diff --git a/lib/stm32/common/adc_common_v2.c b/lib/stm32/common/adc_common_v2.c
+index 3c84e0a..aef8996 100644
+--- a/lib/stm32/common/adc_common_v2.c
++++ b/lib/stm32/common/adc_common_v2.c
+@@ -35,6 +35,35 @@ LGPL License Terms @ref lgpl_license
+ 
+ #include <libopencm3/stm32/adc.h>
+ 
++
++/** @brief ADC Read the End-of-Conversion Flag
++ *
++ * This flag is set by hardware at the end of each regular conversion of a
++ * channel when a new data is available in the ADCx_DR register.
++ *
++ * @param[in] adc Unsigned int32. ADC block register address base
++ * @ref adc_reg_base
++ * @returns bool. End of conversion flag.
++ */
++bool adc_eoc(uint32_t adc)
++{
++	return ADC_ISR(adc) & ADC_ISR_EOC;
++}
++
++/** @brief ADC Read the End-of-Sequence Flag for Regular Conversions
++ *
++ * This flag is set after all channels of an regular group have been
++ * converted.
++ *
++ * @param[in] adc Unsigned int32. ADC block register address base
++ * @ref adc_reg_base
++ * @returns bool. End of conversion flag.
++ */
++bool adc_eos(uint32_t adc)
++{
++	return ADC_ISR(adc) & ADC_ISR_EOS;
++}
++
+ /**
+  * Turn on the ADC (async)
+  * @sa adc_wait_power_on
+@@ -188,6 +217,20 @@ void adc_disable_dma(uint32_t adc)
+ }
+ 
+ 
++/** @brief ADC Read from the Regular Conversion Result Register
++ *
++ * The result read back is 12 bits, right or left aligned within the first
++ * 16 bits.
++ *
++ * @param[in] adc Unsigned int32. ADC block register address base
++ * @ref adc_reg_base
++ * @returns Unsigned int32 conversion result.
++ */
++uint32_t adc_read_regular(uint32_t adc)
++{
++	return ADC_DR(adc);
++}
++
+ /**
+  * Enable the temperature sensor (only)
+  * The channel this is available on is unfortunately not
+diff --git a/lib/stm32/f0/adc.c b/lib/stm32/f0/adc.c
+index ee59ce4..ce42527 100644
+--- a/lib/stm32/f0/adc.c
++++ b/lib/stm32/f0/adc.c
+@@ -172,37 +172,6 @@ void adc_start_conversion_regular(uint32_t adc)
+ 	while (ADC_CR(adc) & ADC_CR_ADSTART);
+ }
+ 
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Read the End-of-Conversion Flag
+- *
+- * This flag is set after all channels of a regular or injected group have been
+- * converted.
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- * @returns bool. End of conversion flag.
+- */
+-
+-bool adc_eoc(uint32_t adc)
+-{
+-	return ((ADC_ISR(adc) & ADC_ISR_EOC) != 0);
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Read from the Regular Conversion Result Register
+- *
+- * The result read back is 12 bits, right or left aligned within the first
+- * 16 bits. For ADC1 only, the higher 16 bits will hold the result from ADC2 if
+- * an appropriate dual mode has been set @see adc_set_dual_mode.
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- * @returns Unsigned int32 conversion result.
+- */
+-
+-uint32_t adc_read_regular(uint32_t adc)
+-{
+-	return ADC_DR(adc);
+-}
+-
+ /**@}*/
+ 
+ /*---------------------------------------------------------------------------*/
+diff --git a/lib/stm32/f3/adc.c b/lib/stm32/f3/adc.c
+index 9568ad0..327ac4c 100644
+--- a/lib/stm32/f3/adc.c
++++ b/lib/stm32/f3/adc.c
+@@ -669,22 +669,6 @@ void adc_set_injected_sequence(uint32_t adc, uint8_t length, uint8_t channel[])
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+-/** @brief ADC Read the End-of-Conversion Flag
+- *
+- * This flag is set by hardware at the end of each regular conversion of a
+- * channel when a new data is available in the ADCx_DR register.
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base
+- * @ref adc_reg_base
+- * @returns bool. End of conversion flag.
+- */
+-
+-bool adc_eoc(uint32_t adc)
+-{
+-	return ADC_ISR(adc) & ADC_ISR_EOC;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+ /** @brief ADC Read the End-of-Conversion Flag for Injected Conversion
+  *
+  * This flag is set by hardware at the end of each injected conversion of a
+@@ -701,21 +685,6 @@ bool adc_eoc_injected(uint32_t adc)
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+-/** @brief ADC Read the End-of-Sequence Flag for Regular Conversions
+- *
+- * This flag is set after all channels of an regular group have been
+- * converted.
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base
+- * @ref adc_reg_base
+- * @returns bool. End of conversion flag.
+- */
+-bool adc_eos(uint32_t adc)
+-{
+-	return ADC_ISR(adc) & ADC_ISR_EOS;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+ /** @brief ADC Read the End-of-Sequence Flag for Injected Conversions
+  *
+  * This flag is set after all channels of an injected group have been
+@@ -732,23 +701,6 @@ bool adc_eos_injected(uint32_t adc)
+ 
+ 
+ /*---------------------------------------------------------------------------*/
+-/** @brief ADC Read from the Regular Conversion Result Register
+- *
+- * The result read back is 12 bits, right or left aligned within the first
+- * 16 bits. For ADC1 only, the higher 16 bits will hold the result from ADC2 if
+- * an appropriate dual mode has been set @see adc_set_dual_mode.
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base
+- * @ref adc_reg_base
+- * @returns Unsigned int32 conversion result.
+- */
+-
+-uint32_t adc_read_regular(uint32_t adc)
+-{
+-	return ADC_DR(adc);
+-}
+-
+-/*---------------------------------------------------------------------------*/
+ /** @brief ADC Read from an Injected Conversion Result Register
+  *
+  * The result read back from the selected injected result register (one of four)
+
+From 9338ee448cc5513a02c7ca7043f3b2f9ade339d9 Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Sun, 8 Nov 2015 18:25:05 +0000
+Subject: [PATCH 16/22] stm32: adc-v2: pull up overrun and EOC flag methods
+
+EOS vs EOSEQ is really a single/multi variant difference, so leave it out.
+---
+ include/libopencm3/stm32/common/adc_common_v2.h |  6 ++
+ include/libopencm3/stm32/f0/adc.h               |  6 --
+ include/libopencm3/stm32/f3/adc.h               |  6 --
+ lib/stm32/common/adc_common_v2.c                | 66 +++++++++++++++++++
+ lib/stm32/f0/adc.c                              | 78 ----------------------
+ lib/stm32/f3/adc.c                              | 88 -------------------------
+ 6 files changed, 72 insertions(+), 178 deletions(-)
+
+diff --git a/include/libopencm3/stm32/common/adc_common_v2.h b/include/libopencm3/stm32/common/adc_common_v2.h
+index baa2fb3..ed21391 100644
+--- a/include/libopencm3/stm32/common/adc_common_v2.h
++++ b/include/libopencm3/stm32/common/adc_common_v2.h
+@@ -192,6 +192,12 @@ void adc_enable_dma(uint32_t adc);
+ void adc_disable_dma(uint32_t adc);
+ bool adc_eoc(uint32_t adc);
+ bool adc_eos(uint32_t adc);
++void adc_enable_eoc_interrupt(uint32_t adc);
++void adc_disable_eoc_interrupt(uint32_t adc);
++void adc_enable_overrun_interrupt(uint32_t adc);
++void adc_disable_overrun_interrupt(uint32_t adc);
++bool adc_get_overrun_flag(uint32_t adc);
++void adc_clear_overrun_flag(uint32_t adc);
+ uint32_t adc_read_regular(uint32_t adc);
+ 
+ END_DECLS
+diff --git a/include/libopencm3/stm32/f0/adc.h b/include/libopencm3/stm32/f0/adc.h
+index f286009..d029437 100644
+--- a/include/libopencm3/stm32/f0/adc.h
++++ b/include/libopencm3/stm32/f0/adc.h
+@@ -174,15 +174,9 @@ void adc_enable_watchdog_interrupt(uint32_t adc);
+ void adc_disable_watchdog_interrupt(uint32_t adc);
+ bool adc_get_watchdog_flag(uint32_t adc);
+ void adc_clear_watchdog_flag(uint32_t adc);
+-void adc_enable_overrun_interrupt(uint32_t adc);
+-void adc_disable_overrun_interrupt(uint32_t adc);
+-bool adc_get_overrun_flag(uint32_t adc);
+-void adc_clear_overrun_flag(uint32_t adc);
+ void adc_enable_eoc_sequence_interrupt(uint32_t adc);
+ void adc_disable_eoc_sequence_interrupt(uint32_t adc);
+ bool adc_get_eoc_sequence_flag(uint32_t adc);
+-void adc_enable_eoc_interrupt(uint32_t adc);
+-void adc_disable_eoc_interrupt(uint32_t adc);
+ 
+ /* Basic configuration */
+ void adc_set_clk_source(uint32_t adc, uint32_t source);
+diff --git a/include/libopencm3/stm32/f3/adc.h b/include/libopencm3/stm32/f3/adc.h
+index db10b76..a7fe3b7 100644
+--- a/include/libopencm3/stm32/f3/adc.h
++++ b/include/libopencm3/stm32/f3/adc.h
+@@ -595,8 +595,6 @@ void adc_enable_eos_interrupt_injected(uint32_t adc);
+ void adc_disable_eos_interrupt_injected(uint32_t adc);
+ void adc_enable_all_awd_interrupt(uint32_t adc);
+ void adc_disable_all_awd_interrupt(uint32_t adc);
+-void adc_enable_eoc_interrupt(uint32_t adc);
+-void adc_disable_eoc_interrupt(uint32_t adc);
+ void adc_enable_eos_interrupt(uint32_t adc);
+ void adc_disable_eos_interrupt(uint32_t adc);
+ void adc_start_conversion_regular(uint32_t adc);
+@@ -620,10 +618,6 @@ void adc_enable_external_trigger_regular(uint32_t adc, uint32_t trigger,
+ 					 uint32_t polarity);
+ void adc_enable_external_trigger_injected(uint32_t adc, uint32_t trigger,
+ 					  uint32_t polarity);
+-void adc_enable_overrun_interrupt(uint32_t adc);
+-void adc_disable_overrun_interrupt(uint32_t adc);
+-bool adc_get_overrun_flag(uint32_t adc);
+-void adc_clear_overrun_flag(uint32_t adc);
+ bool adc_awd(uint32_t adc);
+ /*void adc_set_dma_continue(uint32_t adc);*/
+ /*void adc_set_dma_terminate(uint32_t adc);*/
+diff --git a/lib/stm32/common/adc_common_v2.c b/lib/stm32/common/adc_common_v2.c
+index aef8996..e94e700 100644
+--- a/lib/stm32/common/adc_common_v2.c
++++ b/lib/stm32/common/adc_common_v2.c
+@@ -216,6 +216,72 @@ void adc_disable_dma(uint32_t adc)
+ 	ADC_CFGR1(adc) &= ~ADC_CFGR1_DMAEN;
+ }
+ 
++/** @brief ADC Enable the Overrun Interrupt
++ *
++ * The overrun interrupt is generated when data is not read from a result
++ * register before the next conversion is written. If DMA is enabled, all
++ * transfers are terminated and any conversion sequence is aborted.
++ *
++ * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
++ */
++void adc_enable_overrun_interrupt(uint32_t adc)
++{
++	ADC_IER(adc) |= ADC_IER_OVRIE;
++}
++
++/** @brief ADC Disable the Overrun Interrupt
++ *
++ * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
++ */
++void adc_disable_overrun_interrupt(uint32_t adc)
++{
++	ADC_IER(adc) &= ~ADC_IER_OVRIE;
++}
++
++/** @brief ADC Read the Overrun Flag
++ *
++ * The overrun flag is set when data is not read from a result register before
++ * the next conversion is written. If DMA is enabled, all transfers are
++ * terminated and any conversion sequence is aborted.
++ *
++ * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
++ */
++bool adc_get_overrun_flag(uint32_t adc)
++{
++	return ADC_ISR(adc) & ADC_ISR_OVR;
++}
++
++/** @brief ADC Clear Overrun Flags
++ *
++ * The overrun flag is cleared. Note that if an overrun occurs, DMA is
++ * terminated.
++ * The flag must be cleared and the DMA stream and ADC reinitialised to resume
++ * conversions (see the reference manual).
++ *
++ * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
++ */
++void adc_clear_overrun_flag(uint32_t adc)
++{
++	ADC_ISR(adc) = ADC_ISR_OVR;
++}
++
++/** @brief ADC Enable Regular End-Of-Conversion Interrupt
++ *
++ * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
++ */
++void adc_enable_eoc_interrupt(uint32_t adc)
++{
++	ADC_IER(adc) |= ADC_IER_EOCIE;
++}
++
++/** @brief ADC Disable Regular End-Of-Conversion Interrupt
++ *
++ * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
++ */
++void adc_disable_eoc_interrupt(uint32_t adc)
++{
++	ADC_IER(adc) &= ~ADC_IER_EOCIE;
++}
+ 
+ /** @brief ADC Read from the Regular Conversion Result Register
+  *
+diff --git a/lib/stm32/f0/adc.c b/lib/stm32/f0/adc.c
+index ce42527..b65bf9c 100644
+--- a/lib/stm32/f0/adc.c
++++ b/lib/stm32/f0/adc.c
+@@ -278,63 +278,6 @@ void adc_clear_watchdog_flag(uint32_t adc)
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+-/** @brief ADC Enable the Overrun Interrupt
+- *
+- * The overrun interrupt is generated when data is not read from a result
+- * register before the next conversion is written. If DMA is enabled, all
+- * transfers are terminated and any conversion sequence is aborted.
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- */
+-
+-void adc_enable_overrun_interrupt(uint32_t adc)
+-{
+-	ADC_IER(adc) |= ADC_IER_OVRIE;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Disable the Overrun Interrupt
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- */
+-
+-void adc_disable_overrun_interrupt(uint32_t adc)
+-{
+-	ADC_IER(adc) &= ~ADC_IER_OVRIE;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Read the Overrun Flag
+- *
+- * The overrun flag is set when data is not read from a result register before
+- * the next conversion is written. If DMA is enabled, all transfers are
+- * terminated and any conversion sequence is aborted.
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- */
+-
+-bool adc_get_overrun_flag(uint32_t adc)
+-{
+-	return ADC_ISR(adc) & ADC_ISR_OVR;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Clear Overrun Flags
+- *
+- * The overrun flag is cleared. Note that if an overrun occurs, DMA is
+- * terminated.
+- * The flag must be cleared and the DMA stream and ADC reinitialised to resume
+- * conversions (see the reference manual).
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- */
+-
+-void adc_clear_overrun_flag(uint32_t adc)
+-{
+-	ADC_ISR(adc) = ADC_ISR_OVR;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+ /** @brief ADC Enable Regular End-Of-Conversion Sequence Interrupt
+  *
+  * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+@@ -367,27 +310,6 @@ bool adc_get_eoc_sequence_flag(uint32_t adc)
+ 	return ADC_ISR(adc) & ADC_ISR_EOSEQ;
+ }
+ 
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Enable Regular End-Of-Conversion Interrupt
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- */
+-
+-void adc_enable_eoc_interrupt(uint32_t adc)
+-{
+-	ADC_IER(adc) |= ADC_IER_EOCIE;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Disable Regular End-Of-Conversion Interrupt
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- */
+-
+-void adc_disable_eoc_interrupt(uint32_t adc)
+-{
+-	ADC_IER(adc) &= ~ADC_IER_EOCIE;
+-}
+ 
+ /**@}*/
+ 
+diff --git a/lib/stm32/f3/adc.c b/lib/stm32/f3/adc.c
+index 327ac4c..c5327cf 100644
+--- a/lib/stm32/f3/adc.c
++++ b/lib/stm32/f3/adc.c
+@@ -406,30 +406,6 @@ void adc_disable_all_awd_interrupt(uint32_t adc)
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+-/** @brief ADC Enable Regular End-Of-Conversion Interrupt
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base @ref
+- * adc_reg_base
+- */
+-
+-void adc_enable_eoc_interrupt(uint32_t adc)
+-{
+-	ADC_IER(adc) |= ADC_IER_EOCIE;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Disable Regular End-Of-Conversion Interrupt
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base @ref
+- * adc_reg_base
+- */
+-
+-void adc_disable_eoc_interrupt(uint32_t adc)
+-{
+-	ADC_IER(adc) &= ~ADC_IER_EOCIE;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+ /** @brief ADC Enable Regular End-Of-Sequence Interrupt
+  *
+  * @param[in] adc Unsigned int32. ADC block register address base @ref
+@@ -870,70 +846,6 @@ void adc_disable_external_trigger_injected(uint32_t adc)
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+-/** @brief ADC Enable the Overrun Interrupt
+- *
+- * The overrun interrupt is generated when data is not read from a result
+- * register before the next conversion is written. If DMA is enabled, all
+- * transfers are terminated and any conversion sequence is aborted.
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base @ref
+- * adc_reg_base
+- */
+-
+-void adc_enable_overrun_interrupt(uint32_t adc)
+-{
+-	ADC_IER(adc) |= ADC_IER_OVRIE;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Disable the Overrun Interrupt
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base @ref
+- * adc_reg_base
+- */
+-
+-void adc_disable_overrun_interrupt(uint32_t adc)
+-{
+-	ADC_IER(adc) &= ~ADC_IER_OVRIE;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Read the Overrun Flag
+- *
+- * The overrun flag is set when data is not read from a result register before
+- * the next conversion is written. If DMA is enabled, all transfers are
+- * terminated and any conversion sequence is aborted.
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base @ref
+- * adc_reg_base
+- * @returns Unsigned int32 conversion result.
+- */
+-
+-bool adc_get_overrun_flag(uint32_t adc)
+-{
+-	return ADC_ISR(adc) & ADC_ISR_OVR;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Clear Overrun Flags
+- *
+- * The overrun flag is cleared. Note that if an overrun occurs, DMA is
+- * terminated.
+- * The flag must be cleared and the DMA stream and ADC reinitialised to resume
+- * conversions (see the reference manual).
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base
+- * @ref adc_reg_base
+- * @returns Unsigned int32 conversion result.
+- */
+-
+-void adc_clear_overrun_flag(uint32_t adc)
+-{
+-	/* r_w1 bit */
+-	ADC_ISR(adc) |= ADC_ISR_OVR;
+-}
+-
+-/*---------------------------------------------------------------------------*/
+ /** @brief ADC Set DMA to Continue
+  *
+  * This must be set to allow DMA to continue to operate after the last
+
+From d1401d58798caadd89d1a0bfe7921eb418417996 Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Sun, 8 Nov 2015 18:29:16 +0000
+Subject: [PATCH 17/22] stm32: adc-v2: pull up function prototypes
+
+These are standard "api" level functions that need per target implementations,
+but should all maintain the same signature.
+---
+ include/libopencm3/stm32/common/adc_common_v2.h | 2 ++
+ include/libopencm3/stm32/f0/adc.h               | 2 --
+ include/libopencm3/stm32/f3/adc.h               | 2 --
+ 3 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/include/libopencm3/stm32/common/adc_common_v2.h b/include/libopencm3/stm32/common/adc_common_v2.h
+index ed21391..27cb5de 100644
+--- a/include/libopencm3/stm32/common/adc_common_v2.h
++++ b/include/libopencm3/stm32/common/adc_common_v2.h
+@@ -181,6 +181,8 @@ void adc_power_off(uint32_t adc);
+ bool adc_is_power_off(uint32_t adc);
+ void adc_set_continuous_conversion_mode(uint32_t adc);
+ void adc_set_single_conversion_mode(uint32_t adc);
++void adc_set_regular_sequence(uint32_t adc, uint8_t length, uint8_t channel[]);
++void adc_set_sample_time_on_all_channels(uint32_t adc, uint8_t time);
+ void adc_enable_temperature_sensor(void);
+ void adc_disable_temperature_sensor(void);
+ void adc_enable_vrefint(void);
+diff --git a/include/libopencm3/stm32/f0/adc.h b/include/libopencm3/stm32/f0/adc.h
+index d029437..8d7fa95 100644
+--- a/include/libopencm3/stm32/f0/adc.h
++++ b/include/libopencm3/stm32/f0/adc.h
+@@ -180,8 +180,6 @@ bool adc_get_eoc_sequence_flag(uint32_t adc);
+ 
+ /* Basic configuration */
+ void adc_set_clk_source(uint32_t adc, uint32_t source);
+-void adc_set_regular_sequence(uint32_t adc, uint8_t length, uint8_t channel[]);
+-void adc_set_sample_time_on_all_channels(uint32_t adc, uint8_t time);
+ void adc_enable_vbat_sensor(void);
+ void adc_disable_vbat_sensor(void);
+ void adc_calibrate_start(uint32_t adc);
+diff --git a/include/libopencm3/stm32/f3/adc.h b/include/libopencm3/stm32/f3/adc.h
+index a7fe3b7..b2d406e 100644
+--- a/include/libopencm3/stm32/f3/adc.h
++++ b/include/libopencm3/stm32/f3/adc.h
+@@ -602,10 +602,8 @@ void adc_start_conversion_injected(uint32_t adc);
+ void adc_disable_external_trigger_regular(uint32_t adc);
+ void adc_disable_external_trigger_injected(uint32_t adc);
+ void adc_set_sample_time(uint32_t adc, uint8_t channel, uint8_t time);
+-void adc_set_sample_time_on_all_channels(uint32_t adc, uint8_t time);
+ void adc_set_watchdog_high_threshold(uint32_t adc, uint8_t threshold);
+ void adc_set_watchdog_low_threshold(uint32_t adc, uint8_t threshold);
+-void adc_set_regular_sequence(uint32_t adc, uint8_t length, uint8_t channel[]);
+ void adc_set_injected_sequence(uint32_t adc, uint8_t length, uint8_t channel[]);
+ bool adc_eoc_injected(uint32_t adc);
+ bool adc_eos_injected(uint32_t adc);
+
+From ea52861019f4aa170d5f456042c4d925bab04e5e Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Fri, 29 Jan 2016 21:10:04 +0000
+Subject: [PATCH 18/22] stm32: adc-v2: pull up start_regular
+
+Little steps are easy to review, and easy to test.
+---
+ include/libopencm3/stm32/common/adc_common_v2.h    |  1 +
+ .../libopencm3/stm32/common/adc_common_v2_multi.h  |  2 ++
+ include/libopencm3/stm32/f0/adc.h                  |  3 ---
+ include/libopencm3/stm32/f3/adc.h                  |  2 --
+ lib/stm32/common/adc_common_v2.c                   | 17 ++++++++++++
+ lib/stm32/f0/adc.c                                 | 30 ----------------------
+ lib/stm32/f3/adc.c                                 | 19 --------------
+ 7 files changed, 20 insertions(+), 54 deletions(-)
+
+diff --git a/include/libopencm3/stm32/common/adc_common_v2.h b/include/libopencm3/stm32/common/adc_common_v2.h
+index 27cb5de..a3ec05e 100644
+--- a/include/libopencm3/stm32/common/adc_common_v2.h
++++ b/include/libopencm3/stm32/common/adc_common_v2.h
+@@ -201,6 +201,7 @@ void adc_disable_overrun_interrupt(uint32_t adc);
+ bool adc_get_overrun_flag(uint32_t adc);
+ void adc_clear_overrun_flag(uint32_t adc);
+ uint32_t adc_read_regular(uint32_t adc);
++void adc_start_conversion_regular(uint32_t adc);
+ 
+ END_DECLS
+ 
+diff --git a/include/libopencm3/stm32/common/adc_common_v2_multi.h b/include/libopencm3/stm32/common/adc_common_v2_multi.h
+index fb63041..4f1fd14 100644
+--- a/include/libopencm3/stm32/common/adc_common_v2_multi.h
++++ b/include/libopencm3/stm32/common/adc_common_v2_multi.h
+@@ -149,6 +149,8 @@ specific memorymap.h header before including this header file.*/
+ 
+ BEGIN_DECLS
+ 
++void adc_set_sample_time(uint32_t adc, uint8_t channel, uint8_t time);
++
+ END_DECLS
+ 
+ #endif
+diff --git a/include/libopencm3/stm32/f0/adc.h b/include/libopencm3/stm32/f0/adc.h
+index 8d7fa95..de3d510 100644
+--- a/include/libopencm3/stm32/f0/adc.h
++++ b/include/libopencm3/stm32/f0/adc.h
+@@ -166,9 +166,6 @@ void adc_enable_external_trigger_regular(uint32_t adc, uint32_t trigger,
+ 				uint32_t polarity);
+ void adc_disable_external_trigger_regular(uint32_t adc);
+ 
+-/* Conversion API */
+-void adc_start_conversion_regular(uint32_t adc);
+-
+ /* Interrupt configuration */
+ void adc_enable_watchdog_interrupt(uint32_t adc);
+ void adc_disable_watchdog_interrupt(uint32_t adc);
+diff --git a/include/libopencm3/stm32/f3/adc.h b/include/libopencm3/stm32/f3/adc.h
+index b2d406e..9f4639b 100644
+--- a/include/libopencm3/stm32/f3/adc.h
++++ b/include/libopencm3/stm32/f3/adc.h
+@@ -597,11 +597,9 @@ void adc_enable_all_awd_interrupt(uint32_t adc);
+ void adc_disable_all_awd_interrupt(uint32_t adc);
+ void adc_enable_eos_interrupt(uint32_t adc);
+ void adc_disable_eos_interrupt(uint32_t adc);
+-void adc_start_conversion_regular(uint32_t adc);
+ void adc_start_conversion_injected(uint32_t adc);
+ void adc_disable_external_trigger_regular(uint32_t adc);
+ void adc_disable_external_trigger_injected(uint32_t adc);
+-void adc_set_sample_time(uint32_t adc, uint8_t channel, uint8_t time);
+ void adc_set_watchdog_high_threshold(uint32_t adc, uint8_t threshold);
+ void adc_set_watchdog_low_threshold(uint32_t adc, uint8_t threshold);
+ void adc_set_injected_sequence(uint32_t adc, uint8_t length, uint8_t channel[]);
+diff --git a/lib/stm32/common/adc_common_v2.c b/lib/stm32/common/adc_common_v2.c
+index e94e700..ae4008a 100644
+--- a/lib/stm32/common/adc_common_v2.c
++++ b/lib/stm32/common/adc_common_v2.c
+@@ -337,3 +337,20 @@ void adc_disable_vrefint(void)
+ {
+ 	ADC_CCR(ADC1) &= ~ADC_CCR_VREFEN;
+ }
++
++/** @brief ADC Software Triggered Conversion on Regular Channels
++ *
++ * This starts conversion on a set of defined regular channels. It is cleared
++ * by hardware once conversion starts.
++ *
++ * @param[in] adc ADC block register address base @ref adc_reg_base
++ */
++void adc_start_conversion_regular(uint32_t adc)
++{
++	/* Start conversion on regular channels. */
++	ADC_CR(adc) |= ADC_CR_ADSTART;
++
++	/* Wait until the ADC starts the conversion. */
++	while (ADC_CR(adc) & ADC_CR_ADSTART);
++}
++
+diff --git a/lib/stm32/f0/adc.c b/lib/stm32/f0/adc.c
+index b65bf9c..179002d 100644
+--- a/lib/stm32/f0/adc.c
++++ b/lib/stm32/f0/adc.c
+@@ -147,36 +147,6 @@ void adc_set_operation_mode(uint32_t adc, enum adc_opmode opmode)
+ /*---------------------------------------------------------------------------*/
+ /*---------------------------------------------------------------------------*/
+ /**
+- * @defgroup adc_api_result ADC Result API
+- * @ingroup adc_file
+- *
+- * @brief ADC Result API
+- *
+- *@{*/
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Software Triggered Conversion on Regular Channels
+- *
+- * This starts conversion on a set of defined regular channels. It is cleared
+- * by hardware once conversion starts.
+- *
+- * @param[in] adc Unsigned int32. ADC base address (@ref adc_reg_base)
+- */
+-
+-void adc_start_conversion_regular(uint32_t adc)
+-{
+-	/* Start conversion on regular channels. */
+-	ADC_CR(adc) |= ADC_CR_ADSTART;
+-
+-	/* Wait until the ADC starts the conversion. */
+-	while (ADC_CR(adc) & ADC_CR_ADSTART);
+-}
+-
+-/**@}*/
+-
+-/*---------------------------------------------------------------------------*/
+-/*---------------------------------------------------------------------------*/
+-/**
+  * @defgroup adc_api_trigger ADC Trigger API
+  * @ingroup adc_file
+  *
+diff --git a/lib/stm32/f3/adc.c b/lib/stm32/f3/adc.c
+index c5327cf..05ac2b3 100644
+--- a/lib/stm32/f3/adc.c
++++ b/lib/stm32/f3/adc.c
+@@ -431,25 +431,6 @@ void adc_disable_eos_interrupt(uint32_t adc)
+ 
+ 
+ /*---------------------------------------------------------------------------*/
+-/** @brief ADC Software Triggered Conversion on Regular Channels
+- *
+- * This starts conversion on a set of defined regular channels. It is cleared
+- * by hardware once conversion starts.
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base @ref
+- * adc_reg_base
+- */
+-
+-void adc_start_conversion_regular(uint32_t adc)
+-{
+-	/* Start conversion on regular channels. */
+-	ADC_CR(adc) |= ADC_CR_ADSTART;
+-
+-	/* Wait until the ADC starts the conversion. */
+-	while (ADC_CR(adc) & ADC_CR_ADSTART);
+-}
+-
+-/*---------------------------------------------------------------------------*/
+ /** @brief ADC Software Triggered Conversion on Injected Channels
+  *
+  * This starts conversion on a set of defined injected channels. It is cleared
+
+From 448914a2c835de478e10cf48fe081bda70a0394a Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Thu, 5 Nov 2015 22:56:53 +0000
+Subject: [PATCH 19/22] stm32l4: adc: Initial support for the adc-v2 periph
+
+Now that there's an adc-v2 peripheral layer, we can just use it straight away
+for L4.
+---
+ include/libopencm3/stm32/adc.h    |  2 +
+ include/libopencm3/stm32/l4/adc.h | 80 +++++++++++++++++++++++++++++++++++++++
+ include/libopencm3/stm32/l4/rcc.h |  3 ++
+ lib/stm32/l4/Makefile             |  1 +
+ 4 files changed, 86 insertions(+)
+ create mode 100644 include/libopencm3/stm32/l4/adc.h
+
+diff --git a/include/libopencm3/stm32/adc.h b/include/libopencm3/stm32/adc.h
+index e03bae0..629e7bd 100644
+--- a/include/libopencm3/stm32/adc.h
++++ b/include/libopencm3/stm32/adc.h
+@@ -32,6 +32,8 @@
+ #       include <libopencm3/stm32/l0/adc.h>
+ #elif defined(STM32L1)
+ #       include <libopencm3/stm32/l1/adc.h>
++#elif defined(STM32L4)
++#       include <libopencm3/stm32/l4/adc.h>
+ #else
+ #       error "stm32 family not defined."
+ #endif
+diff --git a/include/libopencm3/stm32/l4/adc.h b/include/libopencm3/stm32/l4/adc.h
+new file mode 100644
+index 0000000..1480c1c
+--- /dev/null
++++ b/include/libopencm3/stm32/l4/adc.h
+@@ -0,0 +1,80 @@
++/** @defgroup adc_defines ADC Defines
++ *
++ * @brief <b>Defined Constants and Types for the STM32L4xx Analog to Digital
++ * Converter</b>
++ *
++ * @ingroup STM32L4xx_defines
++ *
++ * @version 1.0.0
++ *
++ * @date 24 Oct 2015
++ *
++ * LGPL License Terms @ref lgpl_license
++ */
++/*
++ * This file is part of the libopencm3 project.
++ *
++ * Copyright (C) 2015 Karl Palsson <karlp@tweak.net.au>
++ *
++ * This library is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU Lesser General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this library.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef LIBOPENCM3_ADC_H
++#define LIBOPENCM3_ADC_H
++
++#include <libopencm3/stm32/common/adc_common_v2.h>
++#include <libopencm3/stm32/common/adc_common_v2_multi.h>
++
++/** @defgroup adc_reg_base ADC register base addresses
++ * @ingroup adc_defines
++ *
++ *@{*/
++#define ADC1				ADC1_BASE
++#define ADC2				ADC2_BASE
++#define ADC3				ADC3_BASE
++/**@}*/
++
++/** @defgroup adc_channel ADC Channel Numbers
++ * @ingroup adc_defines
++ *
++ *@{*/
++#define ADC_CHANNEL_VREF	0
++#define ADC_CHANNEL_TEMP	17
++#define ADC_CHANNEL_VBAT	18
++/**@}*/
++
++/****************************************************************************/
++/* ADC_SMPRx ADC Sample Time Selection for Channels */
++/** @defgroup adc_sample ADC Sample Time Selection values
++@ingroup adc_defines
++
++@{*/
++#define ADC_SMPR_SMP_2DOT5CYC		0x0
++#define ADC_SMPR_SMP_6DOT5CYC		0x1
++#define ADC_SMPR_SMP_12DOT5CYC		0x2
++#define ADC_SMPR_SMP_24DOT5CYC		0x3
++#define ADC_SMPR_SMP_47DOT5CYC		0x4
++#define ADC_SMPR_SMP_92DOT5CYC		0x5
++#define ADC_SMPR_SMP_247DOT5CYC		0x6
++#define ADC_SMPR_SMP_640DOT5CYC		0x7
++/**@}*/
++
++
++BEGIN_DECLS
++
++
++END_DECLS
++
++
++#endif
+diff --git a/include/libopencm3/stm32/l4/rcc.h b/include/libopencm3/stm32/l4/rcc.h
+index 4a8e3b0..5632de6 100644
+--- a/include/libopencm3/stm32/l4/rcc.h
++++ b/include/libopencm3/stm32/l4/rcc.h
+@@ -703,6 +703,7 @@ enum rcc_periph_clken {
+ 	RCC_RNG = _REG_BIT(RCC_AHB2ENR_OFFSET, 18),
+ 	RCC_AES = _REG_BIT(RCC_AHB2ENR_OFFSET, 16),
+ 	RCC_ADC = _REG_BIT(RCC_AHB2ENR_OFFSET, 13),
++	RCC_ADC1 = _REG_BIT(RCC_AHB2ENR_OFFSET, 13), /* Compatibility */
+ 	RCC_OTGFS = _REG_BIT(RCC_AHB2ENR_OFFSET, 12),
+ 	RCC_GPIOH = _REG_BIT(RCC_AHB2ENR_OFFSET, 7),
+ 	RCC_GPIOG = _REG_BIT(RCC_AHB2ENR_OFFSET, 6),
+@@ -771,6 +772,7 @@ enum rcc_periph_clken {
+ 	SCC_RNG = _REG_BIT(RCC_AHB2SMENR_OFFSET, 18),
+ 	SCC_AES = _REG_BIT(RCC_AHB2SMENR_OFFSET, 16),
+ 	SCC_ADC = _REG_BIT(RCC_AHB2SMENR_OFFSET, 13),
++	SCC_ADC1 = _REG_BIT(RCC_AHB2SMENR_OFFSET, 13), /* Compatibility */
+ 	SCC_OTGFS = _REG_BIT(RCC_AHB2SMENR_OFFSET, 12),
+ 	SCC_SRAM2 = _REG_BIT(RCC_AHB2SMENR_OFFSET, 9),
+ 	SCC_GPIOH = _REG_BIT(RCC_AHB2SMENR_OFFSET, 7),
+@@ -841,6 +843,7 @@ enum rcc_periph_rst {
+ 	RST_RNG = _REG_BIT(RCC_AHB2RSTR_OFFSET, 18),
+ 	RST_AES = _REG_BIT(RCC_AHB2RSTR_OFFSET, 16),
+ 	RST_ADC = _REG_BIT(RCC_AHB2RSTR_OFFSET, 13),
++	RST_ADC1 = _REG_BIT(RCC_AHB2RSTR_OFFSET, 13), /* Compatibility */
+ 	RST_OTGFS = _REG_BIT(RCC_AHB2RSTR_OFFSET, 12),
+ 	RST_GPIOH = _REG_BIT(RCC_AHB2RSTR_OFFSET, 7),
+ 	RST_GPIOG = _REG_BIT(RCC_AHB2RSTR_OFFSET, 6),
+diff --git a/lib/stm32/l4/Makefile b/lib/stm32/l4/Makefile
+index 8a8e690..aed2217 100644
+--- a/lib/stm32/l4/Makefile
++++ b/lib/stm32/l4/Makefile
+@@ -42,6 +42,7 @@ OBJS		=
+ # common/shared objs
+ OBJS            += rcc_common_all.o
+ OBJS            += gpio_common_all.o gpio_common_f0234.o
++OBJS            += adc_common_v2.o
+ 
+ VPATH += ../../usb:../:../../cm3:../common
+ VPATH += ../../ethernet
+
+From 39175de6759e0cdfbd9aadab0a4dfaf82f9c33fe Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Thu, 3 Mar 2016 22:52:09 +0000
+Subject: [PATCH 20/22] stm32f3: adc-v2: extract sample time settings
+
+adc-v2 "multi" needs per channel sampling time settings.  adc-v2 "single" only
+sets the sampling time for all channels.
+---
+ lib/stm32/common/adc_common_v2_multi.c | 85 ++++++++++++++++++++++++++++++++++
+ lib/stm32/f3/Makefile                  |  2 +-
+ lib/stm32/f3/adc.c                     | 57 -----------------------
+ 3 files changed, 86 insertions(+), 58 deletions(-)
+ create mode 100644 lib/stm32/common/adc_common_v2_multi.c
+
+diff --git a/lib/stm32/common/adc_common_v2_multi.c b/lib/stm32/common/adc_common_v2_multi.c
+new file mode 100644
+index 0000000..0da9366
+--- /dev/null
++++ b/lib/stm32/common/adc_common_v2_multi.c
+@@ -0,0 +1,85 @@
++/** @addtogroup adc_file
++
++@author @htmlonly &copy; @endhtmlonly
++2016 Karl Palsson <karlp@tweak.net.au>
++
++This provides the "multi" extensions to the "v2" ADC peripheral.  This is those
++devices that support injected channels and per channel sampling times.
++At the time of writing, this is the STM32F30x and the STM32L4x
++
++LGPL License Terms @ref lgpl_license
++ */
++
++/*
++ * This file is part of the libopencm3 project.
++ *
++ * Copyright (C) 2016 Karl Palsson <karlp@tweak.net.au>
++ *
++ * This library is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU Lesser General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this library.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++/**@{*/
++
++#include <libopencm3/stm32/adc.h>
++
++
++/** @brief ADC Set the Sample Time for a Single Channel
++ *
++ * The sampling time can be selected in ADC clock cycles, exact values
++ * depend on the device.
++ *
++ * @param[in] adc ADC block register address base @ref adc_reg_base
++ * @param[in] channel ADC Channel integer @ref adc_channel
++ * @param[in] time Sampling time selection from @ref adc_sample
++ */
++void adc_set_sample_time(uint32_t adc, uint8_t channel, uint8_t time)
++{
++	uint32_t reg32;
++
++	if (channel < 10) {
++		reg32 = ADC_SMPR1(adc);
++		reg32 &= ~(0x7 << (channel * 3));
++		reg32 |= (time << (channel * 3));
++		ADC_SMPR1(adc) = reg32;
++	} else {
++		reg32 = ADC_SMPR2(adc);
++		reg32 &= ~(0x7 << ((channel - 10) * 3));
++		reg32 |= (time << ((channel - 10) * 3));
++		ADC_SMPR2(adc) = reg32;
++	}
++}
++
++/** @brief ADC Set the Sample Time for All Channels
++ *
++ * The sampling time can be selected in ADC clock cycles, exact values
++ * depend on the device.
++ *
++ * @param[in] adc ADC block register address base @ref adc_reg_base
++ * @param[in] time Sampling time selection from @ref adc_sample
++ */
++void adc_set_sample_time_on_all_channels(uint32_t adc, uint8_t time)
++{
++	uint8_t i;
++	uint32_t reg32 = 0;
++
++	for (i = 0; i <= 9; i++) {
++		reg32 |= (time << (i * 3));
++	}
++	ADC_SMPR1(adc) = reg32;
++
++	for (i = 10; i <= 17; i++) {
++		reg32 |= (time << ((i - 10) * 3));
++	}
++	ADC_SMPR2(adc) = reg32;
++}
+diff --git a/lib/stm32/f3/Makefile b/lib/stm32/f3/Makefile
+index 4e1f719..90c3c0b 100644
+--- a/lib/stm32/f3/Makefile
++++ b/lib/stm32/f3/Makefile
+@@ -43,7 +43,7 @@ OBJS            += gpio_common_all.o gpio_common_f0234.o \
+ 		   iwdg_common_all.o spi_common_all.o dma_common_l1f013.o\
+ 		   timer_common_all.o timer_common_f234.o flash_common_f234.o \
+ 		   flash.o exti_common_all.o rcc_common_all.o spi_common_f03.o
+-OBJS		+= adc_common_v2.o
++OBJS		+= adc_common_v2.o adc_common_v2_multi.o
+ 
+ OBJS		+= usb.o usb_control.o usb_standard.o
+ OBJS		+= st_usbfs_core.o st_usbfs_v1.o
+diff --git a/lib/stm32/f3/adc.c b/lib/stm32/f3/adc.c
+index 05ac2b3..ea2ead9 100644
+--- a/lib/stm32/f3/adc.c
++++ b/lib/stm32/f3/adc.c
+@@ -449,63 +449,6 @@ void adc_start_conversion_injected(uint32_t adc)
+ 	while (ADC_CR(adc) & ADC_CR_JADSTART);
+ }
+ 
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Set the Sample Time for a Single Channel
+- *
+- * The sampling time can be selected in ADC clock cycles from 1.5 to 239.5.
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base
+- * @ref adc_reg_base
+- * @param[in] channel Unsigned int8. ADC Channel integer 0..18 or from
+- * @ref adc_channel
+- * @param[in] time Unsigned int8. Sampling time selection from
+- * @ref adc_sample_rg
+- */
+-
+-void adc_set_sample_time(uint32_t adc, uint8_t channel, uint8_t time)
+-{
+-	uint32_t reg32;
+-
+-	if (channel < 10) {
+-		reg32 = ADC_SMPR2(adc);
+-		reg32 &= ~(0x7 << (channel * 3));
+-		reg32 |= (time << (channel * 3));
+-		ADC_SMPR2(adc) = reg32;
+-	} else {
+-		reg32 = ADC_SMPR1(adc);
+-		reg32 &= ~(0x7 << ((channel - 10) * 3));
+-		reg32 |= (time << ((channel - 10) * 3));
+-		ADC_SMPR1(adc) = reg32;
+-	}
+-}
+-
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Set the Sample Time for All Channels
+- *
+- * The sampling time can be selected in ADC clock cycles from 1.5 to 239.5,
+- * same for all channels.
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base
+- * @ref adc_reg_base
+- * @param[in] time Unsigned int8. Sampling time selection from
+- * @ref adc_sample_rg
+- */
+-
+-void adc_set_sample_time_on_all_channels(uint32_t adc, uint8_t time)
+-{
+-	uint8_t i;
+-	uint32_t reg32 = 0;
+-
+-	for (i = 0; i <= 9; i++) {
+-		reg32 |= (time << (i * 3));
+-	}
+-	ADC_SMPR2(adc) = reg32;
+-
+-	for (i = 10; i <= 17; i++) {
+-		reg32 |= (time << ((i - 10) * 3));
+-	}
+-	ADC_SMPR1(adc) = reg32;
+-}
+ 
+ /*---------------------------------------------------------------------------*/
+ /** @brief ADC Set Analog Watchdog Upper Threshold
+
+From bc40037ed37315495648fd1dc53b29157d278114 Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Thu, 3 Mar 2016 22:58:17 +0000
+Subject: [PATCH 21/22] stm32l4: adc-v2: enable sampling time setting
+
+Link in the "multi" extensions to the adc-v2 periperhal code.
+---
+ lib/stm32/l4/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/stm32/l4/Makefile b/lib/stm32/l4/Makefile
+index aed2217..0726cd7 100644
+--- a/lib/stm32/l4/Makefile
++++ b/lib/stm32/l4/Makefile
+@@ -42,7 +42,7 @@ OBJS		=
+ # common/shared objs
+ OBJS            += rcc_common_all.o
+ OBJS            += gpio_common_all.o gpio_common_f0234.o
+-OBJS            += adc_common_v2.o
++OBJS            += adc_common_v2.o adc_common_v2_multi.o
+ 
+ VPATH += ../../usb:../:../../cm3:../common
+ VPATH += ../../ethernet
+
+From 3fa102777217cbfbdd591abd9535449dea09adb5 Mon Sep 17 00:00:00 2001
+From: Karl Palsson <karlp@tweak.net.au>
+Date: Thu, 3 Mar 2016 23:30:33 +0000
+Subject: [PATCH 22/22] stm32: adc-v2: pull up regular sequence setting.
+
+Uses more standardized naming, fills in some missing defintions, removes some
+redundant definitions.
+---
+ .../libopencm3/stm32/common/adc_common_v2_multi.h  | 22 +++++++
+ include/libopencm3/stm32/f3/adc.h                  | 73 ----------------------
+ lib/stm32/common/adc_common_v2_multi.c             | 44 +++++++++++++
+ lib/stm32/f3/adc.c                                 | 46 --------------
+ 4 files changed, 66 insertions(+), 119 deletions(-)
+
+diff --git a/include/libopencm3/stm32/common/adc_common_v2_multi.h b/include/libopencm3/stm32/common/adc_common_v2_multi.h
+index 4f1fd14..17f2c13 100644
+--- a/include/libopencm3/stm32/common/adc_common_v2_multi.h
++++ b/include/libopencm3/stm32/common/adc_common_v2_multi.h
+@@ -145,6 +145,28 @@ specific memorymap.h header before including this header file.*/
+ #define ADC_CFGR1_EXTSEL_MASK		(0xf << ADC_CFGR1_EXTSEL_SHIFT)
+ #define ADC_CFGR1_EXTSEL_VAL(x)		((x) << ADC_CFGR1_EXTSEL_SHIFT)
+ 
++/* ADC_SQRx Values: Regular Sequence ordering------------------------------- */
++
++#define ADC_SQR1_L_SHIFT		0
++#define ADC_SQR1_L_MASK			0xf
++#define ADC_SQRx_SQx_MASK		0x1f
++#define ADC_SQR1_SQ1_SHIFT		6
++#define ADC_SQR1_SQ2_SHIFT		12
++#define ADC_SQR1_SQ3_SHIFT		18
++#define ADC_SQR1_SQ4_SHIFT		24
++#define ADC_SQR2_SQ5_SHIFT		0
++#define ADC_SQR2_SQ6_SHIFT		6
++#define ADC_SQR2_SQ7_SHIFT		12
++#define ADC_SQR2_SQ8_SHIFT		18
++#define ADC_SQR2_SQ9_SHIFT		24
++#define ADC_SQR3_SQ10_SHIFT		0
++#define ADC_SQR3_SQ11_SHIFT		6
++#define ADC_SQR3_SQ12_SHIFT		12
++#define ADC_SQR3_SQ13_SHIFT		18
++#define ADC_SQR3_SQ14_SHIFT		24
++#define ADC_SQR4_SQ15_SHIFT		0
++#define ADC_SQR4_SQ16_SHIFT		6
++
+ /* --- Function prototypes ------------------------------------------------- */
+ 
+ BEGIN_DECLS
+diff --git a/include/libopencm3/stm32/f3/adc.h b/include/libopencm3/stm32/f3/adc.h
+index 9f4639b..862a157 100644
+--- a/include/libopencm3/stm32/f3/adc.h
++++ b/include/libopencm3/stm32/f3/adc.h
+@@ -235,79 +235,6 @@
+ /* Bit 7:0 LT3[7:0]: Analog watchdog 3 lower threshold */
+ 
+ 
+-/*------- ADC_SQR1 values ---------*/
+-
+-#define ADC_SQR1_L_LSB			0
+-#define ADC_SQR1_SQ1_LSB		6
+-#define ADC_SQR1_SQ2_LSB		12
+-#define ADC_SQR1_SQ3_LSB		18
+-#define ADC_SQR1_SQ4_LSB		24
+-#define ADC_SQR1_L_MSK			(0xf << ADC_SQR1_L_LSB)
+-#define ADC_SQR1_SQ1_MSK		(0x1f << ADC_SQR1_SQ1_LSB)
+-#define ADC_SQR1_SQ2_MSK		(0x1f << ADC_SQR1_SQ2_LSB)
+-#define ADC_SQR1_SQ3_MSK		(0x1f << ADC_SQR1_SQ3_LSB)
+-#define ADC_SQR1_SQ4_MSK		(0x1f << ADC_SQR1_SQ4_LSB)
+-
+-/* Bits 28:24 SQ4[4:0]: 4th conversion in regular sequence */
+-
+-/* Bits 22:18 SQ3[4:0]: 3rd conversion in regular sequence */
+-
+-/* Bits 16:12 SQ2[4:0]: 2nd conversion in regular sequence */
+-
+-/* Bits 10:6 SQ1[4:0]: 1st conversion in regular sequence */
+-
+-/* L[3:0]: Regular channel sequence length */
+-#define ADC_SQR1_L_1_CONVERSION		(0x0 << 0)
+-#define ADC_SQR1_L_2_CONVERSION		(0x1 << 0)
+-#define ADC_SQR1_L_3_CONVERSION		(0x2 << 0)
+-#define ADC_SQR1_L_4_CONVERSION		(0x3 << 0)
+-#define ADC_SQR1_L_5_CONVERSION		(0x4 << 0)
+-#define ADC_SQR1_L_6_CONVERSION		(0x5 << 0)
+-#define ADC_SQR1_L_7_CONVERSION		(0x6 << 0)
+-#define ADC_SQR1_L_8_CONVERSION		(0x7 << 0)
+-#define ADC_SQR1_L_9_CONVERSION		(0x8 << 0)
+-#define ADC_SQR1_L_10_CONVERSION	(0x9 << 0)
+-#define ADC_SQR1_L_11_CONVERSION	(0xA << 0)
+-#define ADC_SQR1_L_12_CONVERSION	(0xB << 0)
+-#define ADC_SQR1_L_13_CONVERSION	(0xC << 0)
+-#define ADC_SQR1_L_14_CONVERSION	(0xD << 0)
+-#define ADC_SQR1_L_15_CONVERSION	(0xE << 0)
+-#define ADC_SQR1_L_16_CONVERSION	(0xF << 0)
+-
+-
+-/*------- ADC_SQR2 values ---------*/
+-
+-/* Bits 28:24 SQ9[4:0]: 9th conversion in regular sequence */
+-
+-/* Bits 22:18 SQ8[4:0]: 8th conversion in regular sequence */
+-
+-/* Bits 16:12 SQ7[4:0]: 7th conversion in regular sequence */
+-
+-/* Bits 10:6 SQ6[4:0]: 6th conversion in regular sequence */
+-
+-/* Bits 4:0 SQ5[4:0]: 5th conversion in regular sequence */
+-
+-
+-/*------- ADC_SQR3 values ---------*/
+-
+-/* Bits 28:24 SQ14[4:0]: 14th conversion in regular sequence */
+-
+-/* Bits 22:18 SQ13[4:0]: 13th conversion in regular sequence */
+-
+-/* Bits 16:12 SQ12[4:0]: 12th conversion in regular sequence */
+-
+-/* Bits 10:6 SQ11[4:0]: 11th conversion in regular sequence */
+-
+-/* Bits 4:0 SQ10[4:0]: 10th conversion in regular sequence */
+-
+-
+-/*------- ADC_SQR4 values ---------*/
+-
+-/* Bits 10:6 SQ16[4:0]: 16th conversion in regular sequence */
+-
+-/* Bits 4:0 SQ15[4:0]: 15th conversion in regular sequence */
+-
+-
+ /*------- ADC_DR values ---------*/
+ 
+ /* Bits 15:0 RDATA[15:0]: Regular Data converted */
+diff --git a/lib/stm32/common/adc_common_v2_multi.c b/lib/stm32/common/adc_common_v2_multi.c
+index 0da9366..638232e 100644
+--- a/lib/stm32/common/adc_common_v2_multi.c
++++ b/lib/stm32/common/adc_common_v2_multi.c
+@@ -83,3 +83,47 @@ void adc_set_sample_time_on_all_channels(uint32_t adc, uint8_t time)
+ 	}
+ 	ADC_SMPR2(adc) = reg32;
+ }
++
++/*---------------------------------------------------------------------------*/
++/** @brief ADC Set a Regular Channel Conversion Sequence
++ *
++ * Define a sequence of channels to be converted as a regular group with a
++ * length from 1 to 16 channels. If this is called during conversion, the
++ * current conversion is reset and conversion begins again with the newly
++ * defined group.
++ *
++ * @param[in] adc ADC block register address base @ref adc_reg_base
++ * @param[in] length Number of channels in the group, range 0..16
++ * @param[in] channel Set of channels in sequence, range @ref adc_channel
++ */
++void adc_set_regular_sequence(uint32_t adc, uint8_t length, uint8_t channel[])
++{
++	uint32_t reg32_1 = 0, reg32_2 = 0, reg32_3 = 0, reg32_4 = 0;
++	uint8_t i = 0;
++
++	/* Maximum sequence length is 16 channels. */
++	if (length > 16) {
++		return;
++	}
++
++	for (i = 1; i <= length; i++) {
++		if (i <= 4) {
++			reg32_1 |= (channel[i - 1] << (i * 6));
++		}
++		if ((i > 4) & (i <= 9)) {
++			reg32_2 |= (channel[i - 1] << ((i - 4 - 1) * 6));
++		}
++		if ((i > 9) & (i <= 14)) {
++			reg32_3 |= (channel[i - 1] << ((i - 9 - 1) * 6));
++		}
++		if ((i > 14) & (i <= 16)) {
++			reg32_4 |= (channel[i - 1] << ((i - 14 - 1) * 6));
++		}
++	}
++	reg32_1 |= ((length - 1) << ADC_SQR1_L_SHIFT);
++
++	ADC_SQR1(adc) = reg32_1;
++	ADC_SQR2(adc) = reg32_2;
++	ADC_SQR3(adc) = reg32_3;
++	ADC_SQR4(adc) = reg32_4;
++}
+diff --git a/lib/stm32/f3/adc.c b/lib/stm32/f3/adc.c
+index ea2ead9..0b402c7 100644
+--- a/lib/stm32/f3/adc.c
++++ b/lib/stm32/f3/adc.c
+@@ -488,52 +488,6 @@ void adc_set_watchdog_low_threshold(uint32_t adc, uint8_t threshold)
+ 	ADC_TR3(adc) = reg32;
+ }
+ 
+-/*---------------------------------------------------------------------------*/
+-/** @brief ADC Set a Regular Channel Conversion Sequence
+- *
+- * Define a sequence of channels to be converted as a regular group with a
+- * length from 1 to 16 channels. If this is called during conversion, the
+- * current conversion is reset and conversion begins again with the newly
+- * defined group.
+- *
+- * @param[in] adc Unsigned int32. ADC block register address base
+- * @ref adc_reg_base
+- * @param[in] length Unsigned int8. Number of channels in the group.
+- * @param[in] channel Unsigned int8[]. Set of channels in sequence, integers
+- * 0..18.
+- */
+-
+-void adc_set_regular_sequence(uint32_t adc, uint8_t length, uint8_t channel[])
+-{
+-	uint32_t reg32_1 = 0, reg32_2 = 0, reg32_3 = 0, reg32_4 = 0;
+-	uint8_t i = 0;
+-
+-	/* Maximum sequence length is 16 channels. */
+-	if (length > 16) {
+-		return;
+-	}
+-
+-	for (i = 1; i <= length; i++) {
+-		if (i <= 4) {
+-			reg32_1 |= (channel[i - 1] << (i * 6));
+-		}
+-		if ((i > 4) & (i <= 9)) {
+-			reg32_2 |= (channel[i - 1] << ((i - 4 - 1) * 6));
+-		}
+-		if ((i > 9) & (i <= 14)) {
+-			reg32_3 |= (channel[i - 1] << ((i - 9 - 1) * 6));
+-		}
+-		if ((i > 14) & (i <= 16)) {
+-			reg32_4 |= (channel[i - 1] << ((i - 14 - 1) * 6));
+-		}
+-	}
+-	reg32_1 |= ((length - 1) << ADC_SQR1_L_LSB);
+-
+-	ADC_SQR1(adc) = reg32_1;
+-	ADC_SQR2(adc) = reg32_2;
+-	ADC_SQR3(adc) = reg32_3;
+-	ADC_SQR4(adc) = reg32_4;
+-}
+ 
+ /*---------------------------------------------------------------------------*/
+ /** @brief ADC Set an Injected Channel Conversion Sequence

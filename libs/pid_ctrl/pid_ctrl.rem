@@ -1,0 +1,5 @@
+sw_package.set_src("C/pid_controller.c")
+sw_package.set_inc("C")
+
+sw_package.set_uri("https://github.com/tcleg/PID_Controller.git")
+#sw_package.uri = "https://github.com/the0b/MSP430-CORDIC-sine-cosine.git"
