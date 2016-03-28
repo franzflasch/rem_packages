@@ -1,12 +1,15 @@
 # zip:
-#sw_package.set_inc("libopencm3-master/include/")
-#sw_package.set_uri("https://github.com/libopencm3/libopencm3/archive/master.zip")
-#sw_package.set_global_linker_flags("-L #{sw_package.pkg_build_dir}/libopencm3-master/lib/")
+
+commit_version = "492a943b7e448469cd8e88f60fda41ef46aa3b2a"
+sw_package.set_work_dir("libopencm3-#{commit_version}")
+sw_package.set_inc("include/")
+sw_package.set_uri("https://github.com/libopencm3/libopencm3/archive/#{commit_version}.zip")
+sw_package.set_global_linker_flags("-L #{sw_package.pkg_work_dir}/lib/")
 
 # git:
-sw_package.set_inc("include/")
-sw_package.set_uri("https://github.com/libopencm3/libopencm3.git")
-sw_package.set_global_linker_flags("-L #{sw_package.pkg_build_dir}/lib/")
+#sw_package.set_inc("include/")
+#sw_package.set_uri("https://github.com/libopencm3/libopencm3.git")
+#sw_package.set_global_linker_flags("-L #{sw_package.pkg_build_dir}/lib/")
 
 # this patch is from pull request (https://github.com/libopencm3/libopencm3/pull/629) which fixes ADC bugs for F3
 sw_package.set_patch("hf_patches/karlp_adc.patch")
@@ -28,8 +31,13 @@ if global_config.get_mach() == "stm32f4"
 	sw_package.set_global_linker_flags("-lopencm3_stm32f4 -T #{sw_package.pkg_build_dir}/stm32f4-discovery.ld")
 end
 
+sw_package.set_custom_build_string("PREFIX=#{global_config.get_compiler_prefix} make -C #{sw_package.pkg_work_dir}")
+
+# git:
+#sw_package.set_custom_build_string("PREFIX=#{global_config.get_compiler_prefix} make -C #{sw_package.pkg_build_dir}")
+
 # Set custom tasks here as 'anonymous module' as we dont wont to make these methods
-# globally available
+#globally available
 
 
 #module LibobenCM3Custom
@@ -40,7 +48,7 @@ end
 #	    execute "PREFIX=#{global_config.get_compiler_prefix} make -C #{sw_package.pkg_build_dir}"
 #    end
 #end
-sw_package.set_custom_build_string("PREFIX=#{global_config.get_compiler_prefix} make -C #{sw_package.pkg_build_dir}")
+#sw_package.set_custom_build_string("PREFIX=#{global_config.get_compiler_prefix} make -C #{sw_package.pkg_build_dir}")
 
 #sw_package.set_custom_tasks(
 #Module.new do
