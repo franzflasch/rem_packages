@@ -1,0 +1,76 @@
+diff --git a/C/pid_controller.h b/C/pid_controller.h
+index fe70634..fc11766 100644
+--- a/C/pid_controller.h
++++ b/C/pid_controller.h
+@@ -309,7 +309,7 @@ extern void PIDSampleTimeSet(PIDControl *pid, float sampleTimeSeconds);
+ // Returns:
+ //      Nothing.
+ // 
+-inline void 
++static inline void 
+ PIDSetpointSet(PIDControl *pid, float setpoint) { pid->setpoint = setpoint; }
+ 
+ // 
+@@ -323,7 +323,7 @@ PIDSetpointSet(PIDControl *pid, float setpoint) { pid->setpoint = setpoint; }
+ // Returns:
+ //      Nothing.
+ // 
+-inline void 
++static inline void 
+ PIDInputSet(PIDControl *pid, float input) { pid->input = input; }
+ 
+ // 
+@@ -336,7 +336,7 @@ PIDInputSet(PIDControl *pid, float input) { pid->input = input; }
+ // Returns:
+ //      The output of the specific PID controller.
+ // 
+-inline float 
++static inline float 
+ PIDOutputGet(PIDControl *pid) { return pid->output; }
+ 
+ // 
+@@ -349,7 +349,7 @@ PIDOutputGet(PIDControl *pid) { return pid->output; }
+ // Returns:
+ //      The proportional gain constant.
+ // 
+-inline float 
++static inline float 
+ PIDKpGet(PIDControl *pid) { return pid->dispKp; }						  
+ 
+ // 
+@@ -362,7 +362,7 @@ PIDKpGet(PIDControl *pid) { return pid->dispKp; }
+ // Returns:
+ //      The integral gain constant.
+ // 
+-inline float 
++static inline float 
+ PIDKiGet(PIDControl *pid) { return pid->dispKi; }						  
+ 
+ // 
+@@ -375,7 +375,7 @@ PIDKiGet(PIDControl *pid) { return pid->dispKi; }
+ // Returns:
+ //      The derivative gain constant.
+ // 
+-inline float 
++static inline float 
+ PIDKdGet(PIDControl *pid) { return pid->dispKd; }						  
+ 
+ // 
+@@ -388,7 +388,7 @@ PIDKdGet(PIDControl *pid) { return pid->dispKd; }
+ //      MANUAL or AUTOMATIC depending on what the user set the 
+ //      controller to.
+ // 
+-inline PIDMode 
++static inline PIDMode 
+ PIDModeGet(PIDControl *pid) { return pid->mode; }						  
+ 
+ // 
+@@ -401,7 +401,7 @@ PIDModeGet(PIDControl *pid) { return pid->mode; }
+ //      DIRECT or REVERSE depending on what the user set the
+ //      controller to.
+ // 
+-inline PIDDirection 
++static inline PIDDirection 
+ PIDDirectionGet(PIDControl *pid) { return pid->controllerDirection; }		
+ 
+ 
