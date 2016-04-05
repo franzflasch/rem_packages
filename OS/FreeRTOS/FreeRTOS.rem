@@ -1,30 +1,31 @@
 version = "8.2.3"
-sw_package.set_src("FreeRTOSV#{version}/FreeRTOS/Source/croutine.c")
-sw_package.set_src("FreeRTOSV#{version}/FreeRTOS/Source/event_groups.c")
-sw_package.set_src("FreeRTOSV#{version}/FreeRTOS/Source/list.c")
-sw_package.set_src("FreeRTOSV#{version}/FreeRTOS/Source/queue.c")
-sw_package.set_src("FreeRTOSV#{version}/FreeRTOS/Source/tasks.c")
-sw_package.set_src("FreeRTOSV#{version}/FreeRTOS/Source/timers.c")
+sw_package.set_src("croutine.c")
+sw_package.set_src("event_groups.c")
+sw_package.set_src("list.c")
+sw_package.set_src("queue.c")
+sw_package.set_src("tasks.c")
+sw_package.set_src("timers.c")
 
-sw_package.set_inc("FreeRTOSV#{version}/FreeRTOS/Source/include")
+sw_package.set_inc("include")
 
 #sw_package.set_uri("http://ufpr.dl.sourceforge.net/project/freertos/FreeRTOS/V#{version}/FreeRTOSV#{version}.zip")
-sw_package.set_uri("http://downloads.sourceforge.net/project/freertos/FreeRTOS/V#{version}/FreeRTOSV#{version}.zip")
+#sw_package.set_uri("http://downloads.sourceforge.net/project/freertos/FreeRTOS/V#{version}/FreeRTOSV#{version}.zip")
+sw_package.set_uri("https://svn.code.sf.net/p/freertos/code/tags/V#{version}/FreeRTOS/Source/;type=svn")
 #sw_package.set_uri("http://sourceforge.net/projects/freertos/files/FreeRTOS/V#{version}/FreeRTOSV#{version}.zip")
 sw_package.set_arch("arm")
 
 if global_config.get_mach() == "stm32f1"
 	sw_package.set_inc("stm32/f1/")
-	sw_package.set_inc("FreeRTOSV#{version}/FreeRTOS/Source/portable/GCC/ARM_CM3/")
-	sw_package.set_src("FreeRTOSV#{version}/FreeRTOS/Source/portable/GCC/ARM_CM3/port.c")
-	sw_package.set_src("FreeRTOSV#{version}/FreeRTOS/Source/portable/MemMang/heap_1.c")
+	sw_package.set_inc("portable/GCC/ARM_CM3/")
+	sw_package.set_src("portable/GCC/ARM_CM3/port.c")
+	sw_package.set_src("portable/MemMang/heap_1.c")
 	sw_package.set_def("FREERTOS_USE_LIBOPENCM3")
 end
 
 if global_config.get_mach() == "stm32f3"
 	sw_package.set_inc("stm32/f3/")
-	sw_package.set_inc("FreeRTOSV#{version}/FreeRTOS/Source/portable/GCC/ARM_CM4F/")
-	sw_package.set_src("FreeRTOSV#{version}/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c")
-	sw_package.set_src("FreeRTOSV#{version}/FreeRTOS/Source/portable/MemMang/heap_1.c")
+	sw_package.set_inc("portable/GCC/ARM_CM4F/")
+	sw_package.set_src("portable/GCC/ARM_CM4F/port.c")
+	sw_package.set_src("portable/MemMang/heap_1.c")
 	sw_package.set_def("FREERTOS_USE_LIBOPENCM3")
 end
