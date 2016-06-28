@@ -32,6 +32,13 @@ struct spi_master_s
 	void *platform_drv_info;
 };
 
+void SPI_init_master(spi_master_t *master,
+					 void *spi_set_cs,
+					 void *spi_trans_byte_cb_cs_off,
+					 void *spi_trans_byte_cb_cs_on,
+					 void *spi_trans_msg,
+					 void *platform_drv_info);
+
 struct spi_device_s
 {
 	uint8_t mode;
@@ -39,12 +46,6 @@ struct spi_device_s
 	spi_master_t *spi_master;
 };
 
-void SPI_init_master(spi_master_t *master,
-					 void *spi_set_cs,
-					 void *spi_trans_byte_cb_cs_off,
-					 void *spi_trans_byte_cb_cs_on,
-					 void *spi_trans_msg,
-					 void *platform_drv_info);
 void SPI_init_device(spi_device_t *spi_dev, uint8_t mode, uint8_t pin, spi_master_t *master);
 
 uint8_t SPI_transfer_byte(spi_device_t *spi, uint8_t val);

@@ -102,4 +102,16 @@ void SOFT_SPI_set_cs(spi_device_t *spi, uint8_t val)
 		psoft_spi->set_cs(spi->pin, SOFT_SPI_HIGH);
 	else
 		psoft_spi->set_cs(spi->pin, SOFT_SPI_LOW);
-} 
+}
+
+
+void SOFT_SPI_master_new(spi_master_t *spi_master, void *drv_info)
+{
+	spi_master->SPI_set_cs = SOFT_SPI_set_cs;
+	spi_master->SPI_transfer_byte = SOFT_SPI_transfer_byte_CS_on;
+	spi_master->SPI_transfer_byte_cs_off = SOFT_SPI_transfer_byte_CS_off;
+	spi_master->SPI_transfer_msg = SOFT_SPI_transfer_msg;
+	spi_master->platform_drv_info = drv_info;
+}
+
+

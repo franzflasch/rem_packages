@@ -22,4 +22,6 @@ uint8_t SOFT_SPI_transfer_byte_CS_off(spi_device_t *spi, uint8_t byte);
 uint8_t SOFT_SPI_transfer_byte_CS_on(spi_device_t *spi, uint8_t byte);
 void SOFT_SPI_transfer_msg(spi_device_t *spi, uint8_t *data_out, uint8_t *data_in, uint16_t len);
 
+void SOFT_SPI_master_new(spi_master_t *spi_master, void *drv_info);
+
 #endif // header

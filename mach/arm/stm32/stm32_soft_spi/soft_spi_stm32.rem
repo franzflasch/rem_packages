@@ -1,0 +1,4 @@
+sw_package.set_inc(".")
+sw_package.set_src("soft_spi_drv_stm32.c")
+sw_package.set_dep("soft_spi spi_common libopencm3")
+sw_package.set_arch("arm")
