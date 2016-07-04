@@ -32,5 +32,4 @@ end
 specific_data = MakeTasksDesc.new()
 specific_data.set_compile_command("PREFIX=#{global_config.get_compiler_prefix} make -C #{sw_package.pkg_work_dir}")
 specific_data.set_compile_clean_command("PREFIX=#{global_config.get_compiler_prefix} make -C #{sw_package.pkg_work_dir} clean")
-sw_package.set_specific_data(specific_data)
-sw_package.set_build_type("make_pkg")
+sw_package.set_build_specific_data(specific_data)
