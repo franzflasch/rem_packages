@@ -1,0 +1,7 @@
+sw_package.set_uri("https://github.com/nanopb/nanopb.git")
+sw_package.set_src("
+					pb_common.c
+					pb_decode.c
+					pb_encode.c
+					")
+sw_package.set_inc(".")
