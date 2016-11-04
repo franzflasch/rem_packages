@@ -1,3 +1,2 @@
 sw_package.set_src("src/OMM_common_avr.c")
 sw_package.set_arch("avr")
-sw_package.set_dep("openmicromake")

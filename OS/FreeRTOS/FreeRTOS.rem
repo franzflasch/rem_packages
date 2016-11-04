@@ -1,4 +1,4 @@
-version = "8.2.3"
+version = "9.0.0"
 sw_package.set_src("croutine.c")
 sw_package.set_src("event_groups.c")
 sw_package.set_src("list.c")
