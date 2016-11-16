@@ -31,6 +31,8 @@
 
 #ifdef __SDCC
 #define REENTRANT __reentrant
+/* not supported by sdcc so use uin32_t instead, hopefully the compiler is clever enough to warn */
+#define uint64_t uint32_t
 #elif __GNUC__
 #define REENTRANT
 #endif
