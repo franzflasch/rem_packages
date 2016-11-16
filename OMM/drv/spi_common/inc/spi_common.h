@@ -13,6 +13,12 @@
 #define SPI_COMMON_LOW 0
 #define SPI_COMMON_HIGH 1
 
+#ifdef __SDCC
+#define REENTRANT __reentrant
+#elif __GNUC__
+#define REENTRANT
+#endif
+
 typedef enum spi_mode
 {
 	MODE_0_0,
@@ -25,10 +31,10 @@ typedef struct spi_master_s spi_master_t;
 
 struct spi_master_s
 {
-	void (*SPI_set_cs)(spi_device_t *spi, uint8_t val);
-	uint8_t (*SPI_transfer_byte)(spi_device_t *spi, uint8_t byte);
-	void (*SPI_transfer_msg)(spi_device_t *spi, uint8_t *data_out, uint8_t *data_in, uint16_t len);
-	uint8_t (*SPI_transfer_byte_cs_off)(spi_device_t *spi, uint8_t byte);
+	void (*SPI_set_cs)(spi_device_t *spi, uint8_t val) REENTRANT;
+	uint8_t (*SPI_transfer_byte)(spi_device_t *spi, uint8_t byte) REENTRANT;
+	void (*SPI_transfer_msg)(spi_device_t *spi, uint8_t *data_out, uint8_t *data_in, uint16_t len) REENTRANT;
+	uint8_t (*SPI_transfer_byte_cs_off)(spi_device_t *spi, uint8_t byte) REENTRANT;
 	void *platform_drv_info;
 };
 

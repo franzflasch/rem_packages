@@ -1,0 +1,19 @@
+#commit_version = "492a943b7e448469cd8e88f60fda41ef46aa3b2a"
+
+# git:
+sw_package.set_uri("https://github.com/DeanCording/nRF24LE1_SDK.git")
+sw_package.set_arch("8051")
+
+sw_package.set_inc("include/")
+
+if global_config.get_mach() == "nrf24le1_32"
+	sw_package.set_inc("_target_sdcc_nrf24le1_32/include/")
+	sw_package.set_global_linker_flags("-lnrf24le1")
+	sw_package.set_global_linker_flags("-L #{sw_package.pkg_build_dir}/_target_sdcc_nrf24le1_32/lib/")
+end
+
+specific_data = MakeTasksDesc.new()
+# Set PREFIX env variable after the command if set before it may cause problems on some systems
+specific_data.set_compile_command("make -C #{sw_package.pkg_work_dir} all")
+specific_data.set_compile_clean_command("make -C #{sw_package.pkg_work_dir} clean")
+sw_package.set_build_specific_data(specific_data)

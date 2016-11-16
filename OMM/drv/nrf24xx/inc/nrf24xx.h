@@ -29,6 +29,12 @@
 
 #include <stdint.h>
 
+#ifdef __SDCC
+#define REENTRANT __reentrant
+#elif __GNUC__
+#define REENTRANT
+#endif
+
 /* LOWLEVEL */
 #define NRF24_TRANSMISSON_OK	0
 #define NRF24_MESSAGE_LOST   	1
@@ -77,14 +83,14 @@ typedef struct nrf24xx_s
    uint8_t spi_msg[NRF24_SPI_MSG_MAX_LEN+1];
 
    /* Function pointers to the corresponding SPI driver layer */
-   uint8_t (*SPI_transfer_byte)(void *spi, uint8_t val);
-   void (*SPI_transfer_msg)(void *spi, uint8_t *data_out, uint8_t *data_in, uint16_t len);
+   uint8_t (*SPI_transfer_byte)(void *spi, uint8_t val) REENTRANT;
+   void (*SPI_transfer_msg)(void *spi, uint8_t *data_out, uint8_t *data_in, uint16_t len) REENTRANT;
 
    /* Hardware specific */
-   void (*NRF24XX_set_ce)(uint8_t val);
+   void (*NRF24XX_set_ce)(uint8_t val) REENTRANT;
 
    /* Software layer specific */
-   void (*NRF24XX_delay_func)(uint64_t val);
+   void (*NRF24XX_delay_func)(uint64_t val) REENTRANT;
 
    /* execution time infos */
    uint8_t payload_len;
@@ -98,20 +104,44 @@ void nrf24_drv_init(nrf24xx_t *nrf24,
 					void *spi_transfer_msg,
 					void *nrf24xx_set_ce,
 					void *nrf24_delay_func);
+
 void nrf24_config(nrf24xx_t *nrf24, uint8_t channel, uint8_t pay_length);
+
 void nrf24_power_up_rx(nrf24xx_t *nrf24);
+
 void nrf24_power_up_tx(nrf24xx_t *nrf24);
+
 void nrf24_power_down(nrf24xx_t *nrf24);
+
 void nrf24_rx_address(nrf24xx_t *nrf24, uint8_t * adr);
+
 void nrf24_tx_address(nrf24xx_t *nrf24, uint8_t* adr);
+
 uint8_t nrf24_data_ready(nrf24xx_t *nrf24);
+
 void nrf24_get_data(nrf24xx_t *nrf24, uint8_t* data);
+
 void nrf24_send(nrf24xx_t *nrf24, uint8_t* value);
+
 uint8_t nrf24_is_sending(nrf24xx_t *nrf24);
+
 uint8_t nrf24_get_status(nrf24xx_t *nrf24);
+
 uint8_t nrf24_last_message_status(nrf24xx_t *nrf24);
+
 void nrf24_clear_irqs(nrf24xx_t *nrf24);
-uint8_t nrf24_master_ping_pong(nrf24xx_t *nrf24, uint8_t *txaddress, uint8_t *rxaddress, uint8_t *buf_tx, uint8_t *buf_rx, uint8_t buf_size, uint8_t rx_req);
-uint8_t nrf24_slave_ping_pong(nrf24xx_t *nrf24, uint8_t *rx_address, uint8_t *buf_tx, uint8_t *buf_rx, uint8_t buf_size);
+
+uint8_t nrf24_master_ping_pong(nrf24xx_t *nrf24, 
+                               uint8_t *rxaddress, 
+                               uint8_t *buf_tx, 
+                               uint8_t *buf_rx, 
+                               uint8_t buf_size, 
+                               uint8_t rx_req);
+
+uint8_t nrf24_slave_ping_pong(nrf24xx_t *nrf24, 
+                              uint8_t *rx_address, 
+                              uint8_t *buf_tx, 
+                              uint8_t *buf_rx, 
+                              uint8_t buf_size);
 
 #endif

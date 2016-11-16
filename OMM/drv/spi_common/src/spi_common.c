@@ -48,7 +48,7 @@ uint8_t SPI_transfer_byte_cs_off(spi_device_t *spi, uint8_t val)
 
 void SPI_set_cs(spi_device_t *spi, uint8_t val)
 {
-	return spi->spi_master->SPI_set_cs(spi, val);
+	spi->spi_master->SPI_set_cs(spi, val);
 }
 
 
