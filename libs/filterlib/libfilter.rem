@@ -6,3 +6,5 @@ sw_package.set_uri("https://github.com/franzflasch/filter_lib.git")
 
 sw_package.set_inc("inc/")
 sw_package.set_src("src/lib_filter_sos.c")
+sw_package.set_src("src/lib_filter_fir1.c")
+
