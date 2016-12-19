@@ -27,19 +27,3 @@ void GPIO_init_controller(gpio_controller_t *controller,
 	controller->GPIO_get = gpio_get;
 	controller->platform_drv_info = platform_drv_info;
 }
-
-void GPIO_set(gpio_controller_t *gpio, uint8_t pin, uint8_t val)
-{
-	if(gpio->GPIO_set != NULL)
-		gpio->GPIO_set(gpio, pin, val);
-}
-
-uint8_t GPIO_get(gpio_controller_t *gpio, uint8_t pin)
-{
-	if(gpio->GPIO_get != NULL)
-		return gpio->GPIO_get(gpio, pin);
-	else
-		return 0xFF;
-}
-
-
