@@ -1,0 +1,13 @@
+Index: nrf24le1_sdk_nohash/MakefileSrc.mk
+===================================================================
+--- nrf24le1_sdk_nohash.orig/MakefileSrc.mk
++++ nrf24le1_sdk_nohash/MakefileSrc.mk
+@@ -5,7 +5,7 @@ LIB = sdcclib
+ 
+ # Flags for above programs when calling them from the command line
+ DFLAGS = -MM $(INCDIRS) $<
+-CFLAGS = --model-large --std-c99 $(INCDIRS) -c $< -o "$(OBJDIR)/"
++CFLAGS = --model-large --std-c99 --opt-code-size --stack-auto $(INCDIRS) -c $< -o "$(OBJDIR)/"
+ LFLAGS =
+ 
+ # File extensions for dependency files, source files, object files, and library files, respectively
