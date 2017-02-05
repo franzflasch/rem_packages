@@ -8,9 +8,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-void OMM_busy_delay(uint64_t val)
+void OMM_busy_delay(uint32_t val)
 {
-	uint64_t j = 0;
+	uint32_t j = 0;
 	for(j=0;j<(val*1000);j++)
 			__asm__("nop");
 }

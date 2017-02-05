@@ -9,9 +9,9 @@
 #include <util/delay.h>
 #include <stdint.h>
 
-void OMM_busy_delay(uint64_t val)
+void OMM_busy_delay(uint32_t val)
 {
-	uint64_t i = 0;
+	uint32_t i = 0;
 	for(i=0;i<val;i++)
 	{
 		/* Expects a constant */

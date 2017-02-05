@@ -6,9 +6,8 @@
  */
 
 #include <OMM_machine_common.h>
-#include <string.h>
 
-#ifdef USE_OMM_STRCMP
+/* we use our own strcmp function, because the SDCC version of strcmp is somehow faulty */
 static int OMM_str_cmp (const char *s1, const char *s2)
 {
     const unsigned char *p1 = (const unsigned char *)s1;
@@ -27,8 +26,6 @@ static int OMM_str_cmp (const char *s1, const char *s2)
 
     return 0;
 }
-#define strcmp OMM_str_cmp
-#endif
 
 void *OMM_get_pdev_by_name(OMM_machine_t *machine, char *name)
 {
@@ -36,7 +33,7 @@ void *OMM_get_pdev_by_name(OMM_machine_t *machine, char *name)
 
     while(pdev->name != 0)
     {
-        if (strcmp(pdev->name,name) == 0)
+        if (OMM_str_cmp(pdev->name,name) == 0)
             break;
         pdev++;
     }
