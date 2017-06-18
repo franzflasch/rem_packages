@@ -1,0 +1,2 @@
+sw_package.set_dep("unity")
+sw_package.set_src("unity_test.c")

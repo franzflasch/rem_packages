@@ -1,0 +1,2 @@
+sw_package.set_src("src/MadgwickAHRS.c")
+sw_package.set_inc("src")
