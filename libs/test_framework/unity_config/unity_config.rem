@@ -1,0 +1,2 @@
+sw_package.set_global_define("UNITY_INCLUDE_CONFIG_H")
+sw_package.set_inc(".")

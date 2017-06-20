@@ -1,3 +1,4 @@
 sw_package.set_uri("https://github.com/ThrowTheSwitch/Unity.git")
 sw_package.set_inc("src")
 sw_package.set_src("src/unity.c")
+sw_package.set_dep("unity_config")

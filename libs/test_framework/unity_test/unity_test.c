@@ -1,4 +1,15 @@
 #include "unity.h"
+#include <stdio.h>
+
+int unity_custom_putc(int x)
+{
+	return putchar(x);
+}
+
+void unity_custom_flush(void)
+{
+	fflush(stdout); 
+}
 
 void setUp(void) {
     // set stuff up here
