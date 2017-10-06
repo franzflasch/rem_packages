@@ -24,4 +24,4 @@ global_config.set_obj_cp("objcopy")
 global_config.set_compile_flag("-Wall -Werror")
 
 require_relative '../../compile_tasks/gcc_tasks/DefaultTasks'
-require_relative '../../compile_tasks/make_tasks/MakeTasks'
+require_relative '../../compile_tasks/common/common_tasks'

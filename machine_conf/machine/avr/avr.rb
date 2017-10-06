@@ -25,4 +25,4 @@ global_config.set_compile_flag("-Wall -Werror")
 global_config.set_objcopy_flag("-R .eeprom -R .fuse -R .lock -R .signature")
 
 require_relative '../../compile_tasks/gcc_tasks/DefaultTasks'
-require_relative '../../compile_tasks/make_tasks/MakeTasks'
+require_relative '../../compile_tasks/common/common_tasks'

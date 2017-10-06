@@ -18,7 +18,7 @@
     along with REM.  If not, see <http://www.gnu.org/licenses/>.
 =end
 
-require_relative "../common/gcc_LinkPrepare"
+require_relative "./gcc_LinkPrepare"
 
 module Default
     module Compile
