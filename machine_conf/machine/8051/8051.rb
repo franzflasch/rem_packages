@@ -23,4 +23,5 @@ global_config.set_obj_extension("rel")
 global_config.set_compile_flag("--opt-code-size --stack-auto --Werror")
 
 require_relative '../../compile_tasks/sdcc_tasks/DefaultTasks'
+require_relative '../../compile_tasks/make_tasks/MakeTasks'
 
