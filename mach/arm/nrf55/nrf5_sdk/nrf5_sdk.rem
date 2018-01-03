@@ -1,0 +1,72 @@
+# zip:
+sw_package.set_work_dir("nRF5_SDK_12.3.0_d7731ad")
+sw_package.set_uri("https://developer.nordicsemi.com/nRF5_SDK/nRF5_SDK_v12.x.x/nRF5_SDK_12.3.0_d7731ad.zip")
+
+sw_package.set_arch("arm")
+sw_package.set_mach("nrf51822")
+
+if global_config.get_mach() == "nrf51822"
+	sw_package.set_global_linker_flags("-L #{sw_package.pkg_build_dir}/nRF5_SDK_12.3.0_d7731ad/components/toolchain/gcc/")
+
+	# Use this if you don't use the ble softdevice
+#	sw_package.set_linker_script("nRF5_SDK_12.3.0_d7731ad/components/toolchain/gcc/nrf51_xxac.ld")
+
+	# don't know when to use this...
+#	sw_package.set_linker_script("nRF5_SDK_12.3.0_d7731ad/components/softdevice/s130/toolchain/armgcc/armgcc_s130_nrf51822_xxaa.ld")
+
+	# this is the linkerscript which is used by the blinky example ble app
+	sw_package.set_linker_script("nRF5_SDK_12.3.0_d7731ad/examples/ble_peripheral/experimental_ble_app_blinky/pca10028/s130/armgcc/experimental_ble_app_blinky_gcc_nrf51.ld")
+
+	# Mandatory defines
+	sw_package.set_global_define("NRF51 NRF51822 BOARD_CUSTOM SOFTDEVICE_PRESENT S130 BLE_STACK_SUPPORT_REQD SWI_DISABLE0 NRF_SD_BLE_API_VERSION=2")
+	
+	# override _start function in crt0 from newlib, otherwise the x-tools toolchain will not work
+	# not necessary for launchpad toolchain, as this toolchain will clear bss anyway
+	# for x-tools toolchain we need to define __STARTUP_CLEAR_BSS in this case the bss section will be cleared in the nrf51 startup file
+	sw_package.set_global_define("__START=main __STARTUP_CLEAR_BSS")
+end
+
+sw_package.set_inc("../.")
+sw_package.set_inc("components/toolchain/")
+sw_package.set_inc("components/device/")
+sw_package.set_inc("components/toolchain/cmsis/include/")
+sw_package.set_inc("components/drivers_nrf/delay/")
+sw_package.set_inc("components/drivers_nrf/hal/")
+sw_package.set_inc("components/softdevice/s130/headers/")
+sw_package.set_inc("components/libraries/util/")
+sw_package.set_inc("components/ble/common/")
+sw_package.set_inc("components/softdevice/common/softdevice_handler/")
+sw_package.set_inc("components/libraries/timer/")
+sw_package.set_inc("components/libraries/button/")
+sw_package.set_inc("components/ble/ble_services/ble_lbs/")
+sw_package.set_inc("components/libraries/bsp/")
+sw_package.set_inc("components/boards/")
+sw_package.set_inc("components/libraries/log/")
+sw_package.set_inc("components/libraries/log/src/")
+sw_package.set_inc("components/drivers_nrf/gpiote/")
+sw_package.set_inc("components/drivers_nrf/common/")
+sw_package.set_inc("components/drivers_nrf/clock/")
+sw_package.set_inc("components/drivers_nrf/uart/")
+
+sw_package.set_src("components/toolchain/gcc/gcc_startup_nrf51.S")
+sw_package.set_src("components/toolchain/system_nrf51.c")
+
+sw_package.set_src("components/libraries/util/app_error.c")
+sw_package.set_src("components/boards/boards.c")
+sw_package.set_src("components/libraries/bsp/bsp.c")
+sw_package.set_src("components/libraries/button/app_button.c")
+sw_package.set_src("components/libraries/util/app_error_weak.c")
+sw_package.set_src("components/drivers_nrf/gpiote/nrf_drv_gpiote.c")
+sw_package.set_src("components/libraries/timer/app_timer.c")
+sw_package.set_src("components/drivers_nrf/common/nrf_drv_common.c")
+sw_package.set_src("components/libraries/util/app_util_platform.c")
+sw_package.set_src("components/ble/common/ble_conn_params.c")
+sw_package.set_src("components/ble/ble_services/ble_lbs/ble_lbs.c")
+sw_package.set_src("components/ble/common/ble_srv_common.c")
+sw_package.set_src("components/softdevice/common/softdevice_handler/softdevice_handler.c")
+sw_package.set_src("components/ble/common/ble_advdata.c")
+sw_package.set_src("components/libraries/log/src/nrf_log_frontend.c")
+sw_package.set_src("components/libraries/log/src/nrf_log_backend_serial.c")
+sw_package.set_src("components/drivers_nrf/uart/nrf_drv_uart.c")
+sw_package.set_src("components/drivers_nrf/clock/nrf_drv_clock.c")
+

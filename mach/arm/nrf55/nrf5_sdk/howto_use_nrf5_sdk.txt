@@ -1,0 +1,10 @@
+# You need to specify different linkerscripts, depending on the usecase. If you are using a softdevice (for BLE apps) or if you want to use the mcu standalone
+# Please see nrf5_sdk.rem for details
+
+# For flashing you can use openocd in stlink mode:
+
+# Flash standalone app:
+openocd -s <openocd_install_location>/share/openocd/scripts/ -f interface/stlink-v2.cfg -f target/nrf51.cfg -c init -c "reset init" -c "halt" -c "nrf51 mass_erase" -c "program <binary_location>/test_project.bin verify" -c "reset" -c "exit"
+
+# flash ble binary and softdevice:
+openocd -s <openocd_install_location>/share/openocd/scripts/ -f interface/stlink-v2.cfg -f target/nrf51.cfg -c init -c "reset init" -c "halt" -c "flash write_image erase <nrf5_sdk_location>/nRF5_SDK_12.3.0_d7731ad/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex 0x0000" -c "flash write_image erase <binary_location>/nrf51_blinky.bin 0x1b000" -c "reset" -c "exit"
