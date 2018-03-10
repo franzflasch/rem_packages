@@ -1,0 +1,44 @@
+Index: bsp/libwrap/sys/write.c
+===================================================================
+--- bsp.orig/libwrap/sys/write.c
++++ bsp/libwrap/sys/write.c
+@@ -11,7 +11,7 @@
+ 
+ ssize_t __wrap_write(int fd, const void* ptr, size_t len)
+ {
+-  const uint8_t * current = (const char *)ptr;
++  const uint8_t * current = (const uint8_t *)ptr;
+ 
+   if (isatty(fd)) {
+     for (size_t jj = 0; jj < len; jj++) {
+Index: bsp/env/freedom-e300-hifive1/init.c
+===================================================================
+--- bsp.orig/env/freedom-e300-hifive1/init.c
++++ bsp/env/freedom-e300-hifive1/init.c
+@@ -53,7 +53,7 @@ static void use_hfrosc(int div, int trim
+   PRCI_REG(PRCI_PLLCFG) &= ~PLL_SEL(1);
+ }
+ 
+-static void use_pll(int refsel, int bypass, int r, int f, int q)
++void use_pll(int refsel, int bypass, int r, int f, int q)
+ {
+   // Ensure that we aren't running off the PLL before we mess with it.
+   if (PRCI_REG(PRCI_PLLCFG) & PLL_SEL(1)) {
+@@ -130,7 +130,7 @@ static void use_pll(int refsel, int bypa
+   PRCI_REG(PRCI_PLLCFG) |= PLL_SEL(1);
+ }
+ 
+-static void use_default_clocks()
++void use_default_clocks()
+ {
+   // Turn off the LFROSC
+   AON_REG(AON_LFROSC) &= ~ROSC_EN(1);
+@@ -176,7 +176,7 @@ unsigned long get_cpu_freq()
+   return cpu_freq;
+ }
+ 
+-static void uart_init(size_t baud_rate)
++void uart_init(size_t baud_rate)
+ {
+   GPIO_REG(GPIO_IOF_SEL) &= ~IOF0_UART0_MASK;
+   GPIO_REG(GPIO_IOF_EN) |= IOF0_UART0_MASK;

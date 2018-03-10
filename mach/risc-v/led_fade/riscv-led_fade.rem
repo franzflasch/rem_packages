@@ -1,0 +1,7 @@
+# Use SVN here, as it supports checkout of subfolders, which is the only feature I am missing in git.
+sw_package.set_uri("https://github.com/sifive/freedom-e-sdk.git/trunk/software/led_fade/;type=svn")
+sw_package.set_dep("freedom-e-sdk-bsp")
+sw_package.set_arch("risc-v")
+
+# Common
+sw_package.set_src("led_fade.c")

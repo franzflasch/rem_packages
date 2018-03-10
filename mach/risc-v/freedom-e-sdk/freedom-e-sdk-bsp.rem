@@ -1,0 +1,98 @@
+# Use SVN here, as it supports checkout of subfolders, which is the only feature I am missing in git.
+sw_package.set_uri("https://github.com/sifive/freedom-e-sdk.git/trunk/bsp;type=svn")
+sw_package.set_patch("patches/001_fix_includes.patch
+                      patches/002_fix_warning.patch
+                      patches/003_fix_warnings.patch")
+
+sw_package.set_inc("include")
+
+sw_package.set_arch("risc-v")
+
+sw_package.set_global_define("NO_INIT")
+
+# Common
+sw_package.set_src("env/entry.S
+                    env/start.S  
+                    env/ventry.S")
+sw_package.set_inc("env")
+
+# Drivers
+sw_package.set_src("drivers/plic/plic_driver.c")
+sw_package.set_inc("drivers")
+
+# libwrap
+sw_package.set_src("libwrap/misc/write_hex.c")
+sw_package.set_src("libwrap/stdlib/malloc.c")
+sw_package.set_src("libwrap/sys/write.c
+					libwrap/sys/close.c
+					libwrap/sys/execve.c
+					libwrap/sys/_exit.c
+					libwrap/sys/fork.c
+					libwrap/sys/fstat.c
+					libwrap/sys/getpid.c
+					libwrap/sys/isatty.c
+					libwrap/sys/kill.c
+					libwrap/sys/link.c
+					libwrap/sys/lseek.c
+					libwrap/sys/openat.c
+					libwrap/sys/open.c
+					libwrap/sys/puts.c
+					libwrap/sys/read.c
+					libwrap/sys/sbrk.c
+					libwrap/sys/stat.c
+					libwrap/sys/times.c
+					libwrap/sys/unlink.c
+					libwrap/sys/wait.c")
+
+sw_package.set_inc("libwrap/sys/")
+
+# hifive1 specific
+if global_config.get_mach() == "hifive1"
+	sw_package.set_src("env/freedom-e300-hifive1/init.c")
+	sw_package.set_inc("env/freedom-e300-hifive1")
+	sw_package.set_global_linker_flags ("-T #{sw_package.pkg_build_dir}/env/freedom-e300-hifive1/flash.lds -nostartfiles")
+end
+
+sw_package.set_global_linker_flags("-Wl,--wrap=malloc 
+                                    -Wl,--wrap=free 
+                                    -Wl,--wrap=open 
+                                    -Wl,--wrap=lseek 
+                                    -Wl,--wrap=read 
+                                    -Wl,--wrap=write 
+                                    -Wl,--wrap=fstat 
+                                    -Wl,--wrap=stat 
+                                    -Wl,--wrap=close 
+                                    -Wl,--wrap=link 
+                                    -Wl,--wrap=unlink 
+                                    -Wl,--wrap=execve 
+                                    -Wl,--wrap=fork 
+                                    -Wl,--wrap=getpid 
+                                    -Wl,--wrap=kill 
+                                    -Wl,--wrap=wait 
+                                    -Wl,--wrap=isatty 
+                                    -Wl,--wrap=times 
+                                    -Wl,--wrap=sbrk 
+                                    -Wl,--wrap=_exit 
+                                    -Wl,--wrap=puts 
+                                    -Wl,--wrap=_malloc 
+                                    -Wl,--wrap=_free 
+                                    -Wl,--wrap=_open 
+                                    -Wl,--wrap=_lseek 
+                                    -Wl,--wrap=_read 
+                                    -Wl,--wrap=_write 
+                                    -Wl,--wrap=_fstat 
+                                    -Wl,--wrap=_stat 
+                                    -Wl,--wrap=_close 
+                                    -Wl,--wrap=_link 
+                                    -Wl,--wrap=_unlink 
+                                    -Wl,--wrap=_execve 
+                                    -Wl,--wrap=_fork 
+                                    -Wl,--wrap=_getpid 
+                                    -Wl,--wrap=_kill 
+                                    -Wl,--wrap=_wait 
+                                    -Wl,--wrap=_isatty 
+                                    -Wl,--wrap=_times 
+                                    -Wl,--wrap=_sbrk 
+                                    -Wl,--wrap=__exit 
+                                    -Wl,--wrap=_puts 
+                                    -Wl,--start-group -lc -Wl,--end-group")
