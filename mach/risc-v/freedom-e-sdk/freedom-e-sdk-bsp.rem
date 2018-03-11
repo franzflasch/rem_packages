@@ -8,8 +8,6 @@ sw_package.set_inc("include")
 
 sw_package.set_arch("risc-v")
 
-sw_package.set_global_define("NO_INIT")
-
 # Common
 sw_package.set_src("env/entry.S
                     env/start.S  

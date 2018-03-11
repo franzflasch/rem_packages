@@ -1,0 +1,11 @@
+# Use SVN here, as it supports checkout of subfolders, which is the only feature I am missing in git.
+sw_package.set_uri("https://github.com/sifive/freedom-e-sdk.git/trunk/software/demo_gpio/;type=svn")
+sw_package.set_dep("freedom-e-sdk-bsp")
+sw_package.set_arch("risc-v")
+
+sw_package.set_patch("patches/001_fix_warnings.patch")
+
+sw_package.set_global_define("USE_PLIC USE_M_TIME")
+
+# Common
+sw_package.set_src("demo_gpio.c")

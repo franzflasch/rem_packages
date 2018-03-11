@@ -3,5 +3,7 @@ sw_package.set_uri("https://github.com/sifive/freedom-e-sdk.git/trunk/software/l
 sw_package.set_dep("freedom-e-sdk-bsp")
 sw_package.set_arch("risc-v")
 
+sw_package.set_global_define("NO_INIT")
+
 # Common
 sw_package.set_src("led_fade.c")

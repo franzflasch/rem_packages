@@ -1,0 +1,13 @@
+Index: riscv-gpio_demo_nohash/demo_gpio.c
+===================================================================
+--- riscv-gpio_demo_nohash.orig/demo_gpio.c
++++ riscv-gpio_demo_nohash/demo_gpio.c
+@@ -53,7 +53,7 @@ void handle_m_time_interrupt(){
+   *mtimecmp = then;
+ 
+   // read the current value of the LEDS and invert them.
+-  uint32_t leds = GPIO_REG(GPIO_OUTPUT_VAL);
++  // uint32_t leds = GPIO_REG(GPIO_OUTPUT_VAL);
+ 
+   GPIO_REG(GPIO_OUTPUT_VAL) ^= ((0x1 << RED_LED_OFFSET)   |
+ 				(0x1 << GREEN_LED_OFFSET) |
