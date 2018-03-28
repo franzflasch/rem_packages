@@ -23,5 +23,4 @@ global_config.set_compiler("gcc")
 global_config.set_obj_cp("objcopy")
 global_config.set_compile_flag("-Wall -Werror")
 
-require_relative '../../compile_tasks/gcc_tasks/DefaultTasks'
-require_relative '../../compile_tasks/common/common_tasks'
+require "#{global_config.get_rakefile_dir()}/scripts/build_functions/gcc/default.rb"

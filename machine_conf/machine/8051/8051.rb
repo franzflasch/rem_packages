@@ -22,5 +22,4 @@ global_config.set_compiler("sdcc")
 global_config.set_obj_extension("rel")
 global_config.set_compile_flag("--opt-code-size --stack-auto --Werror")
 
-require_relative '../../compile_tasks/sdcc_tasks/DefaultTasks'
-require_relative '../../compile_tasks/common/common_tasks'
+require "#{global_config.get_rakefile_dir()}/scripts/build_functions/sdcc/default.rb"
