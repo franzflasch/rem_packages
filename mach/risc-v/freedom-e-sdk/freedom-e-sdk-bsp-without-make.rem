@@ -1,22 +1,55 @@
 # Use SVN here, as it supports checkout of subfolders, which is the only feature I am missing in git.
-sw_package.set_uri("https://github.com/sifive/freedom-e-sdk.git")
-sw_package.set_patch("patches/0001-use-crosstool-ng-toolchain.patch")
+sw_package.set_uri("https://github.com/sifive/freedom-e-sdk.git/trunk/bsp;type=svn")
+sw_package.set_patch("patches/001_fix_includes.patch
+                      patches/002_fix_warning.patch
+                      patches/003_fix_warnings.patch")
+
+sw_package.set_inc("include")
 
 sw_package.set_arch("risc-v")
 
 # Common
-sw_package.set_inc("bsp/include")
-sw_package.set_inc("bsp/env")
+sw_package.set_src("env/entry.S
+                    env/start.S  
+                    env/ventry.S")
+sw_package.set_inc("env")
 
 # Drivers
-sw_package.set_inc("bsp/drivers")
+sw_package.set_src("drivers/plic/plic_driver.c")
+sw_package.set_inc("drivers")
 
-# Libwrap
-sw_package.set_inc("bsp/libwrap/sys/")
+# libwrap
+sw_package.set_src("libwrap/misc/write_hex.c")
+sw_package.set_src("libwrap/stdlib/malloc.c")
+sw_package.set_src("libwrap/sys/write.c
+                    libwrap/sys/close.c
+                    libwrap/sys/execve.c
+                    libwrap/sys/_exit.c
+                    libwrap/sys/fork.c
+                    libwrap/sys/fstat.c
+                    libwrap/sys/getpid.c
+                    libwrap/sys/isatty.c
+                    libwrap/sys/kill.c
+                    libwrap/sys/link.c
+                    libwrap/sys/lseek.c
+                    libwrap/sys/openat.c
+                    libwrap/sys/open.c
+                    libwrap/sys/puts.c
+                    libwrap/sys/read.c
+                    libwrap/sys/sbrk.c
+                    libwrap/sys/stat.c
+                    libwrap/sys/times.c
+                    libwrap/sys/unlink.c
+                    libwrap/sys/wait.c")
 
-sw_package.set_global_linker_flags ("#{sw_package.pkg_build_dir}/bsp/env/start.o 
-                                     #{sw_package.pkg_build_dir}/bsp/env/entry.o 
-                                     #{sw_package.pkg_build_dir}/bsp/env/freedom-e300-hifive1/init.o")
+sw_package.set_inc("libwrap/sys/")
+
+# hifive1 specific
+if global_config.get_mach() == "hifive1"
+    sw_package.set_src("env/freedom-e300-hifive1/init.c")
+    sw_package.set_inc("env/freedom-e300-hifive1")
+    sw_package.set_global_linker_flags ("-T #{sw_package.pkg_build_dir}/env/freedom-e300-hifive1/flash.lds -nostartfiles")
+end
 
 sw_package.set_global_linker_flags("-Wl,--wrap=malloc 
                                     -Wl,--wrap=free 
@@ -60,22 +93,4 @@ sw_package.set_global_linker_flags("-Wl,--wrap=malloc
                                     -Wl,--wrap=_sbrk 
                                     -Wl,--wrap=__exit 
                                     -Wl,--wrap=_puts 
-                                    -L#{sw_package.pkg_build_dir}/software/hello/
-                                    -Wl,--start-group -lwrap -lc -Wl,--end-group")
-
-# hifive1 specific
-if global_config.get_mach() == "hifive1"
-    sw_package.set_inc("bsp/env/freedom-e300-hifive1")
-    sw_package.set_global_linker_flags ("-T #{sw_package.pkg_build_dir}/bsp/env/freedom-e300-hifive1/flash.lds -nostartfiles")
-end
-
-# Override default build functions
-sw_package.invalidate_build_funcs()
-
-sw_package.override_func :do_compile do
-    execute "make -C #{sw_package.get_pkg_work_dir} software PROGRAM=hello [BOARD=freedom-e300-hifive1]"
-end
-
-sw_package.override_func :do_compile_clean do
-    execute "make -C #{sw_package.get_pkg_work_dir} clean PROGRAM=hello [BOARD=freedom-e300-hifive1]"
-end
+                                    -Wl,--start-group -lc -Wl,--end-group")

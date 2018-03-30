@@ -1,0 +1,41 @@
+From 93b4781ec45a3f7aaf2132cd0663c5a3806fde68 Mon Sep 17 00:00:00 2001
+From: Franz Flasch <franz.flasch@gmx.at>
+Date: Thu, 29 Mar 2018 17:06:54 +0200
+Subject: [PATCH] use crosstool-ng toolchain
+
+---
+ Makefile | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 6b8e1c6..3af63bb 100644
+--- a/Makefile
++++ b/Makefile
+@@ -109,16 +109,16 @@ help:
+ tools: riscv-gnu-toolchain openocd
+ 
+ # Pointers to various important tools in the toolchain.
+-toolchain_builddir := $(builddir)/riscv-gnu-toolchain/riscv64-unknown-elf
+-toolchain_prefix := $(toolchain_builddir)/prefix
++#toolchain_builddir := $(builddir)/riscv-gnu-toolchain/riscv64-unknown-elf
++#toolchain_prefix := $(toolchain_builddir)/prefix
+ 
+-RISCV_PATH ?= $(toolchain_prefix)
++#RISCV_PATH ?= $(toolchain_prefix)
+ 
+-RISCV_GCC     := $(abspath $(RISCV_PATH)/bin/riscv64-unknown-elf-gcc)
+-RISCV_GXX     := $(abspath $(RISCV_PATH)/bin/riscv64-unknown-elf-g++)
+-RISCV_OBJDUMP := $(abspath $(RISCV_PATH)/bin/riscv64-unknown-elf-objdump)
+-RISCV_GDB     := $(abspath $(RISCV_PATH)/bin/riscv64-unknown-elf-gdb)
+-RISCV_AR      := $(abspath $(RISCV_PATH)/bin/riscv64-unknown-elf-ar)
++RISCV_GCC     := riscv32-hifive1-elf-gcc
++RISCV_GXX     := riscv32-hifive1-elf-g++
++RISCV_OBJDUMP := riscv32-hifive1-elf-objdump
++RISCV_GDB     := riscv32-hifive1-elf-gdb
++RISCV_AR      := riscv32-hifive1-elf-ar
+ 
+ PATH := $(abspath $(RISCV_PATH)/bin):$(PATH)
+ 
+-- 
+2.11.0
+
