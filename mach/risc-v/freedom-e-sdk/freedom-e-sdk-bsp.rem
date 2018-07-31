@@ -1,6 +1,8 @@
 # Use SVN here, as it supports checkout of subfolders, which is the only feature I am missing in git.
 sw_package.set_uri("https://github.com/sifive/freedom-e-sdk.git")
-sw_package.set_patch("patches/0001-use-crosstool-ng-toolchain.patch")
+sw_package.set_patch("patches/0001-use-crosstool-ng-toolchain.patch 
+                      patches/004_remove_nano_specs.patch
+                     ")
 
 sw_package.set_arch("risc-v")
 
