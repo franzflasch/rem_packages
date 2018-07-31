@@ -1,0 +1,13 @@
+Index: freedom-e-sdk-bsp_nohash/bsp/env/common.mk
+===================================================================
+--- freedom-e-sdk-bsp_nohash.orig/bsp/env/common.mk
++++ freedom-e-sdk-bsp_nohash/bsp/env/common.mk
+@@ -25,7 +25,7 @@ INCLUDES += -I$(PLATFORM_DIR)
+ TOOL_DIR = $(BSP_BASE)/../toolchain/bin
+ 
+ LDFLAGS += -T $(LINKER_SCRIPT) -nostartfiles
+-LDFLAGS += -L$(ENV_DIR) --specs=nano.specs
++LDFLAGS += -L$(ENV_DIR)
+ 
+ ASM_OBJS := $(ASM_SRCS:.S=.o)
+ C_OBJS := $(C_SRCS:.c=.o)
