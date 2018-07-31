@@ -14,7 +14,7 @@ typedef struct soft_spi_s
 	void (*set_mosi)(uint8_t val);
 	uint8_t (*get_miso)(void);
 	void (*set_clk)(uint8_t val);
-	void (*set_cs)(uint8_t val, uint8_t pin);
+	void (*set_cs)(uint8_t pin, uint8_t val);
 }soft_spi_t;
 
 void SOFT_SPI_set_cs(spi_device_t *spi, uint8_t val);

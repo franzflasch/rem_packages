@@ -41,5 +41,6 @@ int OMM_machine_is_big_endian(void);
 /* These functions are architecure specific and have to be defined externally */
 OMM_machine_t *machine_setup(void);
 void OMM_busy_delay(uint32_t val);
+uint32_t OMM_get_clktick(void);
 
 #endif /* OMM_MACHINE_COMMON_H_ */
