@@ -18,7 +18,7 @@
     along with REM.  If not, see <http://www.gnu.org/licenses/>.
 =end
 
-global_config.set_compiler_prefix("riscv32-hifive1-elf-")
+global_config.set_compiler_prefix("riscv32-none-elf-")
 global_config.set_compiler("gcc")
 global_config.set_obj_cp("objcopy")
 global_config.set_compile_flag("-Wall -Werror")
