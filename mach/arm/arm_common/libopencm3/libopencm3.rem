@@ -1,4 +1,5 @@
-commit_version = "492a943b7e448469cd8e88f60fda41ef46aa3b2a"
+#commit_version = "492a943b7e448469cd8e88f60fda41ef46aa3b2a"
+commit_version = "master"
 
 # zip:
 #sw_package.set_work_dir("libopencm3-#{commit_version}")
@@ -12,21 +13,26 @@ sw_package.set_uri("https://github.com/libopencm3/libopencm3.git;src_rev=#{commi
 sw_package.set_global_linker_flags("-L #{sw_package.pkg_build_dir}/lib/")
 
 # this patch is from pull request (https://github.com/libopencm3/libopencm3/pull/629) which fixes ADC bugs for F3
-sw_package.set_patch("hf_patches/karlp_adc.patch")
+# sw_package.set_patch("hf_patches/karlp_adc.patch")
 
 sw_package.set_arch("arm")
 
 if global_config.get_mach() == "stm32f1"
+	target_to_build = "stm32/f1"
 	sw_package.set_global_linker_flags("-lopencm3_stm32f1")
 	sw_package.set_linker_script("stm32f1-discovery.ld")
 end
 
 if global_config.get_mach() == "stm32f3"
-	sw_package.set_global_linker_flags("-lopencm3_stm32f3 -T #{sw_package.pkg_build_dir}/stm32f3-discovery.ld")
+	target_to_build = "stm32/f3"
+	sw_package.set_global_linker_flags("-lopencm3_stm32f3")
+	sw_package.set_linker_script("stm32f3-discovery.ld")
 end
 
 if global_config.get_mach() == "stm32f4"
-	sw_package.set_global_linker_flags("-lopencm3_stm32f4 -T #{sw_package.pkg_build_dir}/stm32f4-discovery.ld")
+	target_to_build = "stm32/f4"
+	sw_package.set_global_linker_flags("-lopencm3_stm32f4")
+	sw_package.set_linker_script("stm32f4-discovery.ld")
 end
 
 
@@ -34,7 +40,7 @@ end
 sw_package.invalidate_build_funcs()
 
 sw_package.override_func :do_compile do
-	execute "make -C #{sw_package.get_pkg_work_dir} PREFIX=#{global_config.get_compiler_prefix[0..-2]}"
+	execute "make -C #{sw_package.get_pkg_work_dir} TARGETS=#{target_to_build} PREFIX=#{global_config.get_compiler_prefix[0..-2]}"
 end
 
 sw_package.override_func :do_compile_clean do

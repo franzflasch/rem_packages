@@ -18,7 +18,7 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Linker script for ST STM32F3DISCOVERY (STM32F303VC, 256K flash, 48K RAM (Of which 8kB are CCM RAM and 40KB are SRAM). */
+/* Linker script for ST STM32F3DISCOVERY (STM32F303VC, 128K flash, 48K RAM (Of which 8kB are CCM RAM and 40KB are SRAM). */
 
 /* Define memory regions. */
 MEMORY
@@ -28,4 +28,4 @@ MEMORY
 }
 
 /* Include the common ld script. */
-INCLUDE libopencm3_stm32f3.ld
+INCLUDE cortex-m-generic.ld
