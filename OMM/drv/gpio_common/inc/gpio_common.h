@@ -41,8 +41,8 @@ struct gpio_controller_s
 void GPIO_init_controller(gpio_controller_t *controller,
                           gpio_mode_e mode,
                           uint8_t nrpins,
-                          void *gpio_set,
-                          void *gpio_get,
+                          void (*gpio_set)(gpio_controller_t *gpio, uint8_t pin, uint8_t val),
+                          uint8_t (*gpio_get)(gpio_controller_t *gpio, uint8_t pin),
                           void *platform_drv_info);
 
 void GPIO_set(gpio_controller_t *gpio, uint8_t pin, uint8_t val);
