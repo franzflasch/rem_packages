@@ -11,8 +11,7 @@ sw_package.set_mach("nrf51822")
 
 if global_config.get_mach() == "nrf51822"
 	sw_package.set_global_linker_flags("-L #{sw_package.pkg_build_dir}/#{SDK_VERSION}/components/toolchain/gcc/")
-	sw_package.set_global_linker_flags("-T #{SDK_VERSION}/examples/ble_peripheral/experimental_ble_app_blinky/pca10028/s130/armgcc/experimental_ble_app_blinky_gcc_nrf51.ld")
-
+	sw_package.set_global_linker_flags("-T #{sw_package.get_pkg_work_dir}/examples/ble_peripheral/experimental_ble_app_blinky/pca10028/s130/armgcc/experimental_ble_app_blinky_gcc_nrf51.ld")
 	# Use this if you don't use the ble softdevice
 #	sw_package.set_linker_script("#{SDK_VERSION}/components/toolchain/gcc/nrf51_xxac.ld")
 
