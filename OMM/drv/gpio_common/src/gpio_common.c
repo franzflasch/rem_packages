@@ -23,7 +23,7 @@ void GPIO_init_controller(gpio_controller_t *controller,
 {
 	controller->mode = mode;
 	controller->nrpins = nrpins;
-	controller->GPIO_set = gpio_set;
-	controller->GPIO_get = gpio_get;
+	controller->GPIO_set = ( void (*)(gpio_controller_t *gpio, uint8_t pin, uint8_t val) ) gpio_set;
+	controller->GPIO_get = ( uint8_t (*)(gpio_controller_t *gpio, uint8_t pin) ) gpio_get;
 	controller->platform_drv_info = platform_drv_info;
 }
