@@ -1,0 +1,51 @@
+SDK_URL_PATH="nRF5_SDK_v12.x.x"
+SDK_VERSION="nRF5_SDK_12.3.0_d7731ad"
+
+sw_package.set_work_dir("#{SDK_VERSION}")
+sw_package.set_uri("https://developer.nordicsemi.com/nRF5_SDK/#{SDK_URL_PATH}/#{SDK_VERSION}.zip")
+
+sw_package.set_arch("arm")
+sw_package.set_mach("nrf51422")
+
+if global_config.get_mach() == "nrf51422"
+    sw_package.set_global_linker_flags("-L #{sw_package.get_pkg_work_dir}/components/toolchain/gcc")
+    sw_package.set_global_linker_flags("-T #{sw_package.get_pkg_work_dir}/examples/proprietary_rf/esb_ptx/pca10028/blank/armgcc/esb_ptx_gcc_nrf51.ld")
+    sw_package.set_global_define("NRF51 ESB_PRESENT NRF51422 BOARD_PCA10028 BSP_DEFINES_ONLY")
+end
+
+sw_package.set_inc("..")
+sw_package.set_inc("components")
+sw_package.set_inc("components/libraries/util")
+sw_package.set_inc("components/toolchain/gcc")
+sw_package.set_inc("components/drivers_nrf/uart")
+sw_package.set_inc("components/drivers_nrf/common")
+sw_package.set_inc("components/proprietary_rf/esb")
+sw_package.set_inc("components/libraries/fifo")
+sw_package.set_inc("components/libraries/bsp")
+sw_package.set_inc("components/drivers_nrf/nrf_soc_nosd")
+sw_package.set_inc("components/toolchain")
+sw_package.set_inc("components/libraries/uart")
+sw_package.set_inc("components/device")
+sw_package.set_inc("components/libraries/log")
+sw_package.set_inc("components/boards")
+sw_package.set_inc("components/drivers_nrf/delay")
+sw_package.set_inc("components/toolchain/cmsis/include")
+sw_package.set_inc("components/drivers_nrf/hal")
+sw_package.set_inc("components/libraries/log/src")
+
+sw_package.set_src("components/libraries/log/src/nrf_log_backend_serial.c")
+sw_package.set_src("components/libraries/log/src/nrf_log_frontend.c")
+sw_package.set_src("components/libraries/util/app_error.c")
+sw_package.set_src("components/libraries/util/app_error_weak.c")
+sw_package.set_src("components/libraries/fifo/app_fifo.c")
+sw_package.set_src("components/libraries/uart/app_uart_fifo.c")
+sw_package.set_src("components/libraries/util/app_util_platform.c")
+sw_package.set_src("components/libraries/util/nrf_assert.c")
+sw_package.set_src("components/libraries/uart/retarget.c")
+sw_package.set_src("components/libraries/util/sdk_errors.c")
+sw_package.set_src("components/boards/boards.c")
+sw_package.set_src("components/drivers_nrf/common/nrf_drv_common.c")
+sw_package.set_src("components/drivers_nrf/uart/nrf_drv_uart.c")
+sw_package.set_src("components/proprietary_rf/esb/nrf_esb.c")
+sw_package.set_src("components/toolchain/gcc/gcc_startup_nrf51.S")
+sw_package.set_src("components/toolchain/system_nrf51.c")
