@@ -1,8 +1,8 @@
-SDK_URL_PATH="nRF5_SDK_v12.x.x"
-SDK_VERSION="nRF5_SDK_12.3.0_d7731ad"
+sdk_url_path="nRF5_SDK_v12.x.x"
+sdk_version="nRF5_SDK_12.3.0_d7731ad"
 
-sw_package.set_work_dir("#{SDK_VERSION}")
-sw_package.set_uri("https://developer.nordicsemi.com/nRF5_SDK/#{SDK_URL_PATH}/#{SDK_VERSION}.zip")
+sw_package.set_work_dir("#{sdk_version}")
+sw_package.set_uri("https://developer.nordicsemi.com/nRF5_SDK/#{sdk_url_path}/#{sdk_version}.zip")
 
 sw_package.set_arch("arm")
 sw_package.set_mach("nrf51422")

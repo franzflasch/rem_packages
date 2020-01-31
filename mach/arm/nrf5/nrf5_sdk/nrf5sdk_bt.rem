@@ -1,25 +1,23 @@
-# zip:
+sdk_url_path="nRF5_SDK_v12.x.x"
+sdk_version="nRF5_SDK_12.3.0_d7731ad"
 
-SDK_URL_PATH="nRF5_SDK_v12.x.x"
-SDK_VERSION="nRF5_SDK_12.3.0_d7731ad"
-
-sw_package.set_work_dir("#{SDK_VERSION}")
-sw_package.set_uri("https://developer.nordicsemi.com/nRF5_SDK/#{SDK_URL_PATH}/#{SDK_VERSION}.zip")
+sw_package.set_work_dir("#{sdk_version}")
+sw_package.set_uri("https://developer.nordicsemi.com/nRF5_SDK/#{sdk_url_path}/#{sdk_version}.zip")
 
 sw_package.set_arch("arm")
 sw_package.set_mach("nrf51822")
 
 if global_config.get_mach() == "nrf51822"
-	sw_package.set_global_linker_flags("-L #{sw_package.pkg_build_dir}/#{SDK_VERSION}/components/toolchain/gcc/")
+	sw_package.set_global_linker_flags("-L #{sw_package.pkg_build_dir}/#{sdk_version}/components/toolchain/gcc/")
 	sw_package.set_global_linker_flags("-T #{sw_package.get_pkg_work_dir}/examples/ble_peripheral/experimental_ble_app_blinky/pca10028/s130/armgcc/experimental_ble_app_blinky_gcc_nrf51.ld")
 	# Use this if you don't use the ble softdevice
-#	sw_package.set_linker_script("#{SDK_VERSION}/components/toolchain/gcc/nrf51_xxac.ld")
+#	sw_package.set_linker_script("#{sdk_version}/components/toolchain/gcc/nrf51_xxac.ld")
 
 	# don't know when to use this...
-#	sw_package.set_linker_script("#{SDK_VERSION}/components/softdevice/s130/toolchain/armgcc/armgcc_s130_nrf51822_xxaa.ld")
+#	sw_package.set_linker_script("#{sdk_version}/components/softdevice/s130/toolchain/armgcc/armgcc_s130_nrf51822_xxaa.ld")
 
 	# this is the linkerscript which is used by the blinky example ble app
-#	sw_package.set_linker_script("#{SDK_VERSION}/examples/ble_peripheral/experimental_ble_app_blinky/pca10028/s130/armgcc/experimental_ble_app_blinky_gcc_nrf51.ld")
+#	sw_package.set_linker_script("#{sdk_version}/examples/ble_peripheral/experimental_ble_app_blinky/pca10028/s130/armgcc/experimental_ble_app_blinky_gcc_nrf51.ld")
 
 	# Mandatory defines
 	sw_package.set_global_define("NRF51 NRF51822 BOARD_CUSTOM SOFTDEVICE_PRESENT S130 BLE_STACK_SUPPORT_REQD SWI_DISABLE0 NRF_SD_BLE_API_VERSION=2")
