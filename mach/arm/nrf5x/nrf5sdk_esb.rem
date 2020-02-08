@@ -5,12 +5,39 @@ sw_package.set_work_dir("#{sdk_version}")
 sw_package.set_uri("https://developer.nordicsemi.com/nRF5_SDK/#{sdk_url_path}/#{sdk_version}.zip")
 
 sw_package.set_arch("arm")
-sw_package.set_mach("nrf51422")
 
 if global_config.get_mach() == "nrf51422"
     sw_package.set_global_linker_flags("-L #{sw_package.get_pkg_work_dir}/components/toolchain/gcc")
     sw_package.set_global_linker_flags("-T #{sw_package.get_pkg_work_dir}/examples/proprietary_rf/esb_ptx/pca10028/blank/armgcc/esb_ptx_gcc_nrf51.ld")
     sw_package.set_global_define("NRF51 ESB_PRESENT NRF51422 BOARD_PCA10028 BSP_DEFINES_ONLY")
+
+    sw_package.set_src("components/toolchain/gcc/gcc_startup_nrf51.S")
+    sw_package.set_src("components/toolchain/system_nrf51.c")
+end
+
+if global_config.get_mach() == "nrf52832"
+    sw_package.set_global_linker_flags("-L #{sw_package.get_pkg_work_dir}/components/toolchain/gcc")
+    sw_package.set_global_linker_flags("-T #{sw_package.get_pkg_work_dir}/examples/proprietary_rf/esb_ptx/pca10040/blank/armgcc/esb_ptx_gcc_nrf52.ld")
+    sw_package.set_global_define("
+            ESB_PRESENT
+            NRF52_PAN_12
+            NRF52_PAN_15
+            NRF52_PAN_58
+            NRF52_PAN_20
+            NRF52_PAN_54
+            NRF52
+            NRF52_PAN_51
+            NRF52_PAN_36
+            CONFIG_GPIO_AS_PINRESET
+            NRF52_PAN_64
+            NRF52_PAN_55
+            BOARD_PCA10040
+            NRF52_PAN_31
+            NRF52832
+            BSP_DEFINES_ONLY
+    ")
+    sw_package.set_src("components/toolchain/gcc/gcc_startup_nrf52.S")
+    sw_package.set_src("components/toolchain/system_nrf52.c")
 end
 
 sw_package.set_inc("..")
@@ -47,5 +74,3 @@ sw_package.set_src("components/boards/boards.c")
 sw_package.set_src("components/drivers_nrf/common/nrf_drv_common.c")
 sw_package.set_src("components/drivers_nrf/uart/nrf_drv_uart.c")
 sw_package.set_src("components/proprietary_rf/esb/nrf_esb.c")
-sw_package.set_src("components/toolchain/gcc/gcc_startup_nrf51.S")
-sw_package.set_src("components/toolchain/system_nrf51.c")
