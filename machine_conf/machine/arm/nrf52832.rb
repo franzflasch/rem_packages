@@ -21,4 +21,4 @@
 require_relative './arm'
 
 global_config.set_compile_flag("-MP -MD -std=c99 -mcpu=cortex-m4 -mthumb -mabi=aapcs -Wall -Werror -Os -g3 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin --short-enums")
-global_config.set_link_flag("-mthumb -mabi=aapcs -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Wl,--gc-sections -lc -lm")
+global_config.set_link_flag("-mthumb -mabi=aapcs -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Wl,--gc-sections -lc -lm -lnosys ")
