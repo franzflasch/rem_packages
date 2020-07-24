@@ -1,7 +1,6 @@
-sdk_url_path="nRF5_SDK_v12.x.x"
-sdk_version="nRF5_SDK_12.3.0_d7731ad"
+sdk_url_path="nRF5_SDK_v16.x.x"
+sdk_version="nRF5_SDK_16.0.0_98a08e2"
 
-sw_package.set_work_dir("#{sdk_version}")
 sw_package.set_uri("https://developer.nordicsemi.com/nRF5_SDK/#{sdk_url_path}/#{sdk_version}.zip")
 
 sw_package.set_arch("arm")
@@ -16,71 +15,79 @@ if global_config.get_mach() == "nrf51422"
 end
 
 if global_config.get_mach() == "nrf52832"
-    sw_package.set_global_linker_flags("-L #{sw_package.get_pkg_work_dir}/components/toolchain/gcc")
+    sw_package.set_global_linker_flags("-L #{sw_package.get_pkg_work_dir}/modules/nrfx/mdk/")
     sw_package.set_global_linker_flags("-T #{sw_package.get_pkg_work_dir}/examples/proprietary_rf/esb_ptx/pca10040/blank/armgcc/esb_ptx_gcc_nrf52.ld")
     sw_package.set_global_define("
-            ESB_PRESENT
-            NRF52_PAN_12
-            NRF52_PAN_15
-            NRF52_PAN_58
-            NRF52_PAN_20
-            NRF52_PAN_54
-            NRF52
-            NRF52_PAN_51
-            NRF52_PAN_36
-            CONFIG_GPIO_AS_PINRESET
-            NRF52_PAN_64
-            NRF52_PAN_55
-            BOARD_PCA10040
-            NRF52_PAN_31
-            NRF52832
-            BSP_DEFINES_ONLY
+        BOARD_CUSTOM
+        BSP_DEFINES_ONLY
+        CONFIG_GPIO_AS_PINRESET
+        ESB_PRESENT
+        FLOAT_ABI_HARD
+        NRF52
+        NRF52832_XXAA
+        NRF52_PAN_74
+        BOARD_PCA10040
     ")
-    sw_package.set_src("components/toolchain/gcc/gcc_startup_nrf52.S")
-    sw_package.set_src("components/toolchain/system_nrf52.c")
+    sw_package.set_src("modules/nrfx/mdk/gcc_startup_nrf52.S")
+    sw_package.set_src("modules/nrfx/mdk/system_nrf52.c")
 end
 
-sw_package.set_inc("..")
+sw_package.set_inc(".")
 sw_package.set_inc("components")
-sw_package.set_inc("components/libraries/util")
-sw_package.set_inc("components/toolchain/gcc")
-sw_package.set_inc("components/drivers_nrf/uart")
-sw_package.set_inc("components/drivers_nrf/common")
-sw_package.set_inc("components/proprietary_rf/esb")
-sw_package.set_inc("components/libraries/fifo")
-sw_package.set_inc("components/libraries/bsp")
-sw_package.set_inc("components/drivers_nrf/nrf_soc_nosd")
-sw_package.set_inc("components/toolchain")
-sw_package.set_inc("components/libraries/uart")
-sw_package.set_inc("components/device")
-sw_package.set_inc("components/libraries/log")
-sw_package.set_inc("components/libraries/atomic")
-sw_package.set_inc("components/boards")
-sw_package.set_inc("components/drivers_nrf/delay")
+sw_package.set_inc("modules/nrfx/mdk")
+sw_package.set_inc("components/libraries/strerror")
 sw_package.set_inc("components/toolchain/cmsis/include")
-sw_package.set_inc("components/drivers_nrf/hal")
+sw_package.set_inc("components/libraries/util")
+sw_package.set_inc("components/libraries/balloc")
+sw_package.set_inc("components/libraries/ringbuf")
+sw_package.set_inc("components/proprietary_rf/esb")
+sw_package.set_inc("modules/nrfx/hal")
+sw_package.set_inc("components/libraries/bsp")
+sw_package.set_inc("components/libraries/log")
+sw_package.set_inc("modules/nrfx")
+sw_package.set_inc("components/libraries/experimental_section_vars")
+sw_package.set_inc("integration/nrfx/legacy")
+sw_package.set_inc("components/libraries/mutex")
+sw_package.set_inc("components/libraries/delay")
+sw_package.set_inc("integration/nrfx")
+sw_package.set_inc("components/drivers_nrf/nrf_soc_nosd")
+sw_package.set_inc("external/segger_rtt")
+sw_package.set_inc("components/boards")
+sw_package.set_inc("components/libraries/memobj")
+sw_package.set_inc("modules/nrfx/drivers/include")
 sw_package.set_inc("components/libraries/log/src")
-sw_package.set_inc("components/drivers_nrf/ppi")
-sw_package.set_inc("components/drivers_nrf/saadc")
-sw_package.set_inc("components/libraries/timer")
-sw_package.set_inc("components/drivers_nrf/timer")
+sw_package.set_inc("external/fprintf")
+sw_package.set_inc("components/libraries/atomic")
 
+sw_package.set_src("components/libraries/log/src/nrf_log_backend_rtt.c")
 sw_package.set_src("components/libraries/log/src/nrf_log_backend_serial.c")
+sw_package.set_src("components/libraries/log/src/nrf_log_backend_uart.c")
+sw_package.set_src("components/libraries/log/src/nrf_log_default_backends.c")
 sw_package.set_src("components/libraries/log/src/nrf_log_frontend.c")
+sw_package.set_src("components/libraries/log/src/nrf_log_str_formatter.c")
+sw_package.set_src("components/boards/boards.c")
 sw_package.set_src("components/libraries/util/app_error.c")
+sw_package.set_src("components/libraries/util/app_error_handler_gcc.c")
 sw_package.set_src("components/libraries/util/app_error_weak.c")
-sw_package.set_src("components/libraries/fifo/app_fifo.c")
-sw_package.set_src("components/libraries/uart/app_uart_fifo.c")
 sw_package.set_src("components/libraries/util/app_util_platform.c")
 sw_package.set_src("components/libraries/util/nrf_assert.c")
-sw_package.set_src("components/libraries/uart/retarget.c")
-sw_package.set_src("components/libraries/util/sdk_errors.c")
-sw_package.set_src("components/boards/boards.c")
-sw_package.set_src("components/drivers_nrf/common/nrf_drv_common.c")
-sw_package.set_src("components/drivers_nrf/uart/nrf_drv_uart.c")
+sw_package.set_src("components/libraries/atomic/nrf_atomic.c")
+sw_package.set_src("components/libraries/balloc/nrf_balloc.c")
+sw_package.set_src("external/fprintf/nrf_fprintf.c")
+sw_package.set_src("external/fprintf/nrf_fprintf_format.c")
+sw_package.set_src("components/libraries/memobj/nrf_memobj.c")
+sw_package.set_src("components/libraries/ringbuf/nrf_ringbuf.c")
+sw_package.set_src("components/libraries/strerror/nrf_strerror.c")
+sw_package.set_src("integration/nrfx/legacy/nrf_drv_ppi.c")
+sw_package.set_src("integration/nrfx/legacy/nrf_drv_uart.c")
+sw_package.set_src("modules/nrfx/soc/nrfx_atomic.c")
+sw_package.set_src("modules/nrfx/drivers/src/nrfx_ppi.c")
+sw_package.set_src("modules/nrfx/drivers/src/prs/nrfx_prs.c")
+sw_package.set_src("modules/nrfx/drivers/src/nrfx_saadc.c")
+sw_package.set_src("modules/nrfx/drivers/src/nrfx_timer.c")
+sw_package.set_src("modules/nrfx/drivers/src/nrfx_uart.c")
+sw_package.set_src("modules/nrfx/drivers/src/nrfx_uarte.c")
+sw_package.set_src("external/segger_rtt/SEGGER_RTT.c")
+sw_package.set_src("external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c")
+sw_package.set_src("external/segger_rtt/SEGGER_RTT_printf.c")
 sw_package.set_src("components/proprietary_rf/esb/nrf_esb.c")
-sw_package.set_src("components/drivers_nrf/ppi/nrf_drv_ppi.c")
-sw_package.set_src("components/drivers_nrf/saadc/nrf_drv_saadc.c")
-sw_package.set_src("components/drivers_nrf/hal/nrf_saadc.c")
-sw_package.set_src("components/drivers_nrf/timer/nrf_drv_timer.c")
-
