@@ -18,9 +18,22 @@
     along with REM.  If not, see <http://www.gnu.org/licenses/>.
 =end
 
-global_config.set_compiler_prefix("arm-none-eabi-")
-global_config.set_compiler("gcc")
-global_config.set_obj_cp("objcopy")
+if(USE_CLANG == "1")
+    global_config.set_compiler("clang -target arm-none-eabi")
+    global_config.set_obj_cp("llvm-objcopy-14")
+
+    # we still need some header files and libraries even when we build with clang
+    # to get those library search dirs do, please change appropriately:
+    # arm-none-eabi-gcc -print-search-dirs
+    global_config.set_compile_flag("--sysroot=/opt/local/cross-tool-cortex-m4-gcc12/arm-none-eabi/")
+    global_config.set_link_flag("-L /opt/local/cross-tool-cortex-m4-gcc12/arm-none-eabi/lib/")
+    global_config.set_link_flag("-L /opt/local/cross-tool-cortex-m4-gcc12/lib/gcc/arm-none-eabi/12.2.0/")
+else
+    global_config.set_compiler_prefix("arm-none-eabi-")
+    global_config.set_compiler("gcc")
+    global_config.set_obj_cp("objcopy")
+end
+
 global_config.set_compile_flag("-Wall -Werror")
 
 

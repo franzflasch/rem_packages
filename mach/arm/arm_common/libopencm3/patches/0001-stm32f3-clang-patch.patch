@@ -1,0 +1,26 @@
+From 7f6c7d6447e43d8a5bcc754954830dc604e884fb Mon Sep 17 00:00:00 2001
+From: Franz Flasch <franz.flasch@gmx.at>
+Date: Wed, 5 Apr 2023 08:28:36 +0000
+Subject: [PATCH] stm32f3 clang patch
+
+---
+ lib/stm32/f3/Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/lib/stm32/f3/Makefile b/lib/stm32/f3/Makefile
+index 359dc743..89bb2084 100644
+--- a/lib/stm32/f3/Makefile
++++ b/lib/stm32/f3/Makefile
+@@ -21,7 +21,8 @@ LIBNAME		= libopencm3_stm32f3
+ SRCLIBDIR	?= ../..
+ 
+ FP_FLAGS	?= -mfloat-abi=hard -mfpu=fpv4-sp-d16
+-CC		= $(PREFIX)gcc
++CC = clang -target $(PREFIX)
++CFLAGS += --sysroot=/opt/local/cross-tool-cortex-m4-gcc12/arm-none-eabi/
+ AR		= $(PREFIX)ar
+ TGT_CFLAGS	= -Os \
+ 		  -Wall -Wextra -Wimplicit-function-declaration \
+-- 
+2.34.1
+

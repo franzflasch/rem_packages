@@ -12,9 +12,6 @@ sw_package.set_inc("include/")
 sw_package.set_uri("https://github.com/libopencm3/libopencm3.git;src_rev=#{commit_version}")
 sw_package.set_global_linker_flags("-L #{sw_package.pkg_build_dir}/lib/")
 
-# this patch is from pull request (https://github.com/libopencm3/libopencm3/pull/629) which fixes ADC bugs for F3
-# sw_package.set_patch("hf_patches/karlp_adc.patch")
-
 sw_package.set_arch("arm")
 
 if global_config.get_mach() == "stm32f1"
@@ -27,6 +24,9 @@ if global_config.get_mach() == "stm32f3"
 	target_to_build = "stm32/f3"
 	sw_package.set_global_linker_flags("-lopencm3_stm32f3")
 	sw_package.set_global_linker_flags("-T #{sw_package.get_pkg_work_dir}/stm32f3-discovery.ld")
+	if(USE_CLANG == "1")
+		sw_package.set_patch("patches/0001-stm32f3-clang-patch.patch")
+	end
 end
 
 if global_config.get_mach() == "stm32f4"
@@ -40,7 +40,11 @@ end
 sw_package.invalidate_build_funcs()
 
 sw_package.override_func :do_compile do
-	execute "make -C #{sw_package.get_pkg_work_dir} TARGETS=#{target_to_build} PREFIX=#{global_config.get_compiler_prefix}"
+	if(USE_CLANG == "1")
+		execute "make -C #{sw_package.get_pkg_work_dir} TARGETS=#{target_to_build} PREFIX=arm-none-eabi-"
+	else
+		execute "make -C #{sw_package.get_pkg_work_dir} TARGETS=#{target_to_build} PREFIX=#{global_config.get_compiler_prefix}"
+	end
 end
 
 sw_package.override_func :do_compile_clean do
