@@ -18,8 +18,8 @@
     along with REM.  If not, see <http://www.gnu.org/licenses/>.
 =end
 
-global_config.set_compiler("sdcc")
+global_config.set_c_compiler("sdcc")
 global_config.set_obj_extension("rel")
-global_config.set_compile_flag("--opt-code-size --stack-auto --Werror")
+global_config.set_c_flag("--opt-code-size --stack-auto --Werror")
 
 require "#{global_config.get_rakefile_dir()}/scripts/build_functions/sdcc/default.rb"

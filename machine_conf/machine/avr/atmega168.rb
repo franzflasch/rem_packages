@@ -20,5 +20,5 @@
 
 require_relative './avr'
 
-global_config.set_compile_flag("-g -Os -mmcu=atmega168p")
+global_config.set_c_flag("-g -Os -mmcu=atmega168p")
 global_config.set_link_flag("-g -mmcu=atmega168p")

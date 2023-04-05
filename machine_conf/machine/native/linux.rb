@@ -20,5 +20,5 @@
 
 require_relative './native'
 
-global_config.set_compile_flag("-Os -g -fno-common -ffunction-sections -fdata-sections")
+global_config.set_c_flag("-Os -g -fno-common -ffunction-sections -fdata-sections")
 global_config.set_link_flag("--static -Wl,--gc-sections")

@@ -20,6 +20,6 @@
 
 require_relative './8051'
 
-global_config.set_compile_flag("--model-large --std-c99")
+global_config.set_c_flag("--model-large --std-c99")
 global_config.set_link_flag("--model-large --std-c99")
 

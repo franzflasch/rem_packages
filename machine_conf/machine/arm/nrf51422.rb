@@ -20,5 +20,5 @@
 
 require_relative './arm'
 
-global_config.set_compile_flag("-MP -MD -std=c99 -mcpu=cortex-m0 -mthumb -mabi=aapcs -Wall -Werror -Os -g3 -mfloat-abi=soft -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin --short-enums")
+global_config.set_c_flag("-MP -MD -std=c99 -mcpu=cortex-m0 -mthumb -mabi=aapcs -Wall -Werror -Os -g3 -mfloat-abi=soft -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin --short-enums")
 global_config.set_link_flag("-mthumb -mabi=aapcs -mcpu=cortex-m0 -Wl,--gc-sections -lc -lnosys -lm")

@@ -19,9 +19,9 @@
 =end
 
 global_config.set_compiler_prefix("avr-")
-global_config.set_compiler("gcc")
+global_config.set_c_compiler("gcc")
 global_config.set_obj_cp("objcopy")
-global_config.set_compile_flag("-Wall -Werror")
+global_config.set_c_flag("-Wall -Werror")
 global_config.set_objcopy_flag("-R .eeprom -R .fuse -R .lock -R .signature")
 
 require "#{global_config.get_rakefile_dir()}/scripts/build_functions/gcc/default.rb"

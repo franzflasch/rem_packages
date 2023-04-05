@@ -20,5 +20,5 @@
 
 require_relative './risc-v'
 
-global_config.set_compile_flag("-O3 -g -fno-builtin-printf -fdata-sections -ffunction-sections -march=rv32imac -mabi=ilp32 -mcmodel=medany")
+global_config.set_c_flag("-O3 -g -fno-builtin-printf -fdata-sections -ffunction-sections -march=rv32imac -mabi=ilp32 -mcmodel=medany")
 global_config.set_link_flag("-Wl,--gc-sections")

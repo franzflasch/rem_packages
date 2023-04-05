@@ -20,5 +20,5 @@
 
 require_relative './arm'
 
-global_config.set_compile_flag("-Os -g -fno-common -ffunction-sections -fdata-sections -MD -mthumb -mcpu=cortex-m0")
+global_config.set_c_flag("-Os -g -fno-common -ffunction-sections -fdata-sections -MD -mthumb -mcpu=cortex-m0")
 global_config.set_link_flag("--static -Wl,--gc-sections -mthumb -mcpu=cortex-m0 -mabi=aapcs -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group")

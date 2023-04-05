@@ -20,5 +20,5 @@
 
 require_relative './PIC32'
 
-global_config.set_compile_flag("-EL -march=m14k -msoft-float -g3 -fno-common -ffunction-sections -fdata-sections -Os")
+global_config.set_c_flag("-EL -march=m14k -msoft-float -g3 -fno-common -ffunction-sections -fdata-sections -Os")
 global_config.set_link_flag("-EL -march=m14k -msoft-float --static -nostartfiles -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group -Wl,--gc-sections")
