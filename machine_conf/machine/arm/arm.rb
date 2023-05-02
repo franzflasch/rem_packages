@@ -20,7 +20,7 @@
 
 if(USE_CLANG == "1")
     global_config.set_c_compiler("clang -target arm-none-eabi")
-    global_config.set_obj_cp("llvm-objcopy-14")
+    global_config.set_obj_cp("llvm-objcopy")
 
     # we still need some header files and libraries even when we build with clang
     # to get those library search dirs do, please change appropriately:
