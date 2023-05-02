@@ -36,5 +36,6 @@ end
 
 global_config.set_c_flag("-Wall -Werror")
 
+global_config.set_link_flag("-z noexecstack")
 
 require "#{global_config.get_rakefile_dir()}/scripts/build_functions/gcc/default.rb"

@@ -1,26 +1,28 @@
-From 7f6c7d6447e43d8a5bcc754954830dc604e884fb Mon Sep 17 00:00:00 2001
+From a132cf021ad8d6eecdb607ff9d1ef19d24fbea2d Mon Sep 17 00:00:00 2001
 From: Franz Flasch <franz.flasch@gmx.at>
-Date: Wed, 5 Apr 2023 08:28:36 +0000
-Subject: [PATCH] stm32f3 clang patch
+Date: Wed, 12 Apr 2023 07:04:21 +0000
+Subject: [PATCH] Add CLANG support for stm32f3
 
 ---
- lib/stm32/f3/Makefile | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ lib/stm32/f3/Makefile | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/lib/stm32/f3/Makefile b/lib/stm32/f3/Makefile
-index 359dc743..89bb2084 100644
+index 359dc743..d5a00cdb 100644
 --- a/lib/stm32/f3/Makefile
 +++ b/lib/stm32/f3/Makefile
-@@ -21,7 +21,8 @@ LIBNAME		= libopencm3_stm32f3
+@@ -21,8 +21,9 @@ LIBNAME		= libopencm3_stm32f3
  SRCLIBDIR	?= ../..
  
  FP_FLAGS	?= -mfloat-abi=hard -mfpu=fpv4-sp-d16
 -CC		= $(PREFIX)gcc
+-AR		= $(PREFIX)ar
 +CC = clang -target $(PREFIX)
 +CFLAGS += --sysroot=/opt/local/cross-tool-cortex-m4-gcc12/arm-none-eabi/
- AR		= $(PREFIX)ar
++AR		= llvm-ar-14
  TGT_CFLAGS	= -Os \
  		  -Wall -Wextra -Wimplicit-function-declaration \
+ 		  -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes \
 -- 
 2.34.1
 

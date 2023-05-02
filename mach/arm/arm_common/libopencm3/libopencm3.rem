@@ -18,6 +18,9 @@ if global_config.get_mach() == "stm32f1"
 	target_to_build = "stm32/f1"
 	sw_package.set_global_linker_flags("-lopencm3_stm32f1")
 	sw_package.set_global_linker_flags("-T #{sw_package.get_pkg_work_dir}/stm32f1-discovery.ld")
+	if(USE_CLANG == "1")
+		sw_package.set_patch("patches/0001-Add-CLANG-support-for-stm32f1.patch")
+	end
 end
 
 if global_config.get_mach() == "stm32f3"
@@ -25,7 +28,7 @@ if global_config.get_mach() == "stm32f3"
 	sw_package.set_global_linker_flags("-lopencm3_stm32f3")
 	sw_package.set_global_linker_flags("-T #{sw_package.get_pkg_work_dir}/stm32f3-discovery.ld")
 	if(USE_CLANG == "1")
-		sw_package.set_patch("patches/0001-stm32f3-clang-patch.patch")
+		sw_package.set_patch("patches/0001-Add-CLANG-support-for-stm32f3.patch")
 	end
 end
 
@@ -33,6 +36,9 @@ if global_config.get_mach() == "stm32f4"
 	target_to_build = "stm32/f4"
 	sw_package.set_global_linker_flags("-lopencm3_stm32f4")
 	sw_package.set_global_linker_flags("-T #{sw_package.get_pkg_work_dir}/stm32f4-discovery.ld")
+	if(USE_CLANG == "1")
+		sw_package.set_patch("patches/0001-Add-CLANG-support-for-stm32f4.patch")
+	end
 end
 
 

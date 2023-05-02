@@ -1,0 +1,28 @@
+From 4980c74a11580128a37094d3fe61a6e6ed66cb49 Mon Sep 17 00:00:00 2001
+From: Franz Flasch <franz.flasch@gmx.at>
+Date: Wed, 12 Apr 2023 15:38:59 +0000
+Subject: [PATCH] Add CLANG support for stm32f1
+
+---
+ lib/stm32/f1/Makefile | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/lib/stm32/f1/Makefile b/lib/stm32/f1/Makefile
+index da0419c0..2682e9e8 100755
+--- a/lib/stm32/f1/Makefile
++++ b/lib/stm32/f1/Makefile
+@@ -20,8 +20,9 @@
+ LIBNAME		= libopencm3_stm32f1
+ SRCLIBDIR	?= ../..
+ 
+-CC		= $(PREFIX)gcc
+-AR		= $(PREFIX)ar
++CC = clang -target $(PREFIX)
++CFLAGS += --sysroot=/opt/local/cross-tool-cortex-m4-gcc12/arm-none-eabi/
++AR		= llvm-ar-14
+ TGT_CFLAGS	= -Os \
+ 		  -Wall -Wextra -Wimplicit-function-declaration \
+ 		  -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes \
+-- 
+2.34.1
+
