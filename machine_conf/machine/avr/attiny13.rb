@@ -1,6 +1,6 @@
 =begin
     
-    Copyright (C) 2015 Franz Flasch <franz.flasch@gmx.at>
+    Copyright (C) 2023 Franz Flasch <franz.flasch@gmx.at>
 
     This file is part of REM - Rake for EMbedded Systems and Microcontrollers.
 
@@ -18,13 +18,7 @@
     along with REM.  If not, see <http://www.gnu.org/licenses/>.
 =end
 
-global_config.set_compiler_prefix("avr-")
-global_config.set_c_compiler("gcc")
-global_config.set_obj_cp("objcopy")
-global_config.set_c_flag("-Wall -Werror")
-global_config.set_objcopy_flag("-R .eeprom -R .fuse -R .lock -R .signature")
+require_relative './avr'
 
-# This is needed for AVR due to some changes in GCC >=12
-global_config.set_c_flag("--param=min-pagesize=0")
-
-require "#{global_config.get_rakefile_dir()}/scripts/build_functions/gcc/default.rb"
+global_config.set_c_flag("-g -Os -mmcu=attiny13")
+global_config.set_link_flag("-g -mmcu=attiny13")
