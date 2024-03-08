@@ -1,0 +1,6 @@
+commit_version = "2ee30120ec15e321566b43f83c731d060bb437f5"
+sw_package.set_src("tinyprintf.c")
+sw_package.set_inc(".")
+sw_package.set_patch("patches/disable_libc_override.patch")
+
+sw_package.set_uri("https://github.com/cjlano/tinyprintf.git;src_rev=#{commit_version}")
