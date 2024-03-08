@@ -1,0 +1,2 @@
+sw_package.set_src("src/sinc_k_filter.c")
+sw_package.set_inc("inc")
