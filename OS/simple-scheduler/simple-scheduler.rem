@@ -1,0 +1,7 @@
+# this is called "avr-simple-scheduler" but it is actually not specific to avr
+commit_version = "712d8e39985e951edce6af5f2f257d92215d3c81"
+sw_package.set_src("Scheduler/OS/OS.c")
+sw_package.set_inc("Scheduler/OS")
+sw_package.set_patch("patches/001_minor_fixes_remove_avr_specifics.patch")
+
+sw_package.set_uri("https://github.com/ferenc-nemeth/avr-simple-scheduler.git;src_rev=#{commit_version}")

@@ -1,31 +1,43 @@
 version = "9.0.0"
-sw_package.set_src("croutine.c")
-sw_package.set_src("event_groups.c")
-sw_package.set_src("list.c")
-sw_package.set_src("queue.c")
-sw_package.set_src("tasks.c")
-sw_package.set_src("timers.c")
+freertos_src_dir = "FreeRTOS-LTS/FreeRTOS/FreeRTOS-Kernel/"
 
-sw_package.set_inc("include")
+sw_package.set_src("#{freertos_src_dir}/croutine.c")
+sw_package.set_src("#{freertos_src_dir}/event_groups.c")
+sw_package.set_src("#{freertos_src_dir}/list.c")
+sw_package.set_src("#{freertos_src_dir}/queue.c")
+sw_package.set_src("#{freertos_src_dir}/tasks.c")
+sw_package.set_src("#{freertos_src_dir}/timers.c")
+
+sw_package.set_inc("#{freertos_src_dir}/include")
 
 #sw_package.set_uri("http://ufpr.dl.sourceforge.net/project/freertos/FreeRTOS/V#{version}/FreeRTOSV#{version}.zip")
 #sw_package.set_uri("http://downloads.sourceforge.net/project/freertos/FreeRTOS/V#{version}/FreeRTOSV#{version}.zip")
-sw_package.set_uri("https://svn.code.sf.net/p/freertos/code/tags/V#{version}/FreeRTOS/Source/;type=svn")
+#sw_package.set_uri("https://svn.code.sf.net/p/freertos/code/tags/V#{version}/FreeRTOS/Source/;type=svn")
 #sw_package.set_uri("http://sourceforge.net/projects/freertos/files/FreeRTOS/V#{version}/FreeRTOSV#{version}.zip")
+sw_package.set_uri("https://github.com/FreeRTOS/FreeRTOS-LTS/releases/download/202210.01-LTS/FreeRTOSv202210.01-LTS.zip")
 sw_package.set_arch("arm")
 
 if global_config.get_mach() == "stm32f1"
 	sw_package.set_inc("stm32/f1/")
-	sw_package.set_inc("portable/GCC/ARM_CM3/")
-	sw_package.set_src("portable/GCC/ARM_CM3/port.c")
-	sw_package.set_src("portable/MemMang/heap_1.c")
+	sw_package.set_inc("#{freertos_src_dir}/portable/GCC/ARM_CM3/")
+	sw_package.set_src("#{freertos_src_dir}/portable/GCC/ARM_CM3/port.c")
+	sw_package.set_src("#{freertos_src_dir}/portable/MemMang/heap_1.c")
 	sw_package.set_def("FREERTOS_USE_LIBOPENCM3")
 end
 
 if global_config.get_mach() == "stm32f3"
 	sw_package.set_inc("stm32/f3/")
-	sw_package.set_inc("portable/GCC/ARM_CM4F/")
-	sw_package.set_src("portable/GCC/ARM_CM4F/port.c")
-	sw_package.set_src("portable/MemMang/heap_1.c")
+	sw_package.set_inc("#{freertos_src_dir}/portable/GCC/ARM_CM4F/")
+	sw_package.set_src("#{freertos_src_dir}/portable/GCC/ARM_CM4F/port.c")
+	sw_package.set_src("#{freertos_src_dir}/portable/MemMang/heap_1.c")
 	sw_package.set_def("FREERTOS_USE_LIBOPENCM3")
+end
+
+if global_config.get_mach() == "stm32f4"
+	sw_package.set_inc("stm32/f4/")
+	sw_package.set_inc("#{freertos_src_dir}/portable/GCC/ARM_CM4F/")
+	sw_package.set_src("#{freertos_src_dir}/portable/GCC/ARM_CM4F/port.c")
+	sw_package.set_src("#{freertos_src_dir}/portable/MemMang/heap_1.c")
+	sw_package.set_def("FREERTOS_USE_LIBOPENCM3")
+	sw_package.set_def("STM32_SYSTEM_CLOCK=168000000")
 end

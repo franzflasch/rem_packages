@@ -1,0 +1,32 @@
+diff --git a/Scheduler/OS/OS.c b/Scheduler/OS/OS.c
+index 33a9a09..0377f45 100644
+--- a/Scheduler/OS/OS.c
++++ b/Scheduler/OS/OS.c
+@@ -29,13 +29,7 @@ OS_feedback OS_TaskCreate(fncPtr function, uint8_t default_time_burst, OS_state
+ {
+     OS_feedback ret = NOK_UNKNOWN;
+ 
+-    /* Null pointer. */
+-    if (NULL == task_array)
+-    {
+-        ret = NOK_NULL_PTR;
+-    }
+-    /* Time limit. */
+-    else if ((OS_MIN_TIME > default_time_burst) || (OS_MAX_TIME < default_time_burst))
++    if ((OS_MIN_TIME > default_time_burst) || (OS_MAX_TIME < default_time_burst))
+     {
+         ret = NOK_TIME_LIMIT;
+     }
+diff --git a/Scheduler/OS/OS.h b/Scheduler/OS/OS.h
+index 28a5dbd..c7f0209 100644
+--- a/Scheduler/OS/OS.h
++++ b/Scheduler/OS/OS.h
+@@ -14,7 +14,7 @@
+ #ifndef OS_H_
+ #define OS_H_
+ 
+-#include <avr/io.h>
++#include <stdint.h>
+ #include <stddef.h>
+ 
+ #define OS_MAX_TASK_NUM ((uint8_t)10u)  /**< Maximal task number that can be registered. */
