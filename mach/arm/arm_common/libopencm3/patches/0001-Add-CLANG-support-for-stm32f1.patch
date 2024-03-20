@@ -18,7 +18,7 @@ index da0419c0..2682e9e8 100755
 -CC		= $(PREFIX)gcc
 -AR		= $(PREFIX)ar
 +CC = clang -target $(PREFIX)
-+CFLAGS += --sysroot=/opt/local/cross-tool-cortex-m4-gcc12/arm-none-eabi/
++CFLAGS += --sysroot=/opt/local/cross-tool-cortex-m4-gcc13/arm-none-eabi/
 +AR		= llvm-ar
  TGT_CFLAGS	= -Os \
  		  -Wall -Wextra -Wimplicit-function-declaration \

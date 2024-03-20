@@ -44,6 +44,7 @@ sw_package.invalidate_build_funcs()
 sw_package.override_func :do_compile do
 	if(USE_CLANG == "1")
 		execute "make -C #{sw_package.get_pkg_work_dir} TARGETS=#{target_to_build} PREFIX=arm-none-eabi-"
+		execute "ENV_DEVICE=#{genlink_device} make -C #{sw_package.get_pkg_work_dir} -f genlink.makefile"
 	else
 		execute "make -C #{sw_package.get_pkg_work_dir} TARGETS=#{target_to_build} PREFIX=#{global_config.get_compiler_prefix}"
 		execute "ENV_DEVICE=#{genlink_device} make -C #{sw_package.get_pkg_work_dir} -f genlink.makefile"
