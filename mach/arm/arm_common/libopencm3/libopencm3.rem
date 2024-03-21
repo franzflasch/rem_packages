@@ -15,24 +15,29 @@ sw_package.set_global_linker_flags("-L #{sw_package.pkg_build_dir}/lib/")
 sw_package.set_arch("arm")
 
 if(USE_CLANG == "1")
-	sw_package.set_patch("patches/0001-Add-CLANG-support-for-stm32f1.patch")
-	sw_package.set_patch("patches/0001-Add-CLANG-support-for-stm32f3.patch")
-	sw_package.set_patch("patches/0001-Add-CLANG-support-for-stm32f4.patch")
+    sw_package.set_patch("patches/0001-Add-CLANG-support-for-stm32f1.patch")
+    sw_package.set_patch("patches/0001-Add-CLANG-support-for-stm32f3.patch")
+    sw_package.set_patch("patches/0001-Add-CLANG-support-for-stm32f4.patch")
 end
 
 if global_config.get_mach() == "stm32f1"
-	target_to_build = "stm32/f1"
-	genlink_device = "stm32f100rbt6b"
+    target_to_build = "stm32/f1"
+    genlink_device = "stm32f100rbt6b"
 end
 
 if global_config.get_mach() == "stm32f3"
-        target_to_build = "stm32/f3"
-	genlink_device = "stm32f303vct6"
+    target_to_build = "stm32/f3"
+    genlink_device = "stm32f303vct6"
 end
 
 if global_config.get_mach() == "stm32f4"
-        target_to_build = "stm32/f4"
-	genlink_device = "stm32f407vgt6"
+    target_to_build = "stm32/f4"
+    genlink_device = "stm32f407vgt6"
+end
+
+if global_config.get_mach() == "stm32l4"
+    target_to_build = "stm32/l4"
+    genlink_device = "stm32l476rg"
 end
 
 sw_package.set_global_linker_flags("-lopencm3_#{global_config.get_mach()}")
@@ -42,15 +47,15 @@ sw_package.set_global_linker_flags("-T #{sw_package.get_pkg_work_dir}/generated.
 sw_package.invalidate_build_funcs()
 
 sw_package.override_func :do_compile do
-	if(USE_CLANG == "1")
-		execute "make -C #{sw_package.get_pkg_work_dir} TARGETS=#{target_to_build} PREFIX=arm-none-eabi-"
-		execute "ENV_DEVICE=#{genlink_device} make -C #{sw_package.get_pkg_work_dir} -f genlink.makefile"
-	else
-		execute "make -C #{sw_package.get_pkg_work_dir} TARGETS=#{target_to_build} PREFIX=#{global_config.get_compiler_prefix}"
-		execute "ENV_DEVICE=#{genlink_device} make -C #{sw_package.get_pkg_work_dir} -f genlink.makefile"
-	end
+    if(USE_CLANG == "1")
+        execute "make -C #{sw_package.get_pkg_work_dir} TARGETS=#{target_to_build} PREFIX=arm-none-eabi-"
+        execute "ENV_DEVICE=#{genlink_device} make -C #{sw_package.get_pkg_work_dir} -f genlink.makefile"
+    else
+        execute "make -C #{sw_package.get_pkg_work_dir} TARGETS=#{target_to_build} PREFIX=#{global_config.get_compiler_prefix}"
+        execute "ENV_DEVICE=#{genlink_device} make -C #{sw_package.get_pkg_work_dir} -f genlink.makefile"
+    end
 end
 
 sw_package.override_func :do_compile_clean do
-	execute "make -C #{sw_package.get_pkg_work_dir} clean PREFIX=#{global_config.get_compiler_prefix}"
+    execute "make -C #{sw_package.get_pkg_work_dir} clean PREFIX=#{global_config.get_compiler_prefix}"
 end
