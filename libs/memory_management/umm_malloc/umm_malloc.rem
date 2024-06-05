@@ -1,0 +1,12 @@
+commit_version = "19f1e010a34d6d991bd381cdd8f4dbbd15d434fd"
+sw_package.set_src("
+    src/umm_info.c
+    src/umm_integrity.c
+    src/umm_malloc.c
+    src/umm_poison.c
+    umm_malloc_cfgport.c
+")
+
+sw_package.set_inc(". src")
+
+sw_package.set_uri("https://github.com/rhempel/umm_malloc.git;src_rev=#{commit_version}")
