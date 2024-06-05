@@ -1,10 +1,35 @@
 #ifndef MOVING_AVG_FILTER_H
 #define MOVING_AVG_FILTER_H
 
+/************** integer (macro) version, creates a new function for each filter **********/
+#define CREATE_MOVING_AVG_FUNCTION(FUNC_NAME, STAGES) \
+static inline int FUNC_NAME(int sample) { \
+    static int filter_stages = STAGES; \
+    static int filter_arr[STAGES] = {0}; \
+    static int pos = 0; \
+    static int curr_val = 0; \
+    \
+    curr_val = curr_val - filter_arr[pos] + sample; \
+    filter_arr[pos] = sample; \
+    \
+    pos++; \
+    \
+    if(pos >= filter_stages) \
+        pos = 0; \
+    \
+    return curr_val / filter_stages; \
+}
+
+/* Example:
+ * CREATE_MOVING_AVG_FUNCTION(moving_avg_10, 10)
+ */
+
+
+/************* float version without array *********************/
 typedef struct moving_average_struct
 {
     float curr_val;
-    float filter_stages;
+    int filter_stages;
 
 } moving_average_td;
 
