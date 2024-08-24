@@ -1,7 +1,5 @@
 commit_version = "9b78802dd6b7002cfe8b13ba871f83dde5acec2a"
 sw_package.set_src("fft.c complex.c")
 sw_package.set_inc(".")
-sw_package.set_patch("patches/use_umm_malloc.patch")
-sw_package.set_dep("umm_malloc")
 
 sw_package.set_uri("https://github.com/jtfell/c-fft.git;src_rev=#{commit_version}")
