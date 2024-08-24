@@ -1,0 +1,49 @@
+From 96be46717555ed9295b5da555a75901f832272ed Mon Sep 17 00:00:00 2001
+From: Franz Flasch <franz.flasch@gmx.at>
+Date: Wed, 19 Jun 2024 09:14:25 +0200
+Subject: [PATCH 2/3] general improvements
+
+---
+ cli.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/cli.c b/cli.c
+index e17357c..f4d60bc 100644
+--- a/cli.c
++++ b/cli.c
+@@ -41,8 +41,8 @@ static volatile uint8_t *buf_ptr;	   /* Pointer to Rx byte-buffer */
+ static uint8_t cmd_buf[MAX_BUF_SIZE]; /* CLI command buffer */
+ static volatile uint8_t cmd_pending;
+ 
+-const char cli_prompt[] = ">> "; /* CLI prompt displayed to the user */
+-const char cli_unrecog[] = "CMD: Command not recognised\r\n";
++const char cli_prompt[] = "\r\n>> "; /* CLI prompt displayed to the user */
++const char cli_unrecog[] = "CMD: Command not recognized";
+ 
+ /*!
+  * @brief This internal API prints a message to the user on the CLI.
+@@ -92,6 +92,9 @@ cli_status_t cli_process(cli_t *cli)
+ 		argv[++argc] = strtok(NULL, " ");
+ 	}
+ 
++	/*first print a new line */
++	cli_print(cli, "\r\n");
++
+ 	/* Search the command table for a matching command, using argv[0]
+ 	 * which is the command name. */
+ 	for(size_t i = 0; i < cli->cmd_cnt; i++) {
+@@ -133,7 +136,11 @@ cli_status_t cli_put(cli_t *cli, char c)
+ 	case '\b':
+ 		/* Backspace. Delete character. */
+ 		if(buf_ptr > buf)
++		{
+ 			buf_ptr--;
++			cli_print(cli, " ");
++			cli_print(cli, "\b");
++		}
+ 		break;
+ 
+ 	default:
+-- 
+2.34.1
+

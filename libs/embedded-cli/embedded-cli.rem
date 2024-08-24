@@ -1,0 +1,8 @@
+commit_version = "e4426750adcc59ad39ba0a9d685ca83705d48817"
+sw_package.set_src("cli.c")
+sw_package.set_inc(".")
+sw_package.set_patch("patches/0001-Fix-warnings.patch")
+sw_package.set_patch("patches/0002-general-improvements.patch")
+sw_package.set_patch("patches/0003-Use-varargs-for-println.patch")
+
+sw_package.set_uri("https://github.com/FARLY7/embedded-cli.git;src_rev=#{commit_version}")

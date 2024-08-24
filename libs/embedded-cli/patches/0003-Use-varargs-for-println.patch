@@ -1,0 +1,25 @@
+From 5a7c94fc24041a3e35d912a68fe2c9fc8c7b12f2 Mon Sep 17 00:00:00 2001
+From: Franz Flasch <franz.flasch@gmx.at>
+Date: Thu, 20 Jun 2024 23:34:53 +0200
+Subject: [PATCH 3/3] Use varargs for println
+
+---
+ cli_defs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cli_defs.h b/cli_defs.h
+index e57e23c..e1ede1d 100644
+--- a/cli_defs.h
++++ b/cli_defs.h
+@@ -25,7 +25,7 @@ typedef enum {
+  * @brief Function type declarations.
+  */
+ typedef cli_status_t (*cmd_func_ptr_t)(int argc, char **argv);
+-typedef void (*println_func_ptr_t)(char *string);
++typedef void (*println_func_ptr_t)(const char *format, ...);
+ 
+ /*!
+  * @brief Command structure, consisting of a name and function pointer.
+-- 
+2.34.1
+
