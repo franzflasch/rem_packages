@@ -4,9 +4,16 @@ sw_package.set_src("
     src/umm_integrity.c
     src/umm_malloc.c
     src/umm_poison.c
-    umm_malloc_cfgport.c
 ")
 
-sw_package.set_inc(". src")
+if global_config.get_arch() == "avr"
+	sw_package.set_src("avr/umm_malloc_cfgport_avr8.c")
+    sw_package.set_inc("avr")
+else
+    sw_package.set_src("generic/umm_malloc_cfgport.c")
+    sw_package.set_inc("generic")
+end
+
+sw_package.set_inc("src")
 
 sw_package.set_uri("https://github.com/rhempel/umm_malloc.git;src_rev=#{commit_version}")
