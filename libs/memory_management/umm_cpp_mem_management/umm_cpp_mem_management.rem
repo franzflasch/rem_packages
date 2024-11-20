@@ -1,0 +1,2 @@
+sw_package.set_src("src/umm_cpp_mem_management.cpp")
+sw_package.set_dep("umm_malloc")
