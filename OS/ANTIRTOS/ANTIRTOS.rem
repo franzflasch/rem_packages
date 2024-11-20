@@ -1,0 +1,6 @@
+commit_version = "4d115b12aa86b87f04e510a6b8015d7701afb075"
+sw_package.set_inc(". src")
+sw_package.set_src("src/antirtos_c_wrapper.cpp")
+sw_package.set_dep("umm_cpp_mem_management")
+
+sw_package.set_uri("https://github.com/WeSpeakEnglish/ANTIRTOS.git;src_rev=#{commit_version}")
