@@ -31,10 +31,12 @@ if(USE_CLANG == "1")
 else
     global_config.set_compiler_prefix("arm-none-eabi-")
     global_config.set_c_compiler("gcc")
+    global_config.set_cpp_compiler("g++")
     global_config.set_obj_cp("objcopy")
 end
 
 global_config.set_c_flag("-Wall -Werror")
+global_config.set_cpp_flag("-Wall -Werror")
 
 global_config.set_link_flag("-z noexecstack")
 
