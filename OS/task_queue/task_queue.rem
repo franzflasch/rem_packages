@@ -1,0 +1,2 @@
+sw_package.set_src("src/task_queue.c")
+sw_package.set_inc("src")
