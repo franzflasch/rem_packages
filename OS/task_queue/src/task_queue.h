@@ -1,9 +1,6 @@
 #ifndef TASK_QUEUE_H
 #define TASK_QUEUE_H
 
-#include <stdio.h>
-#include <stdlib.h>
-
 typedef void (*task_event_cb)(void *private);
 
 typedef struct task_event_struct
