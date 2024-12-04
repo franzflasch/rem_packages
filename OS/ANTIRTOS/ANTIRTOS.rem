@@ -4,4 +4,6 @@ sw_package.set_src("src/antirtos_c_wrapper.cpp")
 sw_package.set_dep("umm_cpp_mem_management")
 sw_package.set_patch("patches/fix-warnings.patch")
 
+sw_package.set_global_linker_flags("-lstdc++")
+
 sw_package.set_uri("https://github.com/WeSpeakEnglish/ANTIRTOS.git;src_rev=#{commit_version}")
