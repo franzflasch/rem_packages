@@ -1,2 +1,5 @@
 sw_package.set_src("src/task_queue.c")
 sw_package.set_inc("src")
+sw_package.set_dep("umm_malloc")
+sw_package.set_def("malloc=umm_calloc")
+sw_package.set_def("free=umm_free")

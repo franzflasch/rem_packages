@@ -8,7 +8,10 @@ void task_queue_init(task_queue_td *task_queue, int elements)
     task_queue->task_events = calloc(elements, sizeof(task_event_td));
 
     if(!task_queue->task_events)
+    {
+        printf("could not alloc task_events\n");
         return;
+    }
 
     task_queue->elements = elements;
     task_queue->read_loc = 0;
